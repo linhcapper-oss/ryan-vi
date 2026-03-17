@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>will ('ll) or (be) going to</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chosen Palette: Crisp White, Slate Grays, with Blue (Primary), Emerald (Correct), Rose (Incorrect) Accents -->
+    <!-- Application Structure Plan: Multi-tab layout for Exercises 1, 2, 3. Global "Submit Worksheet" evaluates all inputs simultaneously. Contextual explanations (hints) are revealed beneath each question. Transitioned to a "Results" dashboard summarizing performance. -->
+    <!-- Visualization & Content Choices: Replaced external Chart.js with a pure HTML/Tailwind CSS stacked progress bar to ensure 100% compatibility in mobile webviews and local file protocols without throwing security or sign-in warnings. Implemented a custom DOM-reset function for restarting instead of location.reload() to fix mobile refresh issues. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
+    <style>
+        .answer-input {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: transparent;
+            color: #1e40af;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+            padding: 0 4px;
+            margin: 0 4px;
+            min-width: 60px;
+            /* CRITICAL FOR MOBILE: Prevents iOS Safari from auto-zooming when focusing input */
+            font-size: 16px !important; 
+        }
+        
+        .answer-input:focus:not([readonly]) {
+            border-bottom: 2px solid #2563eb;
+            background-color: #dbeafe;
+        }
+
+        .answer-input.correct {
+            border-bottom: 2px solid #10b981;
+            color: #047857;
+            background-color: #d1fae5;
+        }
+
+        .answer-input.incorrect {
+            border-bottom: 2px solid #ef4444;
+            color: #b91c1c;
+            background-color: #fee2e2;
+        }
+
+        .answer-input.unanswered {
+            border-bottom: 2px solid #f59e0b;
+            background-color: #fef3c7;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .matching-letter {
+            width: 32px;
+            text-transform: lowercase;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen selection:bg-blue-200">
+
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-blue-900 flex items-center gap-2">
+                📘 will ('ll) or (be) going to
+            </h1>
+            <div id="status-badge" class="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 transition-colors">
+                Status: In Progress
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 relative">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-24">
+            
+            <!-- Navigation Tabs -->
+            <div class="flex flex-wrap border-b border-slate-200 bg-slate-50" id="tab-container">
+                <button onclick="switchTab('1')" id="btn-tab-1" class="flex-1 py-3 md:py-4 px-1 md:px-2 text-sm md:text-base text-center font-semibold text-blue-700 border-b-2 border-blue-600 bg-white transition-colors">Exercise 1</button>
+                <button onclick="switchTab('2')" id="btn-tab-2" class="flex-1 py-3 md:py-4 px-1 md:px-2 text-sm md:text-base text-center font-medium text-slate-500 border-b-2 border-transparent hover:text-blue-600 transition-colors">Exercise 2</button>
+                <button onclick="switchTab('3')" id="btn-tab-3" class="flex-1 py-3 md:py-4 px-1 md:px-2 text-sm md:text-base text-center font-medium text-slate-500 border-b-2 border-transparent hover:text-blue-600 transition-colors">Exercise 3</button>
+                <button onclick="switchTab('R')" id="btn-tab-R" class="flex-1 py-3 md:py-4 px-1 md:px-2 text-sm md:text-base text-center font-medium text-slate-500 border-b-2 border-transparent hover:text-blue-600 transition-colors hidden">📊 Results</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="p-4 md:p-8 min-h-[500px]">
+                
+                <!-- Exercise 1 -->
+                <div id="content-1" class="fade-in block">
+                    <div class="mb-6 pb-4 border-b border-slate-100">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-2">1 Complete the sentences using <span class="text-blue-600 font-mono">will ('ll)</span> or <span class="text-blue-600 font-mono">(be) going to</span>.</h2>
+                        <p class="text-slate-500 text-sm">Fill in the blanks with the correct form. Use the verbs in brackets.</p>
+                    </div>
+                    <div id="q-container-1" class="space-y-6"></div>
+                </div>
+
+                <!-- Exercise 2 -->
+                <div id="content-2" class="fade-in hidden">
+                    <div class="mb-6 pb-4 border-b border-slate-100">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-2">2 Read the situations and complete the sentences using <span class="text-blue-600 font-mono">will ('ll)</span> or <span class="text-blue-600 font-mono">(be) going to</span>.</h2>
+                        <p class="text-slate-500 text-sm">Read the context provided for each situation carefully to decide which tense is appropriate.</p>
+                    </div>
+                    <div id="q-container-2" class="space-y-6"></div>
+                </div>
+
+                <!-- Exercise 3 -->
+                <div id="content-3" class="fade-in hidden">
+                    <div class="mb-6 pb-4 border-b border-slate-100">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-2">3 Which goes with which?</h2>
+                        <p class="text-slate-500 text-sm">Match the sentences (1-8) with the correct continuations (a-h). Type the correct letter in the box.</p>
+                    </div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-6 items-start">
+                        <div class="bg-slate-50 p-4 md:p-5 rounded-xl border border-slate-200 overflow-x-auto">
+                            <div class="space-y-4 min-w-[280px]" id="q-container-3-left">
+                                <!-- Left side generated by JS -->
+                            </div>
+                        </div>
+                        <div class="bg-amber-50 p-4 md:p-5 rounded-xl border border-amber-200 text-slate-700">
+                            <ul class="space-y-3 font-medium">
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">a</span> He'll get what he wants.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">b</span> He probably won't remember me.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">c</span> It's going to be a nice day.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">d</span> It looks as if it's going to fall down.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">e</span> It's going to be 200 metres high.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold line-through opacity-50">f</span> <span class="line-through opacity-50">You'll enjoy it.</span></li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">g</span> I don't think it will fit in the room.</li>
+                                <li><span class="inline-block w-6 text-amber-600 font-bold">h</span> I think he's going to fall asleep.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div id="content-R" class="fade-in hidden">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-3">Worksheet Results</h2>
+                        <p class="text-slate-600">You can now navigate back to the previous tabs to review your answers and read the teacher's explanations.</p>
+                    </div>
+                    
+                    <div class="max-w-2xl mx-auto space-y-8">
+                        
+                        <!-- Simple Pure CSS Progress Bar -->
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex justify-between font-bold text-lg border-b border-slate-100 pb-3 mb-4">
+                                <span>Overall Score:</span>
+                                <span id="score-text" class="text-blue-700">0/24</span>
+                            </div>
+                            
+                            <div class="w-full h-8 flex rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+                                <div id="bar-correct" class="h-full bg-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
+                                <div id="bar-incorrect" class="h-full bg-rose-500 transition-all duration-700 ease-out" style="width: 0%"></div>
+                                <div id="bar-unanswered" class="h-full bg-amber-400 transition-all duration-700 ease-out" style="width: 0%"></div>
+                            </div>
+
+                            <div class="flex flex-wrap justify-center gap-4 text-sm font-medium mt-6">
+                                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-lg border border-emerald-100 text-emerald-800">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Correct: <span id="score-correct" class="font-bold text-lg">0</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg border border-rose-100 text-rose-800">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500"></span> Incorrect: <span id="score-incorrect" class="font-bold text-lg">0</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100 text-amber-800">
+                                    <span class="w-3 h-3 rounded-full bg-amber-400"></span> Unanswered: <span id="score-unanswered" class="font-bold text-lg">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="restartWorksheet()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-colors text-base md:text-lg flex justify-center items-center gap-2">
+                            🔄 Restart Worksheet
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sticky Submit Footer -->
+        <div id="submit-footer" class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 z-30 transition-transform duration-300">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <p class="text-slate-600 font-medium hidden md:block text-sm">Make sure you have completed all 3 exercises before submitting.</p>
+                <button onclick="submitWorksheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all transform hover:scale-105 w-full md:w-auto text-base md:text-lg flex justify-center items-center gap-2">
+                    ✅ Submit Worksheet
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Structure
+        const ex1Data = [
+            { id: '1-1', q: "A: Why are you turning on the TV?<br>B: <span class='text-blue-700 font-medium'>I'm going to watch</span> the news. (I / watch)", type: 'given' },
+            { id: '1-2', q: "A: I forgot my wallet. I don't have any money.<br>B: Not to worry. {input} you some. (I / lend)", ans: ["i'll lend", "i will lend"], placeholder: "(I / lend)", width: "w-32", expl: "Use <b>will</b> for a spontaneous decision or offer made at the time of speaking." },
+            { id: '1-3', q: "A: Why are you filling that bucket with water?<br>B: {input} the car. (I / wash)", ans: ["i'm going to wash", "i am going to wash"], placeholder: "(I / wash)", width: "w-44", expl: "Use <b>going to</b> for a prior intention. The decision to wash the car was made before the conversation started (evidence: filling the bucket)." },
+            { id: '1-4', q: "A: I don't know how to use the washing machine.<br>B: It's easy. {input} you. (I / show)", ans: ["i'll show", "i will show"], placeholder: "(I / show)", width: "w-32", expl: "Use <b>will</b> for an offer to help made at the moment of speaking." },
+            { id: '1-5', q: "A: I've decided to paint this room.<br>B: That's nice. What colour {input} it? (you / paint)", ans: ["are you going to paint"], placeholder: "(you / paint)", width: "w-48", expl: "Use <b>going to</b> when asking about someone's existing plan or intention." },
+            { id: '1-6', q: "A: Where are you going? Are you going shopping?<br>B: Yes, {input} some things for dinner tonight. (I / buy)", ans: ["i'm going to buy", "i am going to buy"], placeholder: "(I / buy)", width: "w-44", expl: "Use <b>going to</b> for a plan/intention that has already been made." },
+            { id: '1-7', q: "A: What would you like to eat?<br>B: {input} a pizza, please. (I / have)", ans: ["i'll have", "i will have"], placeholder: "(I / have)", width: "w-32", expl: "Use <b>will</b> when making a decision at the time of speaking (like ordering food at a restaurant)." },
+            { id: '1-8', q: "A: This food doesn't taste very good, does it?<br>B: No, it's horrible. {input} it. (I / not / finish)", ans: ["i'm not going to finish", "i am not going to finish", "i won't finish", "i will not finish"], placeholder: "(I / not / finish)", width: "w-52", expl: "Both can be acceptable here. <b>going to</b> (intention based on current evidence that it tastes bad) or <b>won't</b> (firm spontaneous decision)." },
+            { id: '1-9', q: "A: Tom is starting an evening class next month.<br>B: Is he? What {input}? (he / study)", ans: ["is he going to study"], placeholder: "(he / study)", width: "w-48", expl: "Use <b>going to</b> when asking about a pre-arranged plan." },
+            { id: '1-10', q: "A: Did you call Lisa?<br>B: Oh, no. I completely forgot. {input} her now. (I / call)", ans: ["i'll call", "i will call"], placeholder: "(I / call)", width: "w-32", expl: "Use <b>will</b> for a sudden decision made right at the moment of speaking (after realizing you forgot)." },
+            { id: '1-11a', q: "A: Has Dan decided what to do when he leaves school?<br>B: Yes. Everything is planned. First {input} a holiday for a few weeks. (he / have)", ans: ["he's going to have", "he is going to have"], placeholder: "(he / have)", width: "w-48", expl: "Use <b>going to</b> because it explicitly states 'Everything is planned'." },
+            { id: '1-11b', q: "Then {input} a management training course. (he / do)", ans: ["he's going to do", "he is going to do"], placeholder: "(he / do)", width: "w-48", expl: "Use <b>going to</b> for the continuation of his planned actions." }
+        ];
+
+        const ex2Data = [
+            { id: '2-1', q: "You want some coffee. You go to the kitchen to make some.<br>You say (to your friend): <span class='text-blue-700 font-medium'>I'm going to make</span> some coffee. Would you like some?", type: 'given' },
+            { id: '2-2', q: "You're speaking to a friend and arranging to meet. You suggest a time and place.<br>You say: {input} you at 10.30 in the hotel lobby, OK? (I/see)", ans: ["i'll see", "i will see"], placeholder: "(I / see)", width: "w-32", expl: "Use <b>will</b> for making a suggestion or deciding a detail at the moment of speaking." },
+            { id: '2-3', q: "You have decided to sell your car. You tell a friend of yours.<br>You say: I don't need my car any more. {input} it. (I/sell)", ans: ["i'm going to sell", "i am going to sell"], placeholder: "(I / sell)", width: "w-44", expl: "Use <b>going to</b> because the prompt says 'You have decided...' (prior intention)." },
+            { id: '2-4', q: "Your friend is worried because she has lost her driving licence.<br>You say: Don't worry. I'm sure {input} it. (you/find)", ans: ["you'll find", "you will find"], placeholder: "(you / find)", width: "w-32", expl: "Use <b>will</b> for a prediction or opinion, especially common after 'I'm sure...' or 'I think...'." },
+            { id: '2-5a', q: "You have an old camera that is broken. You have decided to throw it away. You tell your friend.<br>You say: This camera is broken. {input} it away. (I/throw)", ans: ["i'm going to throw", "i am going to throw"], placeholder: "(I / throw)", width: "w-44", expl: "Use <b>going to</b> because it's a decision already made before speaking." },
+            { id: '2-5b', q: "Your friend loves and collects old cameras. He doesn't want you to throw it away.<br>He says: Don't throw it away! {input} it. (I/have)", ans: ["i'll have", "i will have"], placeholder: "(I / have)", width: "w-32", expl: "Use <b>will</b> for his sudden decision/offer made at the exact moment he hears you are throwing it away." },
+            { id: '2-6a', q: "Joe has to go to the airport tomorrow. He doesn't know how to get there. Amy offers to take him.<br>Amy says: Don't worry about getting to the airport, Joe. {input} you. (I/take)", ans: ["i'll take", "i will take"], placeholder: "(I / take)", width: "w-32", expl: "Use <b>will</b> because Amy is making an offer at the time of speaking." },
+            { id: '2-6b', q: "Later that day, Paul offers to take Joe to the airport. Joe tells him that it's not necessary.<br>Joe says: Thanks, Paul, but {input} me. (Amy/take)", ans: ["amy is going to take", "amy's going to take"], placeholder: "(Amy / take)", width: "w-48", expl: "Use <b>going to</b> because the arrangement with Amy has already been established earlier." }
+        ];
+
+        const ex3Data = [
+            { id: '3-1', text: "Why don't you come to the party with us?", match: "f", type: 'given' },
+            { id: '3-2', text: "That ceiling looks dangerous.", match: "d", expl: "Current visual evidence ('looks dangerous') points to what will happen -> <b>going to</b> fall down." },
+            { id: '3-3', text: "He's looking very tired.", match: "h", expl: "Current visual evidence ('looking very tired') -> <b>going to</b> fall asleep." },
+            { id: '3-4', text: "This table is too big.", match: "g", expl: "Opinion/Prediction ('I don't think...') -> <b>will</b>." },
+            { id: '3-5', text: "The weather forecast is good.", match: "c", expl: "Prediction based on outside evidence (the forecast) -> <b>going to</b>." },
+            { id: '3-6', text: "Jack is very determined.", match: "a", expl: "Prediction based on someone's general character -> <b>will</b>." },
+            { id: '3-7', text: "They are building a new skyscraper here.", match: "e", expl: "Statement of a planned fact that is visibly underway -> <b>going to</b>." },
+            { id: '3-8', text: "I haven't seen Ben for ages.", match: "b", expl: "Prediction/Opinion heavily modified by 'probably' -> <b>won't</b> (will not)." }
+        ];
+
+        let hasSubmitted = false;
+        const totalInputs = 24; // 11 in Ex1 + 7 in Ex2 + 6 in Ex3
+
+        function renderExercises() {
+            // Render Ex 1
+            const c1 = document.getElementById('q-container-1');
+            let h1 = '';
+            ex1Data.forEach((item, index) => {
+                let number = index + 1;
+                if(item.id.includes('b')) number = '';
+                
+                let content = item.q;
+                if(item.type !== 'given') {
+                    content = content.replace('{input}', `<input type="text" id="in-${item.id}" class="answer-input ${item.width}" placeholder="${item.placeholder}">`);
+                }
+                
+                h1 += `
+                <div class="flex gap-2 md:gap-4 group">
+                    <div class="w-5 md:w-6 font-bold text-slate-400 text-right shrink-0 mt-0.5">${number}</div>
+                    <div class="flex-1">
+                        <p class="text-base md:text-lg text-slate-800 leading-relaxed">${content}</p>
+                        ${item.type !== 'given' ? `<div id="hint-${item.id}" class="hidden mt-3 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm text-slate-700 fade-in"><span class="font-bold text-blue-800">Hint:</span> ${item.expl}</div>` : ''}
+                    </div>
+                </div>`;
+            });
+            c1.innerHTML = h1;
+
+            // Render Ex 2
+            const c2 = document.getElementById('q-container-2');
+            let h2 = '';
+            ex2Data.forEach((item, index) => {
+                let number = index + 1;
+                if(item.id.includes('b')) number = '';
+                
+                let content = item.q;
+                if(item.type !== 'given') {
+                    content = content.replace('{input}', `<input type="text" id="in-${item.id}" class="answer-input ${item.width}" placeholder="${item.placeholder}">`);
+                }
+                
+                h2 += `
+                <div class="flex gap-2 md:gap-4 group">
+                    <div class="w-5 md:w-6 font-bold text-slate-400 text-right shrink-0 mt-0.5">${number}</div>
+                    <div class="flex-1">
+                        <p class="text-base md:text-lg text-slate-800 leading-relaxed">${content}</p>
+                        ${item.type !== 'given' ? `<div id="hint-${item.id}" class="hidden mt-3 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm text-slate-700 fade-in"><span class="font-bold text-blue-800">Hint:</span> ${item.expl}</div>` : ''}
+                    </div>
+                </div>`;
+            });
+            c2.innerHTML = h2;
+
+            // Render Ex 3
+            const c3 = document.getElementById('q-container-3-left');
+            let h3 = '';
+            ex3Data.forEach((item, index) => {
+                let inputHtml = item.type === 'given' 
+                    ? `<span class="inline-block w-8 text-center font-bold text-blue-600 border-b-2 border-slate-300 mx-2">${item.match}</span>`
+                    : `[ <input type="text" id="in-${item.id}" class="answer-input matching-letter mx-1" maxlength="1"> ]`;
+                
+                h3 += `
+                <div class="mb-4">
+                    <div class="flex items-center text-base md:text-lg text-slate-800">
+                        <span class="w-5 md:w-6 font-bold text-slate-400 text-right mr-2 md:mr-3">${index + 1}</span>
+                        <div class="flex-1 flex justify-between items-center border-b border-dashed border-slate-200 pb-1">
+                            <span class="pr-2 leading-snug">${item.text}</span>
+                            <span class="shrink-0">${inputHtml}</span>
+                        </div>
+                    </div>
+                    ${item.type !== 'given' ? `<div id="hint-${item.id}" class="hidden ml-7 md:ml-9 mt-2 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm text-slate-700 fade-in"><span class="font-bold text-blue-800">Why?</span> ${item.expl} <br><span class="text-emerald-700 font-semibold mt-1 inline-block">Correct match: ${item.match}</span></div>` : ''}
+                </div>`;
+            });
+            c3.innerHTML = h3;
+        }
+
+        function switchTab(tabId) {
+            ['1', '2', '3', 'R'].forEach(id => {
+                document.getElementById(`content-${id}`).classList.add('hidden');
+                document.getElementById(`content-${id}`).classList.remove('block');
+                
+                const btn = document.getElementById(`btn-tab-${id}`);
+                if(btn) {
+                    btn.classList.remove('text-blue-700', 'border-blue-600', 'bg-white');
+                    btn.classList.add('text-slate-500', 'border-transparent');
+                }
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            document.getElementById(`content-${tabId}`).classList.add('block');
+            
+            const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-blue-700', 'border-blue-600', 'bg-white');
+                activeBtn.classList.remove('text-slate-500', 'border-transparent');
+            }
+            
+            // Auto scroll to top on tab switch
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cleanString(str) {
+            return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function evaluateInput(inputId, validAnswers, stats) {
+            const inputEl = document.getElementById(inputId);
+            if(!inputEl) return;
+            
+            const rawVal = inputEl.value;
+            // Remove previous error markings if any (for restart functionality)
+            inputEl.value = rawVal.replace(' ❌', '');
+            const cleanedRawVal = inputEl.value;
+            const userVal = cleanString(cleanedRawVal);
+            
+            inputEl.readOnly = true;
+            inputEl.classList.remove('correct', 'incorrect', 'unanswered');
+            
+            if(cleanedRawVal.trim() === '') {
+                inputEl.classList.add('unanswered');
+                stats.unanswered++;
+                return;
+            }
+
+            let isCorrect = false;
+            for(let ans of validAnswers) {
+                if(userVal === cleanString(ans)) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            if(isCorrect) {
+                inputEl.classList.add('correct');
+                stats.correct++;
+            } else {
+                inputEl.classList.add('incorrect');
+                inputEl.value = cleanedRawVal + " ❌"; 
+                stats.incorrect++;
+            }
+        }
+
+        function submitWorksheet() {
+            if(hasSubmitted) return;
+            hasSubmitted = true;
+
+            let stats = { correct: 0, incorrect: 0, unanswered: 0 };
+
+            ex1Data.filter(d => d.type !== 'given').forEach(q => { evaluateInput(`in-${q.id}`, q.ans, stats); document.getElementById(`hint-${q.id}`).classList.remove('hidden'); });
+            ex2Data.filter(d => d.type !== 'given').forEach(q => { evaluateInput(`in-${q.id}`, q.ans, stats); document.getElementById(`hint-${q.id}`).classList.remove('hidden'); });
+            ex3Data.filter(d => d.type !== 'given').forEach(q => { evaluateInput(`in-${q.id}`, [q.match], stats); document.getElementById(`hint-${q.id}`).classList.remove('hidden'); });
+
+            // Update UI
+            document.getElementById('submit-footer').classList.add('translate-y-full'); 
+            document.getElementById('btn-tab-R').classList.remove('hidden'); 
+            
+            const badge = document.getElementById('status-badge');
+            badge.textContent = 'Status: Completed';
+            badge.classList.replace('bg-slate-100', 'bg-emerald-100');
+            badge.classList.replace('text-slate-500', 'text-emerald-700');
+            
+            renderResults(stats);
+            switchTab('R');
+        }
+
+        function renderResults(stats) {
+            document.getElementById('score-correct').textContent = stats.correct;
+            document.getElementById('score-incorrect').textContent = stats.incorrect;
+            document.getElementById('score-unanswered').textContent = stats.unanswered;
+            document.getElementById('score-text').textContent = `${stats.correct}/${totalInputs}`;
+
+            const pctCorrect = (stats.correct / totalInputs) * 100;
+            const pctIncorrect = (stats.incorrect / totalInputs) * 100;
+            const pctUnanswered = (stats.unanswered / totalInputs) * 100;
+
+            // Small timeout to allow CSS transition to play after display:block
+            setTimeout(() => {
+                document.getElementById('bar-correct').style.width = `${pctCorrect}%`;
+                document.getElementById('bar-incorrect').style.width = `${pctIncorrect}%`;
+                document.getElementById('bar-unanswered').style.width = `${pctUnanswered}%`;
+            }, 50);
+        }
+
+        // Custom Restart Function without using location.reload()
+        function restartWorksheet() {
+            hasSubmitted = false;
+            
+            // Clear all inputs and reset their states
+            document.querySelectorAll('.answer-input').forEach(input => {
+                input.value = '';
+                input.readOnly = false;
+                input.classList.remove('correct', 'incorrect', 'unanswered');
+            });
+            
+            // Hide all hints
+            document.querySelectorAll('[id^="hint-"]').forEach(hint => {
+                hint.classList.add('hidden');
+            });
+            
+            // Reset Progress Bars
+            document.getElementById('bar-correct').style.width = '0%';
+            document.getElementById('bar-incorrect').style.width = '0%';
+            document.getElementById('bar-unanswered').style.width = '0%';
+            
+            // Show submit footer, hide results tab button
+            document.getElementById('submit-footer').classList.remove('translate-y-full');
+            document.getElementById('btn-tab-R').classList.add('hidden');
+            
+            // Reset Status Badge
+            const badge = document.getElementById('status-badge');
+            badge.textContent = 'Status: In Progress';
+            badge.classList.replace('bg-emerald-100', 'bg-slate-100');
+            badge.classList.replace('text-emerald-700', 'text-slate-500');
+            
+            // Go back to the first exercise
+            switchTab('1');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize App
+        window.onload = () => {
+            renderExercises();
+        };
+
+    </script>
+</body>
+</html>
