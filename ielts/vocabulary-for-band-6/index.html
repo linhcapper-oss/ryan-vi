@@ -1,579 +1,578 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { BookOpen, Layers, HelpCircle, ChevronRight, ChevronLeft, RefreshCw, CheckCircle2, XCircle, Shuffle } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Vocabulary for Band 6.0</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (để biên dịch JSX ngay trên trình duyệt) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-const VOCAB_DATA = [
-  // 1) Education
-  { topic: "Education", en: "education", type: "n", ipa: "/ˌedʒʊˈkeɪʃən/", vn: "giáo dục" },
-  { topic: "Education", en: "academic performance", type: "n.phr", ipa: "/ˌækəˈdemɪk pəˈfɔːməns/", vn: "kết quả học tập" },
-  { topic: "Education", en: "curriculum", type: "n", ipa: "/kəˈrɪkjələm/", vn: "chương trình học" },
-  { topic: "Education", en: "qualification", type: "n", ipa: "/ˌkwɒlɪfɪˈkeɪʃən/", vn: "bằng cấp" },
-  { topic: "Education", en: "assignment", type: "n", ipa: "/əˈsaɪnmənt/", vn: "bài tập" },
-  { topic: "Education", en: "deadline", type: "n", ipa: "/ˈdedlaɪn/", vn: "hạn chót" },
-  { topic: "Education", en: "concentrate", type: "v", ipa: "/ˈkɒnsəntreɪt/", vn: "tập trung" },
-  { topic: "Education", en: "distract", type: "v", ipa: "/dɪˈstrækt/", vn: "làm xao nhãng" },
-  { topic: "Education", en: "revise", type: "v", ipa: "/rɪˈvaɪz/", vn: "ôn bài" },
-  { topic: "Education", en: "memorise", type: "v", ipa: "/ˈmeməraɪz/", vn: "ghi nhớ, học thuộc" },
-  { topic: "Education", en: "acquire knowledge", type: "v.phr", ipa: "/əˈkwaɪə ˈnɒlɪdʒ/", vn: "tiếp thu kiến thức" },
-  { topic: "Education", en: "develop a skill", type: "v.phr", ipa: "/dɪˈveləp ə skɪl/", vn: "phát triển kỹ năng" },
-  { topic: "Education", en: "practical subject", type: "n.phr", ipa: "/ˈpræktɪkəl ˈsʌbdʒɪkt/", vn: "môn học thực tế" },
-  { topic: "Education", en: "theoretical subject", type: "n.phr", ipa: "/ˌθɪəˈretɪkəl ˈsʌbdʒɪkt/", vn: "môn học lý thuyết" },
-  { topic: "Education", en: "higher education", type: "n.phr", ipa: "/ˌhaɪə ˌedʒʊˈkeɪʃən/", vn: "giáo dục đại học" },
-
-  // 2) Work
-  { topic: "Work", en: "profession", type: "n", ipa: "/prəˈfeʃən/", vn: "nghề nghiệp" },
-  { topic: "Work", en: "occupation", type: "n", ipa: "/ˌɒkjuˈpeɪʃən/", vn: "nghề nghiệp" },
-  { topic: "Work", en: "employee", type: "n", ipa: "/ɪmˈplɔɪiː/", vn: "nhân viên" },
-  { topic: "Work", en: "employer", type: "n", ipa: "/ɪmˈplɔɪə/", vn: "nhà tuyển dụng" },
-  { topic: "Work", en: "colleague", type: "n", ipa: "/ˈkɒliːɡ/", vn: "đồng nghiệp" },
-  { topic: "Work", en: "salary", type: "n", ipa: "/ˈsæləri/", vn: "lương" },
-  { topic: "Work", en: "income", type: "n", ipa: "/ˈɪnkʌm/", vn: "thu nhập" },
-  { topic: "Work", en: "job satisfaction", type: "n.phr", ipa: "/ˈdʒɒb ˌsætɪsˈfækʃən/", vn: "sự hài lòng trong công việc" },
-  { topic: "Work", en: "work-life balance", type: "n.phr", ipa: "/ˌwɜːk laɪf ˈbæləns/", vn: "cân bằng công việc - cuộc sống" },
-  { topic: "Work", en: "apply for a job", type: "v.phr", ipa: "/əˈplaɪ fər ə dʒɒb/", vn: "nộp đơn xin việc" },
-  { topic: "Work", en: "earn a living", type: "v.phr", ipa: "/ɜːn ə ˈlɪvɪŋ/", vn: "kiếm sống" },
-  { topic: "Work", en: "get promoted", type: "v.phr", ipa: "/ɡet prəˈməʊtɪd/", vn: "được thăng chức" },
-  { topic: "Work", en: "resign from a job", type: "v.phr", ipa: "/rɪˈzaɪn frəm ə dʒɒb/", vn: "nghỉ việc" },
-  { topic: "Work", en: "gain experience", type: "v.phr", ipa: "/ɡeɪn ɪkˈspɪəriəns/", vn: "tích lũy kinh nghiệm" },
-  { topic: "Work", en: "meet a requirement", type: "v.phr", ipa: "/miːt ə rɪˈkwaɪəmənt/", vn: "đáp ứng yêu cầu" },
-
-  // 3) Technology
-  { topic: "Technology", en: "technology", type: "n", ipa: "/tekˈnɒlədʒi/", vn: "công nghệ" },
-  { topic: "Technology", en: "device", type: "n", ipa: "/dɪˈvaɪs/", vn: "thiết bị" },
-  { topic: "Technology", en: "application", type: "n", ipa: "/ˌæplɪˈkeɪʃən/", vn: "ứng dụng" },
-  { topic: "Technology", en: "social media", type: "n.phr", ipa: "/ˌsəʊʃəl ˈmiːdiə/", vn: "mạng xã hội" },
-  { topic: "Technology", en: "screen time", type: "n.phr", ipa: "/ˈskriːn taɪm/", vn: "thời gian dùng màn hình" },
-  { topic: "Technology", en: "online platform", type: "n.phr", ipa: "/ˌɒnlaɪn ˈplætfɔːm/", vn: "nền tảng trực tuyến" },
-  { topic: "Technology", en: "access information", type: "v.phr", ipa: "/ˈækses ˌɪnfəˈmeɪʃən/", vn: "truy cập thông tin" },
-  { topic: "Technology", en: "browse the Internet", type: "v.phr", ipa: "/braʊz ði ˈɪntənet/", vn: "lướt Internet" },
-  { topic: "Technology", en: "communicate instantly", type: "v.phr", ipa: "/kəˈmjuːnɪkeɪt ˈɪnstəntli/", vn: "giao tiếp tức thì" },
-  { topic: "Technology", en: "rely on technology", type: "v.phr", ipa: "/rɪˈlaɪ ɒn tekˈnɒlədʒi/", vn: "phụ thuộc vào công nghệ" },
-  { topic: "Technology", en: "protect personal data", type: "v.phr", ipa: "/prəˈtekt ˈpɜːsənəl ˈdeɪtə/", vn: "bảo vệ dữ liệu cá nhân" },
-  { topic: "Technology", en: "improve efficiency", type: "v.phr", ipa: "/ɪmˈpruːv ɪˈfɪʃənsi/", vn: "cải thiện hiệu suất" },
-  { topic: "Technology", en: "advanced", type: "adj", ipa: "/ədˈvɑːnst/", vn: "tiên tiến" },
-  { topic: "Technology", en: "convenient", type: "adj", ipa: "/kənˈviːniənt/", vn: "tiện lợi" },
-  { topic: "Technology", en: "addictive", type: "adj", ipa: "/əˈdɪktɪv/", vn: "gây nghiện" },
-
-  // 4) Environment
-  { topic: "Environment", en: "environment", type: "n", ipa: "/ɪnˈvaɪrənmənt/", vn: "môi trường" },
-  { topic: "Environment", en: "pollution", type: "n", ipa: "/pəˈluːʃən/", vn: "ô nhiễm" },
-  { topic: "Environment", en: "climate change", type: "n.phr", ipa: "/ˈklaɪmət tʃeɪndʒ/", vn: "biến đổi khí hậu" },
-  { topic: "Environment", en: "global warming", type: "n.phr", ipa: "/ˌɡləʊbəl ˈwɔːmɪŋ/", vn: "nóng lên toàn cầu" },
-  { topic: "Environment", en: "greenhouse gas", type: "n.phr", ipa: "/ˈɡriːnhaʊs ɡæs/", vn: "khí nhà kính" },
-  { topic: "Environment", en: "natural resource", type: "n.phr", ipa: "/ˈnætʃrəl rɪˈzɔːs/", vn: "tài nguyên thiên nhiên" },
-  { topic: "Environment", en: "renewable energy", type: "n.phr", ipa: "/rɪˈnjuːəbl ˈenədʒi/", vn: "năng lượng tái tạo" },
-  { topic: "Environment", en: "recycle", type: "v", ipa: "/ˌriːˈsaɪkl/", vn: "tái chế" },
-  { topic: "Environment", en: "reduce waste", type: "v.phr", ipa: "/rɪˈdjuːs weɪst/", vn: "giảm rác thải" },
-  { topic: "Environment", en: "save energy", type: "v.phr", ipa: "/seɪv ˈenədʒi/", vn: "tiết kiệm năng lượng" },
-  { topic: "Environment", en: "protect wildlife", type: "v.phr", ipa: "/prəˈtekt ˈwaɪldlaɪf/", vn: "bảo vệ động vật hoang dã" },
-  { topic: "Environment", en: "damage the ecosystem", type: "v.phr", ipa: "/ˈdæmɪdʒ ði ˈiːkəʊˌsɪstəm/", vn: "gây hại hệ sinh thái" },
-  { topic: "Environment", en: "environmentally friendly", type: "adj.phr", ipa: "/ɪnˌvaɪrənˈmentəli ˈfrendli/", vn: "thân thiện với môi trường" },
-  { topic: "Environment", en: "sustainable", type: "adj", ipa: "/səˈsteɪnəbl/", vn: "bền vững" },
-  { topic: "Environment", en: "severe", type: "adj", ipa: "/sɪˈvɪə/", vn: "nghiêm trọng" },
-
-  // 5) Health
-  { topic: "Health", en: "health", type: "n", ipa: "/helθ/", vn: "sức khỏe" },
-  { topic: "Health", en: "diet", type: "n", ipa: "/ˈdaɪət/", vn: "chế độ ăn" },
-  { topic: "Health", en: "nutrition", type: "n", ipa: "/njuˈtrɪʃən/", vn: "dinh dưỡng" },
-  { topic: "Health", en: "exercise", type: "n/v", ipa: "/ˈeksəsaɪz/", vn: "bài tập / tập thể dục" },
-  { topic: "Health", en: "obesity", type: "n", ipa: "/əʊˈbiːsəti/", vn: "béo phì" },
-  { topic: "Health", en: "disease", type: "n", ipa: "/dɪˈziːz/", vn: "bệnh tật" },
-  { topic: "Health", en: "treatment", type: "n", ipa: "/ˈtriːtmənt/", vn: "sự điều trị" },
-  { topic: "Health", en: "maintain health", type: "v.phr", ipa: "/meɪnˈteɪn helθ/", vn: "duy trì sức khỏe" },
-  { topic: "Health", en: "do exercise regularly", type: "v.phr", ipa: "/duː ˈeksəsaɪz ˈreɡjələli/", vn: "tập thể dục thường xuyên" },
-  { topic: "Health", en: "suffer from stress", type: "v.phr", ipa: "/ˈsʌfə frəm stres/", vn: "bị căng thẳng" },
-  { topic: "Health", en: "recover from an illness", type: "v.phr", ipa: "/rɪˈkʌvə frəm ən ˈɪlnəs/", vn: "hồi phục sau bệnh" },
-  { topic: "Health", en: "prevent a disease", type: "v.phr", ipa: "/prɪˈvent ə dɪˈziːz/", vn: "phòng ngừa bệnh" },
-  { topic: "Health", en: "balanced diet", type: "n.phr", ipa: "/ˌbælənst ˈdaɪət/", vn: "chế độ ăn cân bằng" },
-  { topic: "Health", en: "physically active", type: "adj.phr", ipa: "/ˈfɪzɪkli ˈæktɪv/", vn: "hoạt động thể chất tích cực" },
-  { topic: "Health", en: "mentally exhausted", type: "adj.phr", ipa: "/ˈmentəli ɪɡˈzɔːstɪd/", vn: "kiệt sức về tinh thần" },
-
-  // 6) Family & Relationships
-  { topic: "Family & Relationships", en: "family member", type: "n.phr", ipa: "/ˈfæməli ˈmembə/", vn: "thành viên gia đình" },
-  { topic: "Family & Relationships", en: "generation gap", type: "n.phr", ipa: "/ˌdʒenəˈreɪʃən ɡæp/", vn: "khoảng cách thế hệ" },
-  { topic: "Family & Relationships", en: "relationship", type: "n", ipa: "/rɪˈleɪʃənʃɪp/", vn: "mối quan hệ" },
-  { topic: "Family & Relationships", en: "relative", type: "n", ipa: "/ˈrelətɪv/", vn: "họ hàng" },
-  { topic: "Family & Relationships", en: "support", type: "n/v", ipa: "/səˈpɔːt/", vn: "sự hỗ trợ / hỗ trợ" },
-  { topic: "Family & Relationships", en: "argument", type: "n", ipa: "/ˈɑːɡjumənt/", vn: "cuộc cãi vã" },
-  { topic: "Family & Relationships", en: "get along with somebody", type: "v.phr", ipa: "/ɡet əˈlɒŋ wɪð ˈsʌmbədi/", vn: "hòa thuận với ai" },
-  { topic: "Family & Relationships", en: "take care of somebody", type: "v.phr", ipa: "/teɪk keər əv ˈsʌmbədi/", vn: "chăm sóc ai" },
-  { topic: "Family & Relationships", en: "raise a child", type: "v.phr", ipa: "/reɪz ə tʃaɪld/", vn: "nuôi dạy một đứa trẻ" },
-  { topic: "Family & Relationships", en: "set a good example", type: "v.phr", ipa: "/set ə ɡʊd ɪɡˈzɑːmpl/", vn: "làm gương tốt" },
-  { topic: "Family & Relationships", en: "spend time together", type: "v.phr", ipa: "/spend taɪm təˈɡeðə/", vn: "dành thời gian cùng nhau" },
-  { topic: "Family & Relationships", en: "build a close relationship", type: "v.phr", ipa: "/bɪld ə kləʊs rɪˈleɪʃənʃɪp/", vn: "xây dựng mối quan hệ gần gũi" },
-  { topic: "Family & Relationships", en: "strict", type: "adj", ipa: "/strɪkt/", vn: "nghiêm khắc" },
-  { topic: "Family & Relationships", en: "caring", type: "adj", ipa: "/ˈkeərɪŋ/", vn: "quan tâm, chu đáo" },
-  { topic: "Family & Relationships", en: "understanding", type: "adj", ipa: "/ˌʌndəˈstændɪŋ/", vn: "thấu hiểu" },
-
-  // 7) City, Transport, Housing
-  { topic: "City, Transport, Housing", en: "accommodation", type: "n", ipa: "/əˌkɒməˈdeɪʃən/", vn: "chỗ ở" },
-  { topic: "City, Transport, Housing", en: "housing", type: "n", ipa: "/ˈhaʊzɪŋ/", vn: "nhà ở" },
-  { topic: "City, Transport, Housing", en: "public transport", type: "n.phr", ipa: "/ˌpʌblɪk ˈtrænspɔːt/", vn: "phương tiện công cộng" },
-  { topic: "City, Transport, Housing", en: "traffic congestion", type: "n.phr", ipa: "/ˈtræfɪk kənˈdʒestʃən/", vn: "tắc nghẽn giao thông" },
-  { topic: "City, Transport, Housing", en: "pedestrian", type: "n", ipa: "/pəˈdestriən/", vn: "người đi bộ" },
-  { topic: "City, Transport, Housing", en: "infrastructure", type: "n", ipa: "/ˈɪnfrəˌstrʌktʃə/", vn: "cơ sở hạ tầng" },
-  { topic: "City, Transport, Housing", en: "commute", type: "v", ipa: "/kəˈmjuːt/", vn: "đi đi về về (nhà - nơi làm việc)" },
-  { topic: "City, Transport, Housing", en: "rent a flat", type: "v.phr", ipa: "/rent ə flæt/", vn: "thuê căn hộ" },
-  { topic: "City, Transport, Housing", en: "move to the city", type: "v.phr", ipa: "/muːv tə ðə ˈsɪti/", vn: "chuyển đến thành phố" },
-  { topic: "City, Transport, Housing", en: "reduce traffic jams", type: "v.phr", ipa: "/rɪˈdjuːs ˈtræfɪk dʒæmz/", vn: "giảm tắc đường" },
-  { topic: "City, Transport, Housing", en: "improve public services", type: "v.phr", ipa: "/ɪmˈpruːv ˈpʌblɪk ˈsɜːvɪsɪz/", vn: "cải thiện dịch vụ công" },
-  { topic: "City, Transport, Housing", en: "affordable housing", type: "n.phr", ipa: "/əˈfɔːdəbl ˈhaʊzɪŋ/", vn: "nhà ở giá phải chăng" },
-  { topic: "City, Transport, Housing", en: "crowded", type: "adj", ipa: "/ˈkraʊdɪd/", vn: "đông đúc" },
-  { topic: "City, Transport, Housing", en: "convenient location", type: "n.phr", ipa: "/kənˈviːniənt ləʊˈkeɪʃən/", vn: "vị trí thuận tiện" },
-  { topic: "City, Transport, Housing", en: "residential area", type: "n.phr", ipa: "/ˌrezɪˈdenʃəl ˈeəriə/", vn: "khu dân cư" },
-
-  // 8) Media, Culture, Leisure
-  { topic: "Media, Culture, Leisure", en: "entertainment", type: "n", ipa: "/ˌentəˈteɪnmənt/", vn: "giải trí" },
-  { topic: "Media, Culture, Leisure", en: "leisure activity", type: "n.phr", ipa: "/ˈleʒə ækˈtɪvəti/", vn: "hoạt động giải trí" },
-  { topic: "Media, Culture, Leisure", en: "documentary", type: "n", ipa: "/ˌdɒkjuˈmentri/", vn: "phim tài liệu" },
-  { topic: "Media, Culture, Leisure", en: "traditional culture", type: "n.phr", ipa: "/trəˈdɪʃənəl ˈkʌltʃə/", vn: "văn hóa truyền thống" },
-  { topic: "Media, Culture, Leisure", en: "cultural identity", type: "n.phr", ipa: "/ˈkʌltʃərəl aɪˈdentəti/", vn: "bản sắc văn hóa" },
-  { topic: "Media, Culture, Leisure", en: "audience", type: "n", ipa: "/ˈɔːdiəns/", vn: "khán giả" },
-  { topic: "Media, Culture, Leisure", en: "relax", type: "v", ipa: "/rɪˈlæks/", vn: "thư giãn" },
-  { topic: "Media, Culture, Leisure", en: "watch a programme", type: "v.phr", ipa: "/wɒtʃ ə ˈprəʊɡræm/", vn: "xem chương trình" },
-  { topic: "Media, Culture, Leisure", en: "take part in an activity", type: "v.phr", ipa: "/teɪk pɑːt ɪn ən ækˈtɪvəti/", vn: "tham gia hoạt động" },
-  { topic: "Media, Culture, Leisure", en: "preserve tradition", type: "v.phr", ipa: "/prɪˈzɜːv trəˈdɪʃən/", vn: "bảo tồn truyền thống" },
-  { topic: "Media, Culture, Leisure", en: "broaden one’s horizon", type: "v.phr", ipa: "/ˈbrɔːdn wʌnz həˈraɪzn/", vn: "mở mang tầm nhìn" },
-  { topic: "Media, Culture, Leisure", en: "spend free time", type: "v.phr", ipa: "/spend friː taɪm/", vn: "dành thời gian rảnh" },
-  { topic: "Media, Culture, Leisure", en: "educational", type: "adj", ipa: "/ˌedʒʊˈkeɪʃənəl/", vn: "mang tính giáo dục" },
-  { topic: "Media, Culture, Leisure", en: "entertaining", type: "adj", ipa: "/ˌentəˈteɪnɪŋ/", vn: "mang tính giải trí" },
-  { topic: "Media, Culture, Leisure", en: "time-consuming", type: "adj", ipa: "/ˈtaɪm kənˌsjuːmɪŋ/", vn: "tốn thời gian" },
-
-  // 9) Speaking Functions
-  { topic: "Speaking Functions", en: "in my opinion", type: "adv.phr", ipa: "/ɪn maɪ əˈpɪnjən/", vn: "theo ý kiến của tôi" },
-  { topic: "Speaking Functions", en: "from my point of view", type: "adv.phr", ipa: "/frəm maɪ pɔɪnt əv vjuː/", vn: "theo quan điểm của tôi" },
-  { topic: "Speaking Functions", en: "as far as I know", type: "adv.cl", ipa: "/əz fɑːr əz aɪ nəʊ/", vn: "theo như tôi biết" },
-  { topic: "Speaking Functions", en: "it seems to me that", type: "cl.phr", ipa: "/ɪt siːmz tə miː ðæt/", vn: "tôi cảm thấy rằng" },
-  { topic: "Speaking Functions", en: "I would say that", type: "cl.phr", ipa: "/aɪ wʊd seɪ ðæt/", vn: "tôi sẽ nói rằng" },
-  { topic: "Speaking Functions", en: "for example", type: "adv.phr", ipa: "/fɔːr ɪɡˈzɑːmpl/", vn: "ví dụ" },
-  { topic: "Speaking Functions", en: "for instance", type: "adv.phr", ipa: "/fɔːr ˈɪnstəns/", vn: "chẳng hạn" },
-  { topic: "Speaking Functions", en: "such as", type: "prep.phr", ipa: "/sʌtʃ əz/", vn: "chẳng hạn như" },
-  { topic: "Speaking Functions", en: "in general", type: "adv.phr", ipa: "/ɪn ˈdʒenrəl/", vn: "nhìn chung" },
-  { topic: "Speaking Functions", en: "in particular", type: "adv.phr", ipa: "/ɪn pəˈtɪkjələ/", vn: "đặc biệt là" },
-  { topic: "Speaking Functions", en: "to be honest", type: "adv.phr", ipa: "/tə bi ˈɒnɪst/", vn: "thành thật mà nói" },
-  { topic: "Speaking Functions", en: "as a result", type: "adv.phr", ipa: "/əz ə rɪˈzʌlt/", vn: "kết quả là" },
-  { topic: "Speaking Functions", en: "because of this", type: "adv.phr", ipa: "/bɪˈkɒz əv ðɪs/", vn: "vì điều này" },
-  { topic: "Speaking Functions", en: "on the one hand", type: "adv.phr", ipa: "/ɒn ðə wʌn hænd/", vn: "một mặt" },
-  { topic: "Speaking Functions", en: "on the other hand", type: "adv.phr", ipa: "/ɒn ði ˈʌðə hænd/", vn: "mặt khác" },
-
-  // 10) Writing Task 2 Functions
-  { topic: "Writing Task 2 Functions", en: "play an important role", type: "v.phr", ipa: "/pleɪ ən ɪmˈpɔːtənt rəʊl/", vn: "đóng vai trò quan trọng" },
-  { topic: "Writing Task 2 Functions", en: "have a positive effect on", type: "v.phr", ipa: "/hæv ə ˈpɒzətɪv ɪˈfekt ɒn/", vn: "có tác động tích cực đến" },
-  { topic: "Writing Task 2 Functions", en: "have a negative impact on", type: "v.phr", ipa: "/hæv ə ˈneɡətɪv ˈɪmpækt ɒn/", vn: "có tác động tiêu cực đến" },
-  { topic: "Writing Task 2 Functions", en: "lead to a problem", type: "v.phr", ipa: "/liːd tə ə ˈprɒbləm/", vn: "dẫn tới vấn đề" },
-  { topic: "Writing Task 2 Functions", en: "result in a change", type: "v.phr", ipa: "/rɪˈzʌlt ɪn ə tʃeɪndʒ/", vn: "dẫn đến sự thay đổi" },
-  { topic: "Writing Task 2 Functions", en: "contribute to a situation", type: "v.phr", ipa: "/kənˈtrɪbjuːt tə ə ˌsɪtʃuˈeɪʃən/", vn: "góp phần vào một tình huống" },
-  { topic: "Writing Task 2 Functions", en: "solve a problem", type: "v.phr", ipa: "/sɒlv ə ˈprɒbləm/", vn: "giải quyết vấn đề" },
-  { topic: "Writing Task 2 Functions", en: "take a measure", type: "v.phr", ipa: "/teɪk ə ˈmeʒə/", vn: "thực hiện biện pháp" },
-  { topic: "Writing Task 2 Functions", en: "raise awareness", type: "v.phr", ipa: "/reɪz əˈweənəs/", vn: "nâng cao nhận thức" },
-  { topic: "Writing Task 2 Functions", en: "provide an opportunity", type: "v.phr", ipa: "/prəˈvaɪd ən ˌɒpəˈtjuːnəti/", vn: "tạo cơ hội" },
-  { topic: "Writing Task 2 Functions", en: "there are several reasons why", type: "cl.phr", ipa: "/ðeər ɑː ˈsevrəl ˈriːzənz waɪ/", vn: "có một số lý do tại sao" },
-  { topic: "Writing Task 2 Functions", en: "one possible solution is that", type: "cl.phr", ipa: "/wʌn ˈpɒsəbl səˈluːʃən ɪz ðæt/", vn: "một giải pháp khả thi là" },
-  { topic: "Writing Task 2 Functions", en: "it is widely believed that", type: "cl.phr", ipa: "/ɪt ɪz ˈwaɪdli bɪˈliːvd ðæt/", vn: "người ta tin rằng" },
-  { topic: "Writing Task 2 Functions", en: "it is clear that", type: "cl.phr", ipa: "/ɪt ɪz klɪə ðæt/", vn: "rõ ràng là" },
-  { topic: "Writing Task 2 Functions", en: "this is because", type: "cl.phr", ipa: "/ðɪs ɪz bɪˈkɒz/", vn: "điều này là vì" },
-
-  // 11) Writing Task 1 Functions
-  { topic: "Writing Task 1 Functions", en: "increase", type: "v/n", ipa: "/ɪnˈkriːs/ ; /ˈɪŋkriːs/", vn: "tăng / sự tăng" },
-  { topic: "Writing Task 1 Functions", en: "decrease", type: "v/n", ipa: "/dɪˈkriːs/ ; /ˈdiːkriːs/", vn: "giảm / sự giảm" },
-  { topic: "Writing Task 1 Functions", en: "remain stable", type: "v.phr", ipa: "/rɪˈmeɪn ˈsteɪbl/", vn: "giữ ổn định" },
-  { topic: "Writing Task 1 Functions", en: "fluctuate", type: "v", ipa: "/ˈflʌktʃueɪt/", vn: "dao động" },
-  { topic: "Writing Task 1 Functions", en: "reach a peak", type: "v.phr", ipa: "/riːtʃ ə piːk/", vn: "đạt đỉnh" },
-  { topic: "Writing Task 1 Functions", en: "hit a low point", type: "v.phr", ipa: "/hɪt ə ləʊ pɔɪnt/", vn: "chạm mức thấp" },
-  { topic: "Writing Task 1 Functions", en: "account for", type: "v", ipa: "/əˈkaʊnt fɔː/", vn: "chiếm" },
-  { topic: "Writing Task 1 Functions", en: "make up", type: "v", ipa: "/meɪk ʌp/", vn: "tạo thành, chiếm" },
-  { topic: "Writing Task 1 Functions", en: "the figure for", type: "n.phr", ipa: "/ðə ˈfɪɡə fɔː/", vn: "số liệu cho" },
-  { topic: "Writing Task 1 Functions", en: "the percentage of", type: "n.phr", ipa: "/ðə pəˈsentɪdʒ əv/", vn: "tỷ lệ của" },
-  { topic: "Writing Task 1 Functions", en: "compared with", type: "prep.phr", ipa: "/kəmˈpeəd wɪð/", vn: "so với" },
-  { topic: "Writing Task 1 Functions", en: "in contrast", type: "adv.phr", ipa: "/ɪn ˈkɒntrɑːst/", vn: "trái lại" },
-  { topic: "Writing Task 1 Functions", en: "overall", type: "adv", ipa: "/ˌəʊvərˈɔːl/", vn: "nhìn chung" },
-  { topic: "Writing Task 1 Functions", en: "respectively", type: "adv", ipa: "/rɪˈspektɪvli/", vn: "lần lượt" },
-  { topic: "Writing Task 1 Functions", en: "slightly", type: "adv", ipa: "/ˈslaɪtli/", vn: "nhẹ, một chút" },
-
-  // 12) Reading & Listening
-  { topic: "Reading & Listening", en: "factor", type: "n", ipa: "/ˈfæktə/", vn: "yếu tố" },
-  { topic: "Reading & Listening", en: "issue", type: "n", ipa: "/ˈɪʃuː/", vn: "vấn đề" },
-  { topic: "Reading & Listening", en: "trend", type: "n", ipa: "/trend/", vn: "xu hướng" },
-  { topic: "Reading & Listening", en: "evidence", type: "n", ipa: "/ˈevɪdəns/", vn: "bằng chứng" },
-  { topic: "Reading & Listening", en: "research", type: "n", ipa: "/rɪˈsɜːtʃ/", vn: "nghiên cứu" },
-  { topic: "Reading & Listening", en: "survey", type: "n", ipa: "/ˈsɜːveɪ/", vn: "khảo sát" },
-  { topic: "Reading & Listening", en: "data", type: "n", ipa: "/ˈdeɪtə/", vn: "dữ liệu" },
-  { topic: "Reading & Listening", en: "method", type: "n", ipa: "/ˈmeθəd/", vn: "phương pháp" },
-  { topic: "Reading & Listening", en: "benefit", type: "n/v", ipa: "/ˈbenɪfɪt/", vn: "lợi ích / mang lại lợi ích" },
-  { topic: "Reading & Listening", en: "drawback", type: "n", ipa: "/ˈdrɔːbæk/", vn: "hạn chế" },
-  { topic: "Reading & Listening", en: "challenge", type: "n", ipa: "/ˈtʃælɪndʒ/", vn: "thách thức" },
-  { topic: "Reading & Listening", en: "consequence", type: "n", ipa: "/ˈkɒnsɪkwəns/", vn: "hậu quả" },
-  { topic: "Reading & Listening", en: "approach", type: "n", ipa: "/əˈprəʊtʃ/", vn: "cách tiếp cận" },
-  { topic: "Reading & Listening", en: "affect", type: "v", ipa: "/əˈfekt/", vn: "ảnh hưởng đến" },
-  { topic: "Reading & Listening", en: "significant", type: "adj", ipa: "/sɪɡˈnɪfɪkənt/", vn: "đáng kể" },
-
-  // 13) Adjectives for Band 6.0
-  { topic: "Adjectives Band 6.0", en: "beneficial", type: "adj", ipa: "/ˌbenɪˈfɪʃəl/", vn: "có lợi" },
-  { topic: "Adjectives Band 6.0", en: "harmful", type: "adj", ipa: "/ˈhɑːmfəl/", vn: "có hại" },
-  { topic: "Adjectives Band 6.0", en: "essential", type: "adj", ipa: "/ɪˈsenʃəl/", vn: "thiết yếu" },
-  { topic: "Adjectives Band 6.0", en: "common", type: "adj", ipa: "/ˈkɒmən/", vn: "phổ biến" },
-  { topic: "Adjectives Band 6.0", en: "popular", type: "adj", ipa: "/ˈpɒpjələ/", vn: "phổ biến" },
-  { topic: "Adjectives Band 6.0", en: "effective", type: "adj", ipa: "/ɪˈfektɪv/", vn: "hiệu quả" },
-  { topic: "Adjectives Band 6.0", en: "inefficient", type: "adj", ipa: "/ˌɪnɪˈfɪʃənt/", vn: "kém hiệu quả" },
-  { topic: "Adjectives Band 6.0", en: "flexible", type: "adj", ipa: "/ˈfleksəbl/", vn: "linh hoạt" },
-  { topic: "Adjectives Band 6.0", en: "stressful", type: "adj", ipa: "/ˈstresfəl/", vn: "căng thẳng" },
-  { topic: "Adjectives Band 6.0", en: "reliable", type: "adj", ipa: "/rɪˈlaɪəbl/", vn: "đáng tin cậy" },
-  { topic: "Adjectives Band 6.0", en: "independent", type: "adj", ipa: "/ˌɪndɪˈpendənt/", vn: "độc lập" },
-  { topic: "Adjectives Band 6.0", en: "responsible", type: "adj", ipa: "/rɪˈspɒnsəbl/", vn: "có trách nhiệm" },
-  { topic: "Adjectives Band 6.0", en: "ordinary", type: "adj", ipa: "/ˈɔːdnri/", vn: "bình thường" },
-  { topic: "Adjectives Band 6.0", en: "impressive", type: "adj", ipa: "/ɪmˈpresɪv/", vn: "ấn tượng" },
-  { topic: "Adjectives Band 6.0", en: "suitable", type: "adj", ipa: "/ˈsuːtəbl/", vn: "phù hợp" },
-
-  // 14) Verbs for Band 6.0
-  { topic: "Verbs Band 6.0", en: "improve", type: "v", ipa: "/ɪmˈpruːv/", vn: "cải thiện" },
-  { topic: "Verbs Band 6.0", en: "reduce", type: "v", ipa: "/rɪˈdjuːs/", vn: "giảm" },
-  { topic: "Verbs Band 6.0", en: "increase", type: "v", ipa: "/ɪnˈkriːs/", vn: "tăng" },
-  { topic: "Verbs Band 6.0", en: "encourage", type: "v", ipa: "/ɪnˈkʌrɪdʒ/", vn: "khuyến khích" },
-  { topic: "Verbs Band 6.0", en: "discourage", type: "v", ipa: "/dɪsˈkʌrɪdʒ/", vn: "làm nản lòng, ngăn cản" },
-  { topic: "Verbs Band 6.0", en: "provide", type: "v", ipa: "/prəˈvaɪd/", vn: "cung cấp" },
-  { topic: "Verbs Band 6.0", en: "create", type: "v", ipa: "/kriˈeɪt/", vn: "tạo ra" },
-  { topic: "Verbs Band 6.0", en: "protect", type: "v", ipa: "/prəˈtekt/", vn: "bảo vệ" },
-  { topic: "Verbs Band 6.0", en: "replace", type: "v", ipa: "/rɪˈpleɪs/", vn: "thay thế" },
-  { topic: "Verbs Band 6.0", en: "support", type: "v", ipa: "/səˈpɔːt/", vn: "hỗ trợ" },
-  { topic: "Verbs Band 6.0", en: "influence", type: "v", ipa: "/ˈɪnfluəns/", vn: "ảnh hưởng" },
-  { topic: "Verbs Band 6.0", en: "prefer", type: "v", ipa: "/prɪˈfɜː/", vn: "thích hơn" },
-  { topic: "Verbs Band 6.0", en: "depend on", type: "v.phr", ipa: "/dɪˈpend ɒn/", vn: "phụ thuộc vào" },
-  { topic: "Verbs Band 6.0", en: "deal with", type: "v.phr", ipa: "/diːl wɪð/", vn: "xử lý" },
-  { topic: "Verbs Band 6.0", en: "cope with", type: "v.phr", ipa: "/kəʊp wɪð/", vn: "đối phó với" },
-
-  // 15) Linking words
-  { topic: "Linking words", en: "firstly", type: "adv", ipa: "/ˈfɜːstli/", vn: "thứ nhất" },
-  { topic: "Linking words", en: "secondly", type: "adv", ipa: "/ˈsekəndli/", vn: "thứ hai" },
-  { topic: "Linking words", en: "moreover", type: "adv", ipa: "/mɔːrˈəʊvə/", vn: "hơn nữa" },
-  { topic: "Linking words", en: "furthermore", type: "adv", ipa: "/ˈfɜːðəmɔː/", vn: "hơn nữa" },
-  { topic: "Linking words", en: "however", type: "adv", ipa: "/haʊˈevə/", vn: "tuy nhiên" },
-  { topic: "Linking words", en: "therefore", type: "adv", ipa: "/ˈðeəfɔː/", vn: "vì vậy" },
-  { topic: "Linking words", en: "consequently", type: "adv", ipa: "/ˈkɒnsɪkwəntli/", vn: "do đó" },
-  { topic: "Linking words", en: "meanwhile", type: "adv", ipa: "/ˈmiːnwaɪl/", vn: "trong khi đó" },
-  { topic: "Linking words", en: "in addition", type: "adv.phr", ipa: "/ɪn əˈdɪʃən/", vn: "thêm vào đó" },
-  { topic: "Linking words", en: "for this reason", type: "adv.phr", ipa: "/fɔː ðɪs ˈriːzən/", vn: "vì lý do này" },
-  { topic: "Linking words", en: "for this purpose", type: "adv.phr", ipa: "/fɔː ðɪs ˈpɜːpəs/", vn: "nhằm mục đích này" },
-  { topic: "Linking words", en: "in conclusion", type: "adv.phr", ipa: "/ɪn kənˈkluːʒən/", vn: "kết luận lại" },
-  { topic: "Linking words", en: "to sum up", type: "adv.phr", ipa: "/tə sʌm ʌp/", vn: "tóm lại" },
-  { topic: "Linking words", en: "although", type: "conj", ipa: "/ɔːlˈðəʊ/", vn: "mặc dù" },
-  { topic: "Linking words", en: "while", type: "conj", ipa: "/waɪl/", vn: "trong khi, còn" },
-];
-
-const TOPICS = ["All Topics", ...Array.from(new Set(VOCAB_DATA.map(w => w.topic)))];
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('study'); // 'study', 'flashcard', 'quiz'
-  const [selectedTopic, setSelectedTopic] = useState('All Topics');
-
-  const filteredWords = useMemo(() => {
-    return selectedTopic === 'All Topics' 
-      ? VOCAB_DATA 
-      : VOCAB_DATA.filter(w => w.topic === selectedTopic);
-  }, [selectedTopic]);
-
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* Header */}
-        <header className="text-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-4xl font-bold text-indigo-700 mb-2">IELTS Vocabulary for Band 6.0</h1>
-          <p className="text-sm md:text-base text-gray-500">Master the 15 most important topics</p>
-        </header>
-
-        {/* Navigation */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
-          <button 
-            onClick={() => setActiveTab('study')}
-            className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'study' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}
-          >
-            <BookOpen className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            <span>Study List</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('flashcard')}
-            className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'flashcard' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}
-          >
-            <Layers className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            <span>Flashcards</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('quiz')}
-            className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'quiz' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}
-          >
-            <HelpCircle className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            <span>Quiz</span>
-          </button>
-        </div>
-
-        {/* Filters (Show on Study & Flashcards) */}
-        {activeTab !== 'quiz' && (
-          <div className="mb-6 flex flex-wrap gap-2 justify-center">
-            {TOPICS.map(topic => (
-              <button
-                key={topic}
-                onClick={() => setSelectedTopic(topic)}
-                className={`px-3 py-1 text-sm rounded-full border transition-colors ${selectedTopic === topic ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100'}`}
-              >
-                {topic}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Render Tab Content */}
-        {activeTab === 'study' && <StudyMode words={filteredWords} />}
-        {activeTab === 'flashcard' && <FlashcardMode words={filteredWords} />}
-        {activeTab === 'quiz' && <QuizMode words={VOCAB_DATA} />}
-
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 1. STUDY MODE
-// ==========================================
-function StudyMode({ words }) {
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-3 md:p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-        <span className="font-semibold text-sm md:text-base text-gray-700">Showing {words.length} words</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[300px]">
-          <thead>
-            <tr className="bg-gray-50 text-gray-500 text-xs md:text-sm">
-              <th className="p-3 md:p-4 border-b font-medium">Vocabulary (Eng)</th>
-              <th className="p-3 md:p-4 border-b font-medium hidden sm:table-cell">Part of Speech</th>
-              <th className="p-3 md:p-4 border-b font-medium">Pronunciation (IPA)</th>
-              <th className="p-3 md:p-4 border-b font-medium">Vietnamese Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            {words.map((word, index) => (
-              <tr key={index} className="hover:bg-indigo-50/50 transition-colors border-b last:border-0 text-sm md:text-base">
-                <td className="p-3 md:p-4 font-semibold text-indigo-900">{word.en}</td>
-                <td className="p-3 md:p-4 text-gray-500 text-xs md:text-sm hidden sm:table-cell">{word.type}</td>
-                <td className="p-3 md:p-4 text-gray-600 font-mono text-xs md:text-sm">{word.ipa}</td>
-                <td className="p-3 md:p-4 text-gray-800">{word.vn}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 2. FLASHCARD MODE
-// ==========================================
-function FlashcardMode({ words }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  // Reset khi đổi chủ đề
-  useEffect(() => {
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  }, [words]);
-
-  if (words.length === 0) return null;
-
-  const currentWord = words[currentIndex];
-
-  const handleNext = () => {
-    setIsFlipped(false);
-    setTimeout(() => setCurrentIndex((prev) => (prev + 1) % words.length), 150);
-  };
-
-  const handlePrev = () => {
-    setIsFlipped(false);
-    setTimeout(() => setCurrentIndex((prev) => (prev - 1 + words.length) % words.length), 150);
-  };
-
-  const handleShuffle = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      const randomIdx = Math.floor(Math.random() * words.length);
-      setCurrentIndex(randomIdx);
-    }, 150);
-  };
-
-  return (
-    <div className="flex flex-col items-center">
-      <p className="text-gray-500 mb-4 font-medium">Card {currentIndex + 1} / {words.length}</p>
-      
-      {/* Flashcard */}
-      <div 
-        className="w-full max-w-lg h-64 md:h-80 perspective-1000 cursor-pointer"
-        onClick={() => setIsFlipped(!isFlipped)}
-      >
-        <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-          
-          {/* Front */}
-          <div className="absolute w-full h-full backface-hidden bg-white border-2 border-indigo-100 rounded-3xl shadow-lg flex flex-col items-center justify-center p-6 md:p-8 text-center">
-            <span className="text-xs md:text-sm font-semibold text-indigo-400 mb-2 md:mb-4 uppercase tracking-wider">{currentWord.topic}</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-2 md:mb-4">{currentWord.en}</h2>
-            <p className="text-base md:text-lg font-mono text-gray-500">{currentWord.ipa}</p>
-            <p className="absolute bottom-4 md:bottom-6 text-xs md:text-sm text-gray-400 animate-pulse">Click to flip</p>
-          </div>
-
-          {/* Back */}
-          <div className="absolute w-full h-full backface-hidden bg-indigo-600 rounded-3xl shadow-lg flex flex-col items-center justify-center p-6 md:p-8 text-center rotate-y-180">
-            <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">{currentWord.vn}</h2>
-            <p className="text-indigo-200 text-base md:text-lg">({currentWord.type})</p>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mt-6 md:mt-8">
-        <button onClick={handlePrev} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-        </button>
-        <button onClick={handleShuffle} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-indigo-600 flex items-center px-4 md:px-6">
-          <Shuffle className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-          <span className="font-medium text-sm md:text-base">Shuffle</span>
-        </button>
-        <button onClick={handleNext} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
-          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-        </button>
-      </div>
-      
-      {/* Custom Styles for 3D Flip */}
-      <style dangerouslySetInnerHTML={{__html: `
+    <style>
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
-      `}} />
-    </div>
-  );
-}
+        
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div id="root"></div>
 
-// ==========================================
-// 3. QUIZ MODE (Endless Random Mode)
-// ==========================================
-function QuizMode({ words }) {
-  const [question, setQuestion] = useState(null);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-  const generateQuestion = () => {
-    setSelectedAnswer(null);
-    
-    // Pick 1 random correct word
-    const correctIdx = Math.floor(Math.random() * words.length);
-    const correctWord = words[correctIdx];
+        // --- ICONS (SVG thay thế cho Lucide-react để chạy độc lập không cần import) ---
+        const BookOpen = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+        const Layers = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>;
+        const HelpCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+        const ChevronLeft = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
+        const ChevronRight = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
+        const Shuffle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>;
+        const CheckCircle2 = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+        const XCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
 
-    // Pick 3 random wrong distractors
-    let options = [correctWord];
-    while (options.length < 4) {
-      const randomWord = words[Math.floor(Math.random() * words.length)];
-      if (!options.find(opt => opt.en === randomWord.en)) {
-        options.push(randomWord);
-      }
-    }
+        // --- DỮ LIỆU TỪ VỰNG ---
+        const VOCAB_DATA = [
+            // 1) Education
+            { topic: "Education", en: "education", type: "n", ipa: "/ˌedʒʊˈkeɪʃən/", vn: "giáo dục" },
+            { topic: "Education", en: "academic performance", type: "n.phr", ipa: "/ˌækəˈdemɪk pəˈfɔːməns/", vn: "kết quả học tập" },
+            { topic: "Education", en: "curriculum", type: "n", ipa: "/kəˈrɪkjələm/", vn: "chương trình học" },
+            { topic: "Education", en: "qualification", type: "n", ipa: "/ˌkwɒlɪfɪˈkeɪʃən/", vn: "bằng cấp" },
+            { topic: "Education", en: "assignment", type: "n", ipa: "/əˈsaɪnmənt/", vn: "bài tập" },
+            { topic: "Education", en: "deadline", type: "n", ipa: "/ˈdedlaɪn/", vn: "hạn chót" },
+            { topic: "Education", en: "concentrate", type: "v", ipa: "/ˈkɒnsəntreɪt/", vn: "tập trung" },
+            { topic: "Education", en: "distract", type: "v", ipa: "/dɪˈstrækt/", vn: "làm xao nhãng" },
+            { topic: "Education", en: "revise", type: "v", ipa: "/rɪˈvaɪz/", vn: "ôn bài" },
+            { topic: "Education", en: "memorise", type: "v", ipa: "/ˈmeməraɪz/", vn: "ghi nhớ, học thuộc" },
+            { topic: "Education", en: "acquire knowledge", type: "v.phr", ipa: "/əˈkwaɪə ˈnɒlɪdʒ/", vn: "tiếp thu kiến thức" },
+            { topic: "Education", en: "develop a skill", type: "v.phr", ipa: "/dɪˈveləp ə skɪl/", vn: "phát triển kỹ năng" },
+            { topic: "Education", en: "practical subject", type: "n.phr", ipa: "/ˈpræktɪkəl ˈsʌbdʒɪkt/", vn: "môn học thực tế" },
+            { topic: "Education", en: "theoretical subject", type: "n.phr", ipa: "/ˌθɪəˈretɪkəl ˈsʌbdʒɪkt/", vn: "môn học lý thuyết" },
+            { topic: "Education", en: "higher education", type: "n.phr", ipa: "/ˌhaɪə ˌedʒʊˈkeɪʃən/", vn: "giáo dục đại học" },
 
-    // Shuffle options
-    options = options.sort(() => Math.random() - 0.5);
+            // 2) Work
+            { topic: "Work", en: "profession", type: "n", ipa: "/prəˈfeʃən/", vn: "nghề nghiệp" },
+            { topic: "Work", en: "occupation", type: "n", ipa: "/ˌɒkjuˈpeɪʃən/", vn: "nghề nghiệp" },
+            { topic: "Work", en: "employee", type: "n", ipa: "/ɪmˈplɔɪiː/", vn: "nhân viên" },
+            { topic: "Work", en: "employer", type: "n", ipa: "/ɪmˈplɔɪə/", vn: "nhà tuyển dụng" },
+            { topic: "Work", en: "colleague", type: "n", ipa: "/ˈkɒliːɡ/", vn: "đồng nghiệp" },
+            { topic: "Work", en: "salary", type: "n", ipa: "/ˈsæləri/", vn: "lương" },
+            { topic: "Work", en: "income", type: "n", ipa: "/ˈɪnkʌm/", vn: "thu nhập" },
+            { topic: "Work", en: "job satisfaction", type: "n.phr", ipa: "/ˈdʒɒb ˌsætɪsˈfækʃən/", vn: "sự hài lòng trong công việc" },
+            { topic: "Work", en: "work-life balance", type: "n.phr", ipa: "/ˌwɜːk laɪf ˈbæləns/", vn: "cân bằng công việc - cuộc sống" },
+            { topic: "Work", en: "apply for a job", type: "v.phr", ipa: "/əˈplaɪ fər ə dʒɒb/", vn: "nộp đơn xin việc" },
+            { topic: "Work", en: "earn a living", type: "v.phr", ipa: "/ɜːn ə ˈlɪvɪŋ/", vn: "kiếm sống" },
+            { topic: "Work", en: "get promoted", type: "v.phr", ipa: "/ɡet prəˈməʊtɪd/", vn: "được thăng chức" },
+            { topic: "Work", en: "resign from a job", type: "v.phr", ipa: "/rɪˈzaɪn frəm ə dʒɒb/", vn: "nghỉ việc" },
+            { topic: "Work", en: "gain experience", type: "v.phr", ipa: "/ɡeɪn ɪkˈspɪəriəns/", vn: "tích lũy kinh nghiệm" },
+            { topic: "Work", en: "meet a requirement", type: "v.phr", ipa: "/miːt ə rɪˈkwaɪəmənt/", vn: "đáp ứng yêu cầu" },
 
-    setQuestion({
-      target: correctWord,
-      options: options,
-      questionType: Math.random() > 0.5 ? 'en-to-vn' : 'vn-to-en'
-    });
-  };
+            // 3) Technology
+            { topic: "Technology", en: "technology", type: "n", ipa: "/tekˈnɒlədʒi/", vn: "công nghệ" },
+            { topic: "Technology", en: "device", type: "n", ipa: "/dɪˈvaɪs/", vn: "thiết bị" },
+            { topic: "Technology", en: "application", type: "n", ipa: "/ˌæplɪˈkeɪʃən/", vn: "ứng dụng" },
+            { topic: "Technology", en: "social media", type: "n.phr", ipa: "/ˌsəʊʃəl ˈmiːdiə/", vn: "mạng xã hội" },
+            { topic: "Technology", en: "screen time", type: "n.phr", ipa: "/ˈskriːn taɪm/", vn: "thời gian dùng màn hình" },
+            { topic: "Technology", en: "online platform", type: "n.phr", ipa: "/ˌɒnlaɪn ˈplætfɔːm/", vn: "nền tảng trực tuyến" },
+            { topic: "Technology", en: "access information", type: "v.phr", ipa: "/ˈækses ˌɪnfəˈmeɪʃən/", vn: "truy cập thông tin" },
+            { topic: "Technology", en: "browse the Internet", type: "v.phr", ipa: "/braʊz ði ˈɪntənet/", vn: "lướt Internet" },
+            { topic: "Technology", en: "communicate instantly", type: "v.phr", ipa: "/kəˈmjuːnɪkeɪt ˈɪnstəntli/", vn: "giao tiếp tức thì" },
+            { topic: "Technology", en: "rely on technology", type: "v.phr", ipa: "/rɪˈlaɪ ɒn tekˈnɒlədʒi/", vn: "phụ thuộc vào công nghệ" },
+            { topic: "Technology", en: "protect personal data", type: "v.phr", ipa: "/prəˈtekt ˈpɜːsənəl ˈdeɪtə/", vn: "bảo vệ dữ liệu cá nhân" },
+            { topic: "Technology", en: "improve efficiency", type: "v.phr", ipa: "/ɪmˈpruːv ɪˈfɪʃənsi/", vn: "cải thiện hiệu suất" },
+            { topic: "Technology", en: "advanced", type: "adj", ipa: "/ədˈvɑːnst/", vn: "tiên tiến" },
+            { topic: "Technology", en: "convenient", type: "adj", ipa: "/kənˈviːniənt/", vn: "tiện lợi" },
+            { topic: "Technology", en: "addictive", type: "adj", ipa: "/əˈdɪktɪv/", vn: "gây nghiện" },
 
-  // Khởi tạo câu hỏi đầu tiên
-  useEffect(() => {
-    generateQuestion();
-  }, []);
+            // 4) Environment
+            { topic: "Environment", en: "environment", type: "n", ipa: "/ɪnˈvaɪrənmənt/", vn: "môi trường" },
+            { topic: "Environment", en: "pollution", type: "n", ipa: "/pəˈluːʃən/", vn: "ô nhiễm" },
+            { topic: "Environment", en: "climate change", type: "n.phr", ipa: "/ˈklaɪmət tʃeɪndʒ/", vn: "biến đổi khí hậu" },
+            { topic: "Environment", en: "global warming", type: "n.phr", ipa: "/ˌɡləʊbəl ˈwɔːmɪŋ/", vn: "nóng lên toàn cầu" },
+            { topic: "Environment", en: "greenhouse gas", type: "n.phr", ipa: "/ˈɡriːnhaʊs ɡæs/", vn: "khí nhà kính" },
+            { topic: "Environment", en: "natural resource", type: "n.phr", ipa: "/ˈnætʃrəl rɪˈzɔːs/", vn: "tài nguyên thiên nhiên" },
+            { topic: "Environment", en: "renewable energy", type: "n.phr", ipa: "/rɪˈnjuːəbl ˈenədʒi/", vn: "năng lượng tái tạo" },
+            { topic: "Environment", en: "recycle", type: "v", ipa: "/ˌriːˈsaɪkl/", vn: "tái chế" },
+            { topic: "Environment", en: "reduce waste", type: "v.phr", ipa: "/rɪˈdjuːs weɪst/", vn: "giảm rác thải" },
+            { topic: "Environment", en: "save energy", type: "v.phr", ipa: "/seɪv ˈenədʒi/", vn: "tiết kiệm năng lượng" },
+            { topic: "Environment", en: "protect wildlife", type: "v.phr", ipa: "/prəˈtekt ˈwaɪldlaɪf/", vn: "bảo vệ động vật hoang dã" },
+            { topic: "Environment", en: "damage the ecosystem", type: "v.phr", ipa: "/ˈdæmɪdʒ ði ˈiːkəʊˌsɪstəm/", vn: "gây hại hệ sinh thái" },
+            { topic: "Environment", en: "environmentally friendly", type: "adj.phr", ipa: "/ɪnˌvaɪrənˈmentəli ˈfrendli/", vn: "thân thiện với môi trường" },
+            { topic: "Environment", en: "sustainable", type: "adj", ipa: "/səˈsteɪnəbl/", vn: "bền vững" },
+            { topic: "Environment", en: "severe", type: "adj", ipa: "/sɪˈvɪə/", vn: "nghiêm trọng" },
 
-  if (!question) return null;
+            // 5) Health
+            { topic: "Health", en: "health", type: "n", ipa: "/helθ/", vn: "sức khỏe" },
+            { topic: "Health", en: "diet", type: "n", ipa: "/ˈdaɪət/", vn: "chế độ ăn" },
+            { topic: "Health", en: "nutrition", type: "n", ipa: "/njuˈtrɪʃən/", vn: "dinh dưỡng" },
+            { topic: "Health", en: "exercise", type: "n/v", ipa: "/ˈeksəsaɪz/", vn: "bài tập / tập thể dục" },
+            { topic: "Health", en: "obesity", type: "n", ipa: "/əʊˈbiːsəti/", vn: "béo phì" },
+            { topic: "Health", en: "disease", type: "n", ipa: "/dɪˈziːz/", vn: "bệnh tật" },
+            { topic: "Health", en: "treatment", type: "n", ipa: "/ˈtriːtmənt/", vn: "sự điều trị" },
+            { topic: "Health", en: "maintain health", type: "v.phr", ipa: "/meɪnˈteɪn helθ/", vn: "duy trì sức khỏe" },
+            { topic: "Health", en: "do exercise regularly", type: "v.phr", ipa: "/duː ˈeksəsaɪz ˈreɡjələli/", vn: "tập thể dục thường xuyên" },
+            { topic: "Health", en: "suffer from stress", type: "v.phr", ipa: "/ˈsʌfə frəm stres/", vn: "bị căng thẳng" },
+            { topic: "Health", en: "recover from an illness", type: "v.phr", ipa: "/rɪˈkʌvə frəm ən ˈɪlnəs/", vn: "hồi phục sau bệnh" },
+            { topic: "Health", en: "prevent a disease", type: "v.phr", ipa: "/prɪˈvent ə dɪˈziːz/", vn: "phòng ngừa bệnh" },
+            { topic: "Health", en: "balanced diet", type: "n.phr", ipa: "/ˌbælənst ˈdaɪət/", vn: "chế độ ăn cân bằng" },
+            { topic: "Health", en: "physically active", type: "adj.phr", ipa: "/ˈfɪzɪkli ˈæktɪv/", vn: "hoạt động thể chất tích cực" },
+            { topic: "Health", en: "mentally exhausted", type: "adj.phr", ipa: "/ˈmentəli ɪɡˈzɔːstɪd/", vn: "kiệt sức về tinh thần" },
 
-  const handleAnswer = (option) => {
-    if (selectedAnswer) return; // Không cho chọn lại
-    
-    const isCorrect = option.en === question.target.en;
-    setSelectedAnswer({ option, isCorrect });
-    
-    setScore(prev => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      total: prev.total + 1
-    }));
-  };
+            // 6) Family & Relationships
+            { topic: "Family & Relationships", en: "family member", type: "n.phr", ipa: "/ˈfæməli ˈmembə/", vn: "thành viên gia đình" },
+            { topic: "Family & Relationships", en: "generation gap", type: "n.phr", ipa: "/ˌdʒenəˈreɪʃən ɡæp/", vn: "khoảng cách thế hệ" },
+            { topic: "Family & Relationships", en: "relationship", type: "n", ipa: "/rɪˈleɪʃənʃɪp/", vn: "mối quan hệ" },
+            { topic: "Family & Relationships", en: "relative", type: "n", ipa: "/ˈrelətɪv/", vn: "họ hàng" },
+            { topic: "Family & Relationships", en: "support", type: "n/v", ipa: "/səˈpɔːt/", vn: "sự hỗ trợ / hỗ trợ" },
+            { topic: "Family & Relationships", en: "argument", type: "n", ipa: "/ˈɑːɡjumənt/", vn: "cuộc cãi vã" },
+            { topic: "Family & Relationships", en: "get along with somebody", type: "v.phr", ipa: "/ɡet əˈlɒŋ wɪð ˈsʌmbədi/", vn: "hòa thuận với ai" },
+            { topic: "Family & Relationships", en: "take care of somebody", type: "v.phr", ipa: "/teɪk keər əv ˈsʌmbədi/", vn: "chăm sóc ai" },
+            { topic: "Family & Relationships", en: "raise a child", type: "v.phr", ipa: "/reɪz ə tʃaɪld/", vn: "nuôi dạy một đứa trẻ" },
+            { topic: "Family & Relationships", en: "set a good example", type: "v.phr", ipa: "/set ə ɡʊd ɪɡˈzɑːmpl/", vn: "làm gương tốt" },
+            { topic: "Family & Relationships", en: "spend time together", type: "v.phr", ipa: "/spend taɪm təˈɡeðə/", vn: "dành thời gian cùng nhau" },
+            { topic: "Family & Relationships", en: "build a close relationship", type: "v.phr", ipa: "/bɪld ə kləʊs rɪˈleɪʃənʃɪp/", vn: "xây dựng mối quan hệ gần gũi" },
+            { topic: "Family & Relationships", en: "strict", type: "adj", ipa: "/strɪkt/", vn: "nghiêm khắc" },
+            { topic: "Family & Relationships", en: "caring", type: "adj", ipa: "/ˈkeərɪŋ/", vn: "quan tâm, chu đáo" },
+            { topic: "Family & Relationships", en: "understanding", type: "adj", ipa: "/ˌʌndəˈstændɪŋ/", vn: "thấu hiểu" },
 
-  const isEnToVn = question.questionType === 'en-to-vn';
-  const questionText = isEnToVn 
-    ? <span>What is the meaning of <strong className="text-xl md:text-2xl text-indigo-700">{question.target.en}</strong>?</span>
-    : <span>Which word means <strong className="text-xl md:text-2xl text-emerald-700">{question.target.vn}</strong>?</span>;
+            // 7) City, Transport, Housing
+            { topic: "City, Transport, Housing", en: "accommodation", type: "n", ipa: "/əˌkɒməˈdeɪʃən/", vn: "chỗ ở" },
+            { topic: "City, Transport, Housing", en: "housing", type: "n", ipa: "/ˈhaʊzɪŋ/", vn: "nhà ở" },
+            { topic: "City, Transport, Housing", en: "public transport", type: "n.phr", ipa: "/ˌpʌblɪk ˈtrænspɔːt/", vn: "phương tiện công cộng" },
+            { topic: "City, Transport, Housing", en: "traffic congestion", type: "n.phr", ipa: "/ˈtræfɪk kənˈdʒestʃən/", vn: "tắc nghẽn giao thông" },
+            { topic: "City, Transport, Housing", en: "pedestrian", type: "n", ipa: "/pəˈdestriən/", vn: "người đi bộ" },
+            { topic: "City, Transport, Housing", en: "infrastructure", type: "n", ipa: "/ˈɪnfrəˌstrʌktʃə/", vn: "cơ sở hạ tầng" },
+            { topic: "City, Transport, Housing", en: "commute", type: "v", ipa: "/kəˈmjuːt/", vn: "đi đi về về (nhà - nơi làm việc)" },
+            { topic: "City, Transport, Housing", en: "rent a flat", type: "v.phr", ipa: "/rent ə flæt/", vn: "thuê căn hộ" },
+            { topic: "City, Transport, Housing", en: "move to the city", type: "v.phr", ipa: "/muːv tə ðə ˈsɪti/", vn: "chuyển đến thành phố" },
+            { topic: "City, Transport, Housing", en: "reduce traffic jams", type: "v.phr", ipa: "/rɪˈdjuːs ˈtræfɪk dʒæmz/", vn: "giảm tắc đường" },
+            { topic: "City, Transport, Housing", en: "improve public services", type: "v.phr", ipa: "/ɪmˈpruːv ˈpʌblɪk ˈsɜːvɪsɪz/", vn: "cải thiện dịch vụ công" },
+            { topic: "City, Transport, Housing", en: "affordable housing", type: "n.phr", ipa: "/əˈfɔːdəbl ˈhaʊzɪŋ/", vn: "nhà ở giá phải chăng" },
+            { topic: "City, Transport, Housing", en: "crowded", type: "adj", ipa: "/ˈkraʊdɪd/", vn: "đông đúc" },
+            { topic: "City, Transport, Housing", en: "convenient location", type: "n.phr", ipa: "/kənˈviːniənt ləʊˈkeɪʃən/", vn: "vị trí thuận tiện" },
+            { topic: "City, Transport, Housing", en: "residential area", type: "n.phr", ipa: "/ˌrezɪˈdenʃəl ˈeəriə/", vn: "khu dân cư" },
 
-  return (
-    <div className="max-w-2xl mx-auto bg-white p-5 md:p-8 rounded-3xl shadow-sm border border-gray-100">
-      
-      <div className="flex justify-between items-center mb-6 md:mb-8 pb-4 border-b border-gray-100">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800">Quiz Practice</h2>
-        <div className="bg-indigo-50 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-semibold text-indigo-700 text-sm md:text-base">
-          Score: {score.correct} / {score.total}
-        </div>
-      </div>
+            // 8) Media, Culture, Leisure
+            { topic: "Media, Culture, Leisure", en: "entertainment", type: "n", ipa: "/ˌentəˈteɪnmənt/", vn: "giải trí" },
+            { topic: "Media, Culture, Leisure", en: "leisure activity", type: "n.phr", ipa: "/ˈleʒə ækˈtɪvəti/", vn: "hoạt động giải trí" },
+            { topic: "Media, Culture, Leisure", en: "documentary", type: "n", ipa: "/ˌdɒkjuˈmentri/", vn: "phim tài liệu" },
+            { topic: "Media, Culture, Leisure", en: "traditional culture", type: "n.phr", ipa: "/trəˈdɪʃənəl ˈkʌltʃə/", vn: "văn hóa truyền thống" },
+            { topic: "Media, Culture, Leisure", en: "cultural identity", type: "n.phr", ipa: "/ˈkʌltʃərəl aɪˈdentəti/", vn: "bản sắc văn hóa" },
+            { topic: "Media, Culture, Leisure", en: "audience", type: "n", ipa: "/ˈɔːdiəns/", vn: "khán giả" },
+            { topic: "Media, Culture, Leisure", en: "relax", type: "v", ipa: "/rɪˈlæks/", vn: "thư giãn" },
+            { topic: "Media, Culture, Leisure", en: "watch a programme", type: "v.phr", ipa: "/wɒtʃ ə ˈprəʊɡræm/", vn: "xem chương trình" },
+            { topic: "Media, Culture, Leisure", en: "take part in an activity", type: "v.phr", ipa: "/teɪk pɑːt ɪn ən ækˈtɪvəti/", vn: "tham gia hoạt động" },
+            { topic: "Media, Culture, Leisure", en: "preserve tradition", type: "v.phr", ipa: "/prɪˈzɜːv trəˈdɪʃən/", vn: "bảo tồn truyền thống" },
+            { topic: "Media, Culture, Leisure", en: "broaden one’s horizon", type: "v.phr", ipa: "/ˈbrɔːdn wʌnz həˈraɪzn/", vn: "mở mang tầm nhìn" },
+            { topic: "Media, Culture, Leisure", en: "spend free time", type: "v.phr", ipa: "/spend friː taɪm/", vn: "dành thời gian rảnh" },
+            { topic: "Media, Culture, Leisure", en: "educational", type: "adj", ipa: "/ˌedʒʊˈkeɪʃənəl/", vn: "mang tính giáo dục" },
+            { topic: "Media, Culture, Leisure", en: "entertaining", type: "adj", ipa: "/ˌentəˈteɪnɪŋ/", vn: "mang tính giải trí" },
+            { topic: "Media, Culture, Leisure", en: "time-consuming", type: "adj", ipa: "/ˈtaɪm kənˌsjuːmɪŋ/", vn: "tốn thời gian" },
 
-      <div className="text-center mb-6 md:mb-8">
-        <p className="text-gray-500 mb-2 uppercase text-xs md:text-sm font-semibold tracking-wider">{question.target.topic}</p>
-        <h3 className="text-lg md:text-2xl text-gray-800 leading-relaxed">{questionText}</h3>
-      </div>
+            // 9) Speaking Functions
+            { topic: "Speaking Functions", en: "in my opinion", type: "adv.phr", ipa: "/ɪn maɪ əˈpɪnjən/", vn: "theo ý kiến của tôi" },
+            { topic: "Speaking Functions", en: "from my point of view", type: "adv.phr", ipa: "/frəm maɪ pɔɪnt əv vjuː/", vn: "theo quan điểm của tôi" },
+            { topic: "Speaking Functions", en: "as far as I know", type: "adv.cl", ipa: "/əz fɑːr əz aɪ nəʊ/", vn: "theo như tôi biết" },
+            { topic: "Speaking Functions", en: "it seems to me that", type: "cl.phr", ipa: "/ɪt siːmz tə miː ðæt/", vn: "tôi cảm thấy rằng" },
+            { topic: "Speaking Functions", en: "I would say that", type: "cl.phr", ipa: "/aɪ wʊd seɪ ðæt/", vn: "tôi sẽ nói rằng" },
+            { topic: "Speaking Functions", en: "for example", type: "adv.phr", ipa: "/fɔːr ɪɡˈzɑːmpl/", vn: "ví dụ" },
+            { topic: "Speaking Functions", en: "for instance", type: "adv.phr", ipa: "/fɔːr ˈɪnstəns/", vn: "chẳng hạn" },
+            { topic: "Speaking Functions", en: "such as", type: "prep.phr", ipa: "/sʌtʃ əz/", vn: "chẳng hạn như" },
+            { topic: "Speaking Functions", en: "in general", type: "adv.phr", ipa: "/ɪn ˈdʒenrəl/", vn: "nhìn chung" },
+            { topic: "Speaking Functions", en: "in particular", type: "adv.phr", ipa: "/ɪn pəˈtɪkjələ/", vn: "đặc biệt là" },
+            { topic: "Speaking Functions", en: "to be honest", type: "adv.phr", ipa: "/tə bi ˈɒnɪst/", vn: "thành thật mà nói" },
+            { topic: "Speaking Functions", en: "as a result", type: "adv.phr", ipa: "/əz ə rɪˈzʌlt/", vn: "kết quả là" },
+            { topic: "Speaking Functions", en: "because of this", type: "adv.phr", ipa: "/bɪˈkɒz əv ðɪs/", vn: "vì điều này" },
+            { topic: "Speaking Functions", en: "on the one hand", type: "adv.phr", ipa: "/ɒn ðə wʌn hænd/", vn: "một mặt" },
+            { topic: "Speaking Functions", en: "on the other hand", type: "adv.phr", ipa: "/ɒn ði ˈʌðə hænd/", vn: "mặt khác" },
 
-      <div className="space-y-3 mb-6 md:mb-8">
-        {question.options.map((option, idx) => {
-          let btnClass = "w-full text-left p-3 md:p-4 rounded-xl border-2 transition-all font-medium text-base md:text-lg ";
-          let icon = null;
+            // 10) Writing Task 2 Functions
+            { topic: "Writing Task 2 Functions", en: "play an important role", type: "v.phr", ipa: "/pleɪ ən ɪmˈpɔːtənt rəʊl/", vn: "đóng vai trò quan trọng" },
+            { topic: "Writing Task 2 Functions", en: "have a positive effect on", type: "v.phr", ipa: "/hæv ə ˈpɒzətɪv ɪˈfekt ɒn/", vn: "có tác động tích cực đến" },
+            { topic: "Writing Task 2 Functions", en: "have a negative impact on", type: "v.phr", ipa: "/hæv ə ˈneɡətɪv ˈɪmpækt ɒn/", vn: "có tác động tiêu cực đến" },
+            { topic: "Writing Task 2 Functions", en: "lead to a problem", type: "v.phr", ipa: "/liːd tə ə ˈprɒbləm/", vn: "dẫn tới vấn đề" },
+            { topic: "Writing Task 2 Functions", en: "result in a change", type: "v.phr", ipa: "/rɪˈzʌlt ɪn ə tʃeɪndʒ/", vn: "dẫn đến sự thay đổi" },
+            { topic: "Writing Task 2 Functions", en: "contribute to a situation", type: "v.phr", ipa: "/kənˈtrɪbjuːt tə ə ˌsɪtʃuˈeɪʃən/", vn: "góp phần vào một tình huống" },
+            { topic: "Writing Task 2 Functions", en: "solve a problem", type: "v.phr", ipa: "/sɒlv ə ˈprɒbləm/", vn: "giải quyết vấn đề" },
+            { topic: "Writing Task 2 Functions", en: "take a measure", type: "v.phr", ipa: "/teɪk ə ˈmeʒə/", vn: "thực hiện biện pháp" },
+            { topic: "Writing Task 2 Functions", en: "raise awareness", type: "v.phr", ipa: "/reɪz əˈweənəs/", vn: "nâng cao nhận thức" },
+            { topic: "Writing Task 2 Functions", en: "provide an opportunity", type: "v.phr", ipa: "/prəˈvaɪd ən ˌɒpəˈtjuːnəti/", vn: "tạo cơ hội" },
+            { topic: "Writing Task 2 Functions", en: "there are several reasons why", type: "cl.phr", ipa: "/ðeər ɑː ˈsevrəl ˈriːzənz waɪ/", vn: "có một số lý do tại sao" },
+            { topic: "Writing Task 2 Functions", en: "one possible solution is that", type: "cl.phr", ipa: "/wʌn ˈpɒsəbl səˈluːʃən ɪz ðæt/", vn: "một giải pháp khả thi là" },
+            { topic: "Writing Task 2 Functions", en: "it is widely believed that", type: "cl.phr", ipa: "/ɪt ɪz ˈwaɪdli bɪˈliːvd ðæt/", vn: "người ta tin rằng" },
+            { topic: "Writing Task 2 Functions", en: "it is clear that", type: "cl.phr", ipa: "/ɪt ɪz klɪə ðæt/", vn: "rõ ràng là" },
+            { topic: "Writing Task 2 Functions", en: "this is because", type: "cl.phr", ipa: "/ðɪs ɪz bɪˈkɒz/", vn: "điều này là vì" },
 
-          if (!selectedAnswer) {
-            btnClass += "border-gray-200 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50";
-          } else {
-            const isThisOptionCorrect = option.en === question.target.en;
-            const isThisOptionSelected = selectedAnswer.option.en === option.en;
+            // 11) Writing Task 1 Functions
+            { topic: "Writing Task 1 Functions", en: "increase", type: "v/n", ipa: "/ɪnˈkriːs/ ; /ˈɪŋkriːs/", vn: "tăng / sự tăng" },
+            { topic: "Writing Task 1 Functions", en: "decrease", type: "v/n", ipa: "/dɪˈkriːs/ ; /ˈdiːkriːs/", vn: "giảm / sự giảm" },
+            { topic: "Writing Task 1 Functions", en: "remain stable", type: "v.phr", ipa: "/rɪˈmeɪn ˈsteɪbl/", vn: "giữ ổn định" },
+            { topic: "Writing Task 1 Functions", en: "fluctuate", type: "v", ipa: "/ˈflʌktʃueɪt/", vn: "dao động" },
+            { topic: "Writing Task 1 Functions", en: "reach a peak", type: "v.phr", ipa: "/riːtʃ ə piːk/", vn: "đạt đỉnh" },
+            { topic: "Writing Task 1 Functions", en: "hit a low point", type: "v.phr", ipa: "/hɪt ə ləʊ pɔɪnt/", vn: "chạm mức thấp" },
+            { topic: "Writing Task 1 Functions", en: "account for", type: "v", ipa: "/əˈkaʊnt fɔː/", vn: "chiếm" },
+            { topic: "Writing Task 1 Functions", en: "make up", type: "v", ipa: "/meɪk ʌp/", vn: "tạo thành, chiếm" },
+            { topic: "Writing Task 1 Functions", en: "the figure for", type: "n.phr", ipa: "/ðə ˈfɪɡə fɔː/", vn: "số liệu cho" },
+            { topic: "Writing Task 1 Functions", en: "the percentage of", type: "n.phr", ipa: "/ðə pəˈsentɪdʒ əv/", vn: "tỷ lệ của" },
+            { topic: "Writing Task 1 Functions", en: "compared with", type: "prep.phr", ipa: "/kəmˈpeəd wɪð/", vn: "so với" },
+            { topic: "Writing Task 1 Functions", en: "in contrast", type: "adv.phr", ipa: "/ɪn ˈkɒntrɑːst/", vn: "trái lại" },
+            { topic: "Writing Task 1 Functions", en: "overall", type: "adv", ipa: "/ˌəʊvərˈɔːl/", vn: "nhìn chung" },
+            { topic: "Writing Task 1 Functions", en: "respectively", type: "adv", ipa: "/rɪˈspektɪvli/", vn: "lần lượt" },
+            { topic: "Writing Task 1 Functions", en: "slightly", type: "adv", ipa: "/ˈslaɪtli/", vn: "nhẹ, một chút" },
 
-            if (isThisOptionCorrect) {
-              btnClass += "border-emerald-500 bg-emerald-50 text-emerald-700";
-              icon = <CheckCircle2 className="w-6 h-6 text-emerald-500" />;
-            } else if (isThisOptionSelected && !selectedAnswer.isCorrect) {
-              btnClass += "border-red-400 bg-red-50 text-red-700";
-              icon = <XCircle className="w-6 h-6 text-red-500" />;
-            } else {
-              btnClass += "border-gray-200 text-gray-400 opacity-50";
-            }
-          }
+            // 12) Reading & Listening
+            { topic: "Reading & Listening", en: "factor", type: "n", ipa: "/ˈfæktə/", vn: "yếu tố" },
+            { topic: "Reading & Listening", en: "issue", type: "n", ipa: "/ˈɪʃuː/", vn: "vấn đề" },
+            { topic: "Reading & Listening", en: "trend", type: "n", ipa: "/trend/", vn: "xu hướng" },
+            { topic: "Reading & Listening", en: "evidence", type: "n", ipa: "/ˈevɪdəns/", vn: "bằng chứng" },
+            { topic: "Reading & Listening", en: "research", type: "n", ipa: "/rɪˈsɜːtʃ/", vn: "nghiên cứu" },
+            { topic: "Reading & Listening", en: "survey", type: "n", ipa: "/ˈsɜːveɪ/", vn: "khảo sát" },
+            { topic: "Reading & Listening", en: "data", type: "n", ipa: "/ˈdeɪtə/", vn: "dữ liệu" },
+            { topic: "Reading & Listening", en: "method", type: "n", ipa: "/ˈmeθəd/", vn: "phương pháp" },
+            { topic: "Reading & Listening", en: "benefit", type: "n/v", ipa: "/ˈbenɪfɪt/", vn: "lợi ích / mang lại lợi ích" },
+            { topic: "Reading & Listening", en: "drawback", type: "n", ipa: "/ˈdrɔːbæk/", vn: "hạn chế" },
+            { topic: "Reading & Listening", en: "challenge", type: "n", ipa: "/ˈtʃælɪndʒ/", vn: "thách thức" },
+            { topic: "Reading & Listening", en: "consequence", type: "n", ipa: "/ˈkɒnsɪkwəns/", vn: "hậu quả" },
+            { topic: "Reading & Listening", en: "approach", type: "n", ipa: "/əˈprəʊtʃ/", vn: "cách tiếp cận" },
+            { topic: "Reading & Listening", en: "affect", type: "v", ipa: "/əˈfekt/", vn: "ảnh hưởng đến" },
+            { topic: "Reading & Listening", en: "significant", type: "adj", ipa: "/sɪɡˈnɪfɪkənt/", vn: "đáng kể" },
 
-          return (
-            <button
-              key={idx}
-              disabled={!!selectedAnswer}
-              onClick={() => handleAnswer(option)}
-              className={btnClass + " flex justify-between items-center"}
-            >
-              <span>{isEnToVn ? option.vn : option.en}</span>
-              {icon}
-            </button>
-          );
-        })}
-      </div>
+            // 13) Adjectives for Band 6.0
+            { topic: "Adjectives Band 6.0", en: "beneficial", type: "adj", ipa: "/ˌbenɪˈfɪʃəl/", vn: "có lợi" },
+            { topic: "Adjectives Band 6.0", en: "harmful", type: "adj", ipa: "/ˈhɑːmfəl/", vn: "có hại" },
+            { topic: "Adjectives Band 6.0", en: "essential", type: "adj", ipa: "/ɪˈsenʃəl/", vn: "thiết yếu" },
+            { topic: "Adjectives Band 6.0", en: "common", type: "adj", ipa: "/ˈkɒmən/", vn: "phổ biến" },
+            { topic: "Adjectives Band 6.0", en: "popular", type: "adj", ipa: "/ˈpɒpjələ/", vn: "phổ biến" },
+            { topic: "Adjectives Band 6.0", en: "effective", type: "adj", ipa: "/ɪˈfektɪv/", vn: "hiệu quả" },
+            { topic: "Adjectives Band 6.0", en: "inefficient", type: "adj", ipa: "/ˌɪnɪˈfɪʃənt/", vn: "kém hiệu quả" },
+            { topic: "Adjectives Band 6.0", en: "flexible", type: "adj", ipa: "/ˈfleksəbl/", vn: "linh hoạt" },
+            { topic: "Adjectives Band 6.0", en: "stressful", type: "adj", ipa: "/ˈstresfəl/", vn: "căng thẳng" },
+            { topic: "Adjectives Band 6.0", en: "reliable", type: "adj", ipa: "/rɪˈlaɪəbl/", vn: "đáng tin cậy" },
+            { topic: "Adjectives Band 6.0", en: "independent", type: "adj", ipa: "/ˌɪndɪˈpendənt/", vn: "độc lập" },
+            { topic: "Adjectives Band 6.0", en: "responsible", type: "adj", ipa: "/rɪˈspɒnsəbl/", vn: "có trách nhiệm" },
+            { topic: "Adjectives Band 6.0", en: "ordinary", type: "adj", ipa: "/ˈɔːdnri/", vn: "bình thường" },
+            { topic: "Adjectives Band 6.0", en: "impressive", type: "adj", ipa: "/ɪmˈpresɪv/", vn: "ấn tượng" },
+            { topic: "Adjectives Band 6.0", en: "suitable", type: "adj", ipa: "/ˈsuːtəbl/", vn: "phù hợp" },
 
-      {selectedAnswer && (
-        <div className="text-center animate-fade-in-up">
-          <button 
-            onClick={generateQuestion}
-            className="inline-flex items-center px-6 py-2.5 md:px-8 md:py-3 bg-indigo-600 text-white rounded-full font-bold shadow hover:bg-indigo-700 transition-colors text-sm md:text-base"
-          >
-            <span>Next Question</span>
-            <ChevronRight className="w-4 h-4 md:w-5 h-5 ml-2" />
-          </button>
-        </div>
-      )}
+            // 14) Verbs for Band 6.0
+            { topic: "Verbs Band 6.0", en: "improve", type: "v", ipa: "/ɪmˈpruːv/", vn: "cải thiện" },
+            { topic: "Verbs Band 6.0", en: "reduce", type: "v", ipa: "/rɪˈdjuːs/", vn: "giảm" },
+            { topic: "Verbs Band 6.0", en: "increase", type: "v", ipa: "/ɪnˈkriːs/", vn: "tăng" },
+            { topic: "Verbs Band 6.0", en: "encourage", type: "v", ipa: "/ɪnˈkʌrɪdʒ/", vn: "khuyến khích" },
+            { topic: "Verbs Band 6.0", en: "discourage", type: "v", ipa: "/dɪsˈkʌrɪdʒ/", vn: "làm nản lòng, ngăn cản" },
+            { topic: "Verbs Band 6.0", en: "provide", type: "v", ipa: "/prəˈvaɪd/", vn: "cung cấp" },
+            { topic: "Verbs Band 6.0", en: "create", type: "v", ipa: "/kriˈeɪt/", vn: "tạo ra" },
+            { topic: "Verbs Band 6.0", en: "protect", type: "v", ipa: "/prəˈtekt/", vn: "bảo vệ" },
+            { topic: "Verbs Band 6.0", en: "replace", type: "v", ipa: "/rɪˈpleɪs/", vn: "thay thế" },
+            { topic: "Verbs Band 6.0", en: "support", type: "v", ipa: "/səˈpɔːt/", vn: "hỗ trợ" },
+            { topic: "Verbs Band 6.0", en: "influence", type: "v", ipa: "/ˈɪnfluəns/", vn: "ảnh hưởng" },
+            { topic: "Verbs Band 6.0", en: "prefer", type: "v", ipa: "/prɪˈfɜː/", vn: "thích hơn" },
+            { topic: "Verbs Band 6.0", en: "depend on", type: "v.phr", ipa: "/dɪˈpend ɒn/", vn: "phụ thuộc vào" },
+            { topic: "Verbs Band 6.0", en: "deal with", type: "v.phr", ipa: "/diːl wɪð/", vn: "xử lý" },
+            { topic: "Verbs Band 6.0", en: "cope with", type: "v.phr", ipa: "/kəʊp wɪð/", vn: "đối phó với" },
 
-    </div>
-  );
-}
+            // 15) Linking words
+            { topic: "Linking words", en: "firstly", type: "adv", ipa: "/ˈfɜːstli/", vn: "thứ nhất" },
+            { topic: "Linking words", en: "secondly", type: "adv", ipa: "/ˈsekəndli/", vn: "thứ hai" },
+            { topic: "Linking words", en: "moreover", type: "adv", ipa: "/mɔːrˈəʊvə/", vn: "hơn nữa" },
+            { topic: "Linking words", en: "furthermore", type: "adv", ipa: "/ˈfɜːðəmɔː/", vn: "hơn nữa" },
+            { topic: "Linking words", en: "however", type: "adv", ipa: "/haʊˈevə/", vn: "tuy nhiên" },
+            { topic: "Linking words", en: "therefore", type: "adv", ipa: "/ˈðeəfɔː/", vn: "vì vậy" },
+            { topic: "Linking words", en: "consequently", type: "adv", ipa: "/ˈkɒnsɪkwəntli/", vn: "do đó" },
+            { topic: "Linking words", en: "meanwhile", type: "adv", ipa: "/ˈmiːnwaɪl/", vn: "trong khi đó" },
+            { topic: "Linking words", en: "in addition", type: "adv.phr", ipa: "/ɪn əˈdɪʃən/", vn: "thêm vào đó" },
+            { topic: "Linking words", en: "for this reason", type: "adv.phr", ipa: "/fɔː ðɪs ˈriːzən/", vn: "vì lý do này" },
+            { topic: "Linking words", en: "for this purpose", type: "adv.phr", ipa: "/fɔː ðɪs ˈpɜːpəs/", vn: "nhằm mục đích này" },
+            { topic: "Linking words", en: "in conclusion", type: "adv.phr", ipa: "/ɪn kənˈkluːʒən/", vn: "kết luận lại" },
+            { topic: "Linking words", en: "to sum up", type: "adv.phr", ipa: "/tə sʌm ʌp/", vn: "tóm lại" },
+            { topic: "Linking words", en: "although", type: "conj", ipa: "/ɔːlˈðəʊ/", vn: "mặc dù" },
+            { topic: "Linking words", en: "while", type: "conj", ipa: "/waɪl/", vn: "trong khi, còn" }
+        ];
+
+        const TOPICS = ["All Topics", ...Array.from(new Set(VOCAB_DATA.map(w => w.topic)))];
+
+        // ==========================================
+        // 1. STUDY MODE
+        // ==========================================
+        function StudyMode({ words }) {
+            return (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-3 md:p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                        <span className="font-semibold text-sm md:text-base text-gray-700">Showing {words.length} words</span>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse min-w-[300px]">
+                            <thead>
+                                <tr className="bg-gray-50 text-gray-500 text-xs md:text-sm">
+                                    <th className="p-3 md:p-4 border-b font-medium">Vocabulary (Eng)</th>
+                                    <th className="p-3 md:p-4 border-b font-medium hidden sm:table-cell">Part of Speech</th>
+                                    <th className="p-3 md:p-4 border-b font-medium">Pronunciation (IPA)</th>
+                                    <th className="p-3 md:p-4 border-b font-medium">Vietnamese Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {words.map((word, index) => (
+                                    <tr key={index} className="hover:bg-indigo-50/50 transition-colors border-b last:border-0 text-sm md:text-base">
+                                        <td className="p-3 md:p-4 font-semibold text-indigo-900">{word.en}</td>
+                                        <td className="p-3 md:p-4 text-gray-500 text-xs md:text-sm hidden sm:table-cell">{word.type}</td>
+                                        <td className="p-3 md:p-4 text-gray-600 font-mono text-xs md:text-sm">{word.ipa}</td>
+                                        <td className="p-3 md:p-4 text-gray-800">{word.vn}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // 2. FLASHCARD MODE
+        // ==========================================
+        function FlashcardMode({ words }) {
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            useEffect(() => {
+                setCurrentIndex(0);
+                setIsFlipped(false);
+            }, [words]);
+
+            if (words.length === 0) return null;
+
+            const currentWord = words[currentIndex];
+
+            const handleNext = () => {
+                setIsFlipped(false);
+                setTimeout(() => setCurrentIndex((prev) => (prev + 1) % words.length), 150);
+            };
+
+            const handlePrev = () => {
+                setIsFlipped(false);
+                setTimeout(() => setCurrentIndex((prev) => (prev - 1 + words.length) % words.length), 150);
+            };
+
+            const handleShuffle = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    const randomIdx = Math.floor(Math.random() * words.length);
+                    setCurrentIndex(randomIdx);
+                }, 150);
+            };
+
+            return (
+                <div className="flex flex-col items-center">
+                    <p className="text-gray-500 mb-4 font-medium">Card {currentIndex + 1} / {words.length}</p>
+                    
+                    <div 
+                        className="w-full max-w-lg h-64 md:h-80 perspective-1000 cursor-pointer"
+                        onClick={() => setIsFlipped(!isFlipped)}
+                    >
+                        <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+                            <div className="absolute w-full h-full backface-hidden bg-white border-2 border-indigo-100 rounded-3xl shadow-lg flex flex-col items-center justify-center p-6 md:p-8 text-center">
+                                <span className="text-xs md:text-sm font-semibold text-indigo-400 mb-2 md:mb-4 uppercase tracking-wider">{currentWord.topic}</span>
+                                <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-2 md:mb-4">{currentWord.en}</h2>
+                                <p className="text-base md:text-lg font-mono text-gray-500">{currentWord.ipa}</p>
+                                <p className="absolute bottom-4 md:bottom-6 text-xs md:text-sm text-gray-400 animate-pulse">Click to flip</p>
+                            </div>
+
+                            <div className="absolute w-full h-full backface-hidden bg-indigo-600 rounded-3xl shadow-lg flex flex-col items-center justify-center p-6 md:p-8 text-center rotate-y-180">
+                                <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">{currentWord.vn}</h2>
+                                <p className="text-indigo-200 text-base md:text-lg">({currentWord.type})</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-4 mt-6 md:mt-8">
+                        <button onClick={handlePrev} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
+                            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                        </button>
+                        <button onClick={handleShuffle} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-indigo-600 flex items-center px-4 md:px-6">
+                            <Shuffle className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                            <span className="font-medium text-sm md:text-base">Shuffle</span>
+                        </button>
+                        <button onClick={handleNext} className="p-3 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
+                            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // 3. QUIZ MODE
+        // ==========================================
+        function QuizMode({ words }) {
+            const [question, setQuestion] = useState(null);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [score, setScore] = useState({ correct: 0, total: 0 });
+
+            const generateQuestion = () => {
+                setSelectedAnswer(null);
+                const correctIdx = Math.floor(Math.random() * words.length);
+                const correctWord = words[correctIdx];
+
+                let options = [correctWord];
+                while (options.length < 4) {
+                    const randomWord = words[Math.floor(Math.random() * words.length)];
+                    if (!options.find(opt => opt.en === randomWord.en)) {
+                        options.push(randomWord);
+                    }
+                }
+                options = options.sort(() => Math.random() - 0.5);
+
+                setQuestion({
+                    target: correctWord,
+                    options: options,
+                    questionType: Math.random() > 0.5 ? 'en-to-vn' : 'vn-to-en'
+                });
+            };
+
+            useEffect(() => { generateQuestion(); }, []);
+
+            if (!question) return null;
+
+            const handleAnswer = (option) => {
+                if (selectedAnswer) return;
+                const isCorrect = option.en === question.target.en;
+                setSelectedAnswer({ option, isCorrect });
+                setScore(prev => ({ correct: prev.correct + (isCorrect ? 1 : 0), total: prev.total + 1 }));
+            };
+
+            const isEnToVn = question.questionType === 'en-to-vn';
+            
+            return (
+                <div className="max-w-2xl mx-auto bg-white p-5 md:p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex justify-between items-center mb-6 md:mb-8 pb-4 border-b border-gray-100">
+                        <h2 className="text-lg md:text-xl font-bold text-gray-800">Quiz Practice</h2>
+                        <div className="bg-indigo-50 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-semibold text-indigo-700 text-sm md:text-base">
+                            Score: {score.correct} / {score.total}
+                        </div>
+                    </div>
+
+                    <div className="text-center mb-6 md:mb-8">
+                        <p className="text-gray-500 mb-2 uppercase text-xs md:text-sm font-semibold tracking-wider">{question.target.topic}</p>
+                        <h3 className="text-lg md:text-2xl text-gray-800 leading-relaxed">
+                            {isEnToVn ? 
+                                <span>What is the meaning of <strong className="text-xl md:text-2xl text-indigo-700">{question.target.en}</strong>?</span> : 
+                                <span>Which word means <strong className="text-xl md:text-2xl text-emerald-700">{question.target.vn}</strong>?</span>
+                            }
+                        </h3>
+                    </div>
+
+                    <div className="space-y-3 mb-6 md:mb-8">
+                        {question.options.map((option, idx) => {
+                            let btnClass = "w-full text-left p-3 md:p-4 rounded-xl border-2 transition-all font-medium text-base md:text-lg flex justify-between items-center ";
+                            let icon = null;
+
+                            if (!selectedAnswer) {
+                                btnClass += "border-gray-200 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50";
+                            } else {
+                                const isCorrect = option.en === question.target.en;
+                                const isSelected = selectedAnswer.option.en === option.en;
+
+                                if (isCorrect) {
+                                    btnClass += "border-emerald-500 bg-emerald-50 text-emerald-700";
+                                    icon = <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" />;
+                                } else if (isSelected && !selectedAnswer.isCorrect) {
+                                    btnClass += "border-red-400 bg-red-50 text-red-700";
+                                    icon = <XCircle className="w-5 h-5 md:w-6 md:h-6 text-red-500" />;
+                                } else {
+                                    btnClass += "border-gray-200 text-gray-400 opacity-50";
+                                }
+                            }
+
+                            return (
+                                <button key={idx} disabled={!!selectedAnswer} onClick={() => handleAnswer(option)} className={btnClass}>
+                                    <span>{isEnToVn ? option.vn : option.en}</span>
+                                    {icon}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {selectedAnswer && (
+                        <div className="text-center">
+                            <button onClick={generateQuestion} className="inline-flex items-center px-6 py-2.5 md:px-8 md:py-3 bg-indigo-600 text-white rounded-full font-bold shadow hover:bg-indigo-700 transition-colors text-sm md:text-base">
+                                <span>Next Question</span>
+                                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==========================================
+        // MAIN APP
+        // ==========================================
+        function App() {
+            const [activeTab, setActiveTab] = useState('study');
+            const [selectedTopic, setSelectedTopic] = useState('All Topics');
+
+            const filteredWords = useMemo(() => {
+                return selectedTopic === 'All Topics' 
+                    ? VOCAB_DATA 
+                    : VOCAB_DATA.filter(w => w.topic === selectedTopic);
+            }, [selectedTopic]);
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <header className="text-center mb-6 md:mb-8">
+                            <h1 className="text-2xl md:text-4xl font-bold text-indigo-700 mb-2">IELTS Vocabulary for Band 6.0</h1>
+                            <p className="text-sm md:text-base text-gray-500">Master the 15 most important topics</p>
+                        </header>
+
+                        <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
+                            <button onClick={() => setActiveTab('study')} className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'study' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}>
+                                <BookOpen className="w-4 h-4 md:w-5 md:h-5 mr-2" /> <span>Study List</span>
+                            </button>
+                            <button onClick={() => setActiveTab('flashcard')} className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'flashcard' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}>
+                                <Layers className="w-4 h-4 md:w-5 md:h-5 mr-2" /> <span>Flashcards</span>
+                            </button>
+                            <button onClick={() => setActiveTab('quiz')} className={`flex items-center px-3 py-2 md:px-4 md:py-2 rounded-full font-medium text-sm md:text-base transition-colors ${activeTab === 'quiz' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-indigo-50 border border-gray-200'}`}>
+                                <HelpCircle className="w-4 h-4 md:w-5 md:h-5 mr-2" /> <span>Quiz</span>
+                            </button>
+                        </div>
+
+                        {activeTab !== 'quiz' && (
+                            <div className="mb-6 flex flex-wrap gap-2 justify-center">
+                                {TOPICS.map(topic => (
+                                    <button
+                                        key={topic}
+                                        onClick={() => setSelectedTopic(topic)}
+                                        className={`px-3 py-1 text-xs md:text-sm rounded-full border transition-colors ${selectedTopic === topic ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        {topic}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {activeTab === 'study' && <StudyMode words={filteredWords} />}
+                        {activeTab === 'flashcard' && <FlashcardMode words={filteredWords} />}
+                        {activeTab === 'quiz' && <QuizMode words={VOCAB_DATA} />}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
