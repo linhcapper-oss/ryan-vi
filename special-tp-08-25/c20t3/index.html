@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Vocabulary Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals with Soft Teal and Muted Clay Accents -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive learning dashboard. It moves from high-level synthesis (Topic Distribution Chart) to active exploration (Filterable Word Library) and finally to active recall (4-Mode Interactive Exercises). The practice section dynamically generates quizzes based on the selected mode, evaluating the user's recall of definitions, recognition, and spelling. -->
+    <!-- Visualization & Content Choices: 
+        1. Topic Stats -> Goal: Inform/Organize -> Viz: Chart.js Doughnut Chart -> Interaction: Hover for tooltips. -> Library: Chart.js (NO SVG).
+        2. Word Library -> Goal: Organize/Filter -> Viz: Dynamic Grid of Cards -> Interaction: Search bar, category dropdown. -> Library: Vanilla JS + HTML Grid (NO SVG).
+        3. Practice Area -> Goal: Active Learning & Assessment -> Viz: Dynamic Form UI with Tabs -> Interaction: Tab switching, selecting options, typing inputs, automated grading -> Justification: Replaces passive flashcards with active testing across 4 cognitive modes (Matching, EN-VI, VI-EN, Spelling/Blanks). -> Library: Vanilla JS (NO SVG). 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfbf9;
+            color: #333333;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .word-card {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .word-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom radio button styling */
+        .quiz-radio {
+            accent-color: #0f766e; /* teal-700 */
+        }
+        
+        .tab-btn.active {
+            border-bottom: 2px solid #0f766e;
+            color: #0f766e;
+            font-weight: 600;
+        }
+
+        /* Flashcard Styles */
+        .perspective-1000 { perspective: 1000px; }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .flashcard-front {
+            background-color: #ffffff;
+            border: 2px solid #e5e7eb;
+        }
+        .flashcard-back {
+            background-color: #0f766e;
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        /* Hide scrollbar for mobile nav */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex flex-col md:flex-row justify-between md:items-center gap-3">
+            <h1 class="text-xl md:text-2xl font-bold text-stone-800 flex items-center gap-2">
+                <span class="text-2xl md:text-3xl">&#128218;</span> VocabHub
+            </h1>
+            <nav class="flex overflow-x-auto whitespace-nowrap space-x-4 md:space-x-8 hide-scrollbar pb-1 md:pb-0">
+                <a href="#overview" class="text-sm md:text-base text-stone-600 hover:text-teal-700 font-medium">Overview</a>
+                <a href="#library" class="text-sm md:text-base text-stone-600 hover:text-teal-700 font-medium">Word Library</a>
+                <a href="#flashcards" class="text-sm md:text-base text-stone-600 hover:text-teal-700 font-medium">Flashcards</a>
+                <a href="#practice" class="text-sm md:text-base text-stone-600 hover:text-teal-700 font-medium">Practice</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 md:space-y-16">
+
+        <!-- Overview Section -->
+        <section id="overview" class="scroll-mt-24">
+            <div class="mb-8 text-center max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Vocabulary Data Overview</h2>
+                <p class="text-stone-600 leading-relaxed">
+                    This section provides an overview of the vocabulary list structure. The data is divided into 4 main topics. The chart below illustrates the distribution of vocabulary across each topic, helping you visualize the workload before diving into the details. Hover over the chart to see specific counts.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2">
+                    <div class="chart-container">
+                        <canvas id="topicChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 space-y-6">
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-200">
+                        <h3 class="text-xl font-semibold text-stone-800 mb-2">Quick Stats</h3>
+                        <ul class="space-y-3 text-stone-600">
+                            <li class="flex justify-between items-center">
+                                <span>Total Words:</span>
+                                <span class="font-bold text-teal-700 text-lg">52</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>Number of Topics:</span>
+                                <span class="font-bold text-teal-700 text-lg">4</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 rounded-lg bg-[#e6f4f1] text-[#235c5d] border border-[#b2dfdb]">
+                            <div class="text-sm font-medium">Largest Topic</div>
+                            <div class="text-lg font-bold mt-1">Theatre programmes</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-[#fff3e0] text-[#e65100] border border-[#ffe0b2]">
+                            <div class="text-sm font-medium">Smallest Topic</div>
+                            <div class="text-lg font-bold mt-1">Archaeological dig</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Library Section -->
+        <section id="library" class="scroll-mt-24">
+            <div class="mb-8 text-center max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-stone-800 mb-4">Interactive Word Library</h2>
+                <p class="text-stone-600 leading-relaxed">
+                    Explore all 52 vocabulary words here. Use the search bar to find specific terms or filter to view words by topic. Each card provides full information on pronunciation and the corresponding Vietnamese meaning.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-100 p-6">
+                <div class="flex flex-col md:flex-row gap-4 mb-8">
+                    <div class="flex-1 relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400 text-xl">&#128269;</span>
+                        <input type="text" id="searchInput" placeholder="Search English words or Vietnamese meanings..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all">
+                    </div>
+                    <select id="topicFilter" class="w-full md:w-64 px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-stone-700">
+                        <option value="all">All Topics</option>
+                        <option value="Part 1: Furniture rental">Part 1: Furniture rental</option>
+                        <option value="Part 2: Archaeological dig">Part 2: Archaeological dig</option>
+                        <option value="Part 3: Theatre programmes">Part 3: Theatre programmes</option>
+                        <option value="Part 4: Inclusive design">Part 4: Inclusive design</option>
+                    </select>
+                </div>
+
+                <div id="wordGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Cards injected by JS -->
+                </div>
+                
+                <div id="noResults" class="hidden text-center py-12 text-stone-500">
+            <span class="text-4xl block mb-2">&#128533;</span>
+            No matching vocabulary found.
+        </div>
+    </div>
+</section>
+
+<!-- Flashcards Section -->
+<section id="flashcards" class="scroll-mt-24">
+    <div class="mb-8 text-center max-w-3xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-stone-800 mb-4">Flashcards</h2>
+        <p class="text-stone-600 leading-relaxed text-sm md:text-base">
+            Review vocabulary using flashcards before taking the practice quizzes. Select a topic, try to remember the meaning, and tap the card to flip it.
+        </p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+        <div class="mb-6 flex justify-center">
+            <select id="flashcardTopic" class="w-full md:w-auto px-6 py-3 rounded-xl border border-teal-200 text-teal-800 font-medium focus:outline-none bg-teal-50 cursor-pointer shadow-sm">
+                <option value="all">Practice all topics</option>
+                <option value="Part 1: Furniture rental">Part 1: Furniture rental</option>
+                <option value="Part 2: Archaeological dig">Part 2: Archaeological dig</option>
+                <option value="Part 3: Theatre programmes">Part 3: Theatre programmes</option>
+                <option value="Part 4: Inclusive design">Part 4: Inclusive design</option>
+            </select>
+        </div>
+
+        <div class="relative h-64 md:h-80 mb-8 perspective-1000 cursor-pointer" id="flashcardContainer">
+            <div class="flashcard w-full h-full" id="flashcard">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <span id="fc-topic" class="absolute top-4 left-4 text-[10px] md:text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-1 rounded">Topic</span>
+                        <span id="fc-counter" class="absolute top-4 right-4 text-xs md:text-sm font-medium text-stone-400">1 / 52</span>
+                        <h3 id="fc-word" class="text-2xl md:text-3xl font-bold text-stone-800 mb-2">word</h3>
+                        <p id="fc-ipa" class="text-base md:text-lg text-stone-500 font-mono">/ipa/</p>
+                        <div class="absolute bottom-4 text-xs md:text-sm text-stone-400 flex items-center gap-1">
+                            &#128070; Tap to flip
+                        </div>
+                    </div>
+                    <div class="flashcard-back">
+                        <h3 id="fc-meaning" class="text-xl md:text-2xl font-bold mb-4 text-center px-4">Vietnamese meaning</h3>
+                        <div class="absolute bottom-4 text-xs md:text-sm text-teal-100 flex items-center gap-1">
+                            &#128070; Tap to return
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center gap-2">
+            <button id="btnPrevFC" class="px-4 py-3 md:px-6 bg-white border border-stone-300 rounded-lg shadow-sm hover:bg-stone-50 text-stone-700 font-medium transition-colors flex items-center gap-1 md:gap-2 text-sm md:text-base">
+                &#8592; <span class="hidden sm:inline">Prev</span>
+            </button>
+            <button id="btnShuffleFC" class="px-4 py-3 md:px-6 bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors text-sm md:text-base font-medium shadow-sm flex items-center gap-1 md:gap-2" title="Shuffle Cards">
+                &#128256; <span class="hidden sm:inline">Shuffle</span>
+            </button>
+            <button id="btnNextFC" class="px-4 py-3 md:px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm font-medium transition-colors flex items-center gap-1 md:gap-2 text-sm md:text-base">
+                <span class="hidden sm:inline">Next</span> &#8594;
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Practice Section -->
+<section id="practice" class="scroll-mt-24 pb-16">
+    <div class="mb-8 text-center max-w-3xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-stone-800 mb-4">Practice Zone: Interactive Exercises</h2>
+        <p class="text-stone-600 leading-relaxed text-sm md:text-base">
+            Test your memory with four types of exercises. Select an exercise mode below to generate a new quiz. This active recall method is highly effective for solidifying long-term retention.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
+        <!-- Tabs -->
+        <div class="grid grid-cols-2 md:flex md:flex-wrap border-b border-stone-200 bg-stone-50" id="quizTabs">
+            <button class="tab-btn active w-full md:flex-1 py-3 md:py-4 px-2 md:px-6 text-sm md:text-base text-stone-500 hover:text-stone-800 transition-colors" data-type="matching">
+                1. Matching
+            </button>
+            <button class="tab-btn w-full md:flex-1 py-3 md:py-4 px-2 md:px-6 text-sm md:text-base text-stone-500 hover:text-stone-800 transition-colors" data-type="mc-en-vi">
+                2. MC (EN-VI)
+            </button>
+            <button class="tab-btn w-full md:flex-1 py-3 md:py-4 px-2 md:px-6 text-sm md:text-base text-stone-500 hover:text-stone-800 transition-colors border-t md:border-t-0" data-type="mc-vi-en">
+                3. MC (VI-EN)
+            </button>
+            <button class="tab-btn w-full md:flex-1 py-3 md:py-4 px-2 md:px-6 text-sm md:text-base text-stone-500 hover:text-stone-800 transition-colors border-t md:border-t-0" data-type="blanks">
+                4. Blanks
+            </button>
+        </div>
+
+        <!-- Quiz Container -->
+                <div class="p-6 md:p-8">
+                    <div id="quizContainer" class="space-y-8">
+                        <!-- Dynamic quiz content injected here -->
+                    </div>
+
+                    <!-- Quiz Actions -->
+                    <div class="mt-8 pt-6 border-t border-stone-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div id="quizResult" class="text-lg font-bold text-teal-700 hidden">
+                            Score: <span id="scoreText"></span>
+                        </div>
+                        <div class="flex gap-4 w-full sm:w-auto">
+                            <button id="btnGenerateQuiz" class="flex-1 sm:flex-none px-6 py-2 bg-stone-100 text-stone-700 rounded-lg hover:bg-stone-200 transition-colors font-medium">
+                                Generate New Quiz
+                            </button>
+                            <button id="btnCheckAnswers" class="flex-1 sm:flex-none px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
+                                Check Answers
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-800 text-stone-400 py-8 text-center">
+        <p>Interactive Vocabulary Workspace &copy; 2024</p>
+    </footer>
+
+    <script>
+        const vocabData = [
+            { english: "temporary work contract", type: "n.phr", ipa: "/ˈtɛmpərəri wɜːk ˈkɒntrækt/", vietnamese: "hợp đồng làm việc tạm thời", topic: "Part 1: Furniture rental" },
+            { english: "make something permanent", type: "v.phr", ipa: "/meɪk ˈsʌmθɪŋ ˈpɜːmənənt/", vietnamese: "làm cho cái gì trở nên dài hạn/chính thức", topic: "Part 1: Furniture rental" },
+            { english: "positive feedback", type: "n.phr", ipa: "/ˈpɒzɪtɪv ˈfiːdbæk/", vietnamese: "phản hồi tích cực", topic: "Part 1: Furniture rental" },
+            { english: "brochure", type: "n", ipa: "/ˈbrəʊʃə/", vietnamese: "tài liệu quảng cáo, sách mỏng", topic: "Part 1: Furniture rental" },
+            { english: "place an order", type: "v.phr", ipa: "/pleɪs ən ˈɔːdə/", vietnamese: "đặt hàng", topic: "Part 1: Furniture rental" },
+            { english: "special offer", type: "n.phr", ipa: "/ˈspɛʃəl ˈɒfə/", vietnamese: "ưu đãi đặc biệt", topic: "Part 1: Furniture rental" },
+            { english: "price range", type: "n.phr", ipa: "/praɪs reɪndʒ/", vietnamese: "khoảng giá, mức giá", topic: "Part 1: Furniture rental" },
+            { english: "be aware", type: "adj.phr", ipa: "/bi əˈweə/", vietnamese: "nhận thức được, lưu ý", topic: "Part 1: Furniture rental" },
+            { english: "do the math", type: "v.phr", ipa: "/duː ðə mæθ/", vietnamese: "làm toán, tính toán kỹ lưỡng", topic: "Part 1: Furniture rental" },
+            { english: "take out insurance", type: "v.phr", ipa: "/teɪk aʊt ɪnˈʃʊərəns/", vietnamese: "mua/đăng ký bảo hiểm", topic: "Part 1: Furniture rental" },
+            { english: "take out a contract", type: "v.phr", ipa: "/teɪk aʊt ə ˈkɒntrækt/", vietnamese: "ký kết hợp đồng", topic: "Part 1: Furniture rental" },
+            { english: "request an exchange", type: "v.phr", ipa: "/rɪˈkwɛst ən ɪksˈtʃeɪndʒ/", vietnamese: "yêu cầu đổi hàng", topic: "Part 1: Furniture rental" },
+            { english: "archaeologist", type: "n", ipa: "/ˌɑːkɪˈɒlədʒɪst/", vietnamese: "nhà khảo cổ học", topic: "Part 2: Archaeological dig" },
+            { english: "investigate a site", type: "v.phr", ipa: "/ɪnˈvɛstɪɡeɪt ə saɪt/", vietnamese: "điều tra/khảo sát một khu vực", topic: "Part 2: Archaeological dig" },
+            { english: "amateur historian", type: "n.phr", ipa: "/ˈæmətə hɪˈstɔːrɪən/", vietnamese: "nhà sử học nghiệp dư", topic: "Part 2: Archaeological dig" },
+            { english: "ruined building", type: "n.phr", ipa: "/ˈruːɪnd ˈbɪldɪŋ/", vietnamese: "tòa nhà đổ nát/bị tàn phá", topic: "Part 2: Archaeological dig" },
+            { english: "uncover an item", type: "v.phr", ipa: "/ʌnˈkʌvə ən ˈaɪtəm/", vietnamese: "khai quật/khám phá ra một món đồ", topic: "Part 2: Archaeological dig" },
+            { english: "be skilled at something", type: "adj.phr", ipa: "/bi skɪld æt ˈsʌmθɪŋ/", vietnamese: "thành thạo/khéo léo trong việc gì", topic: "Part 2: Archaeological dig" },
+            { english: "evidence of human activity", type: "n.phr", ipa: "/ˈɛvɪdəns ɒv ˈhjuːmən ækˈtɪvɪti/", vietnamese: "bằng chứng về hoạt động của con người", topic: "Part 2: Archaeological dig" },
+            { english: "guided tour", type: "n.phr", ipa: "/ˈɡaɪdɪd tʊə/", vietnamese: "chuyến tham quan có hướng dẫn", topic: "Part 2: Archaeological dig" },
+            { english: "TV documentary", type: "n.phr", ipa: "/ˌtiːˈviː ˌdɒkjʊˈmɛntəri/", vietnamese: "phim tài liệu truyền hình", topic: "Part 2: Archaeological dig" },
+            { english: "foundation", type: "n", ipa: "/faʊnˈdeɪʃən/", vietnamese: "nền móng", topic: "Part 2: Archaeological dig" },
+            { english: "excavate", type: "v", ipa: "/ˈɛkskəveɪt/", vietnamese: "khai quật", topic: "Part 2: Archaeological dig" },
+            { english: "module convener", type: "n.phr", ipa: "/ˈmɒdʒ.uːl kənˈviː.nər/", vietnamese: "giảng viên phụ trách học phần", topic: "Part 3: Theatre programmes" },
+            { english: "put someone off", type: "phr.v", ipa: "/pʊt ˈsʌm.wʌn ɒf/", vietnamese: "làm ai đó nản lòng, làm mất hứng", topic: "Part 3: Theatre programmes" },
+            { english: "specialise in something", type: "v.phr", ipa: "/ˈspeʃ.əl.aɪz ɪn/", vietnamese: "chuyên về lĩnh vực gì", topic: "Part 3: Theatre programmes" },
+            { english: "on someone's behalf", type: "prep.phr", ipa: "/ɒn ˈsʌm.wʌnz bɪˈhɑːf/", vietnamese: "đại diện cho / thay mặt cho ai", topic: "Part 3: Theatre programmes" },
+            { english: "draw a huge crowd", type: "v.phr", ipa: "/drɔː ə hjuːdʒ kraʊd/", vietnamese: "thu hút một đám đông lớn", topic: "Part 3: Theatre programmes" },
+            { english: "demand a refund", type: "v.phr", ipa: "/dɪˈmɑːnd ə ˈriː.fʌnd/", vietnamese: "yêu cầu hoàn lại tiền", topic: "Part 3: Theatre programmes" },
+            { english: "illiterate", type: "adj", ipa: "/ɪˈlɪt.ər.ət/", vietnamese: "mù chữ, không biết đọc biết viết", topic: "Part 3: Theatre programmes" },
+            { english: "resemble", type: "v", ipa: "/rɪˈzem.bəl/", vietnamese: "giống với, tương tự như", topic: "Part 3: Theatre programmes" },
+            { english: "superior", type: "adj", ipa: "/suːˈpɪə.ri.ər/", vietnamese: "vượt trội, tốt hơn", topic: "Part 3: Theatre programmes" },
+            { english: "undergo a dramatic change", type: "v.phr", ipa: "/ˌʌn.dəˈɡəʊ ə drəˈmæt.ɪk tʃeɪndʒ/", vietnamese: "trải qua một sự thay đổi ngoạn mục", topic: "Part 3: Theatre programmes" },
+            { english: "impose restrictions on something", type: "v.phr", ipa: "/ɪmˈpəʊz rɪˈstrɪk.ʃənz ɒn/", vietnamese: "áp đặt các lệnh hạn chế lên điều gì", topic: "Part 3: Theatre programmes" },
+            { english: "paper shortage", type: "n.phr", ipa: "/ˈpeɪ.pər ˈʃɔː.tɪdʒ/", vietnamese: "sự thiếu hụt giấy", topic: "Part 3: Theatre programmes" },
+            { english: "decorative", type: "adj", ipa: "/ˈdek.ər.ə.tɪv/", vietnamese: "mang tính trang trí, đẹp mắt", topic: "Part 3: Theatre programmes" },
+            { english: "surviving document", type: "n.phr", ipa: "/səˈvaɪ.vɪŋ ˈdɒk.jə.mənt/", vietnamese: "tài liệu còn sót lại/tồn tại đến nay", topic: "Part 3: Theatre programmes" },
+            { english: "comprise", type: "v", ipa: "/kəmˈpraɪz/", vietnamese: "bao gồm, chứa đựng", topic: "Part 3: Theatre programmes" },
+            { english: "span barriers", type: "v.phr", ipa: "/spæn ˈbær.i.ərz/", vietnamese: "vượt qua các rào cản", topic: "Part 4: Inclusive design" },
+            { english: "accessible", type: "adj", ipa: "/əkˈses.ə.bəl/", vietnamese: "có thể tiếp cận, dễ sử dụng", topic: "Part 4: Inclusive design" },
+            { english: "cognitive difficulty", type: "n.phr", ipa: "/ˈkɒɡ.nə.tɪv ˈdɪf.ɪ.kəl.ti/", vietnamese: "khó khăn về mặt nhận thức", topic: "Part 4: Inclusive design" },
+            { english: "hygienic", type: "adj", ipa: "/haɪˈdʒiː.nɪk/", vietnamese: "hợp vệ sinh, sạch sẽ", topic: "Part 4: Inclusive design" },
+            { english: "dexterity", type: "n", ipa: "/dekˈster.ə.ti/", vietnamese: "sự khéo léo (thường chỉ đôi tay)", topic: "Part 4: Inclusive design" },
+            { english: "distinguish between", type: "v.phr", ipa: "/dɪˈstɪŋ.ɡwɪʃ bɪˈtwiːn/", vietnamese: "phân biệt giữa các thứ", topic: "Part 4: Inclusive design" },
+            { english: "inexplicably", type: "adv", ipa: "/ˌɪn.ɪkˈsplɪk.ə.bli/", vietnamese: "một cách khó hiểu, không thể giải thích", topic: "Part 4: Inclusive design" },
+            { english: "safety implication", type: "n.phr", ipa: "/ˈseɪf.ti ˌɪm.plɪˈkeɪ.ʃən/", vietnamese: "hệ lụy / tác động tiềm ẩn đến sự an toàn", topic: "Part 4: Inclusive design" },
+            { english: "accommodate", type: "v", ipa: "/əˈkɒm.ə.deɪt/", vietnamese: "điều chỉnh để phù hợp, chứa đựng", topic: "Part 4: Inclusive design" },
+            { english: "comply with something", type: "v.phr", ipa: "/kəmˈplaɪ wɪð/", vietnamese: "tuân thủ điều gì (luật lệ, yêu cầu)", topic: "Part 4: Inclusive design" },
+            { english: "ill-fitting", type: "adj", ipa: "/ˌɪlˈfɪt.ɪŋ/", vietnamese: "không vừa vặn (quần áo, thiết bị)", topic: "Part 4: Inclusive design" },
+            { english: "hamper", type: "v", ipa: "/ˈhæm.pər/", vietnamese: "cản trở, gây khó khăn", topic: "Part 4: Inclusive design" },
+            { english: "metabolic rate", type: "n.phr", ipa: "/ˌmet.əˈbɒl.ɪk reɪt/", vietnamese: "tốc độ trao đổi chất", topic: "Part 4: Inclusive design" },
+            { english: "serious consequence", type: "n.phr", ipa: "/ˈsɪə.ri.əs ˈkɒn.sɪ.kwəns/", vietnamese: "hậu quả nghiêm trọng", topic: "Part 4: Inclusive design" }
+        ];
+
+        // --- SECTION 1 & 2: Overview Chart & Word Library --- //
+        const chartColors = ['#4fd1c5', '#f6ad55', '#fc8181', '#68d391'];
+        
+        function initChart() {
+            const ctx = document.getElementById('topicChart').getContext('2d');
+            const topicCounts = {};
+            vocabData.forEach(item => {
+                topicCounts[item.topic] = (topicCounts[item.topic] || 0) + 1;
+            });
+            const labels = Object.keys(topicCounts).map(l => l.replace('Part ', 'P'));
+            const data = Object.values(topicCounts);
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: chartColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" }, color: '#4b5563', padding: 20 } },
+                        tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw + ' words'; } } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function getTopicColorClass(topic) {
+            if(topic.includes('Part 1')) return 'bg-teal-100 text-teal-800';
+            if(topic.includes('Part 2')) return 'bg-orange-100 text-orange-800';
+            if(topic.includes('Part 3')) return 'bg-red-100 text-red-800';
+            if(topic.includes('Part 4')) return 'bg-green-100 text-green-800';
+            return 'bg-gray-100 text-gray-800';
+        }
+
+        function renderWordLibrary(data) {
+            const grid = document.getElementById('wordGrid');
+            const noRes = document.getElementById('noResults');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.classList.add('hidden');
+                noRes.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            noRes.classList.add('hidden');
+
+            data.forEach(item => {
+                const badgeColor = getTopicColorClass(item.topic);
+                const shortTopic = item.topic.split(':')[0]; 
+
+                const card = document.createElement('div');
+                card.className = 'word-card bg-white border border-stone-200 rounded-xl p-5 flex flex-col justify-between h-full';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${badgeColor}">${shortTopic}</span>
+                            <span class="text-xs font-mono text-stone-400 border border-stone-200 rounded px-1">${item.type}</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-stone-800 mb-1">${item.english}</h4>
+                        <p class="text-stone-500 font-mono text-sm mb-4">${item.ipa}</p>
+                    </div>
+                    <div class="pt-3 border-t border-stone-100 mt-auto">
+                        <p class="text-stone-700 font-medium">${item.vietnamese}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setupFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const topicFilter = document.getElementById('topicFilter');
+
+            function filterData() {
+                const term = searchInput.value.toLowerCase();
+                const topic = topicFilter.value;
+
+                const filtered = vocabData.filter(item => {
+                    const matchSearch = item.english.toLowerCase().includes(term) || item.vietnamese.toLowerCase().includes(term);
+                    const matchTopic = topic === 'all' || item.topic === topic;
+                    return matchSearch && matchTopic;
+                });
+                renderWordLibrary(filtered);
+            }
+
+            searchInput.addEventListener('input', filterData);
+        topicFilter.addEventListener('change', filterData);
+    }
+
+    // --- SECTION 2.5: Flashcards --- //
+    let flashcardData = [];
+    let currentCardIndex = 0;
+
+    function updateFlashcardUI() {
+        if (flashcardData.length === 0) return;
+
+        const card = document.getElementById('flashcard');
+        card.classList.remove('flipped'); 
+
+        setTimeout(() => {
+            const item = flashcardData[currentCardIndex];
+            document.getElementById('fc-topic').textContent = item.topic.split(':')[0];
+            document.getElementById('fc-topic').className = `absolute top-4 left-4 text-[10px] md:text-xs font-semibold px-2 py-1 rounded ${getTopicColorClass(item.topic)}`;
+            document.getElementById('fc-counter').textContent = `${currentCardIndex + 1} / ${flashcardData.length}`;
+            document.getElementById('fc-word').textContent = item.english;
+            document.getElementById('fc-ipa').textContent = item.ipa;
+            document.getElementById('fc-meaning').textContent = item.vietnamese;
+        }, 150); 
+    }
+
+    function initFlashcards() {
+        const topicSelect = document.getElementById('flashcardTopic');
+        const btnPrev = document.getElementById('btnPrevFC');
+        const btnNext = document.getElementById('btnNextFC');
+        const btnShuffle = document.getElementById('btnShuffleFC');
+        const card = document.getElementById('flashcard');
+
+        function loadFlashcardData() {
+            const selectedTopic = topicSelect.value;
+            if (selectedTopic === 'all') {
+                flashcardData = [...vocabData];
+            } else {
+                flashcardData = vocabData.filter(item => item.topic === selectedTopic);
+            }
+            currentCardIndex = 0;
+            updateFlashcardUI();
+        }
+
+        topicSelect.addEventListener('change', loadFlashcardData);
+
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+            } else {
+                currentCardIndex = flashcardData.length - 1;
+            }
+            updateFlashcardUI();
+        });
+
+        btnNext.addEventListener('click', () => {
+            if (currentCardIndex < flashcardData.length - 1) {
+                currentCardIndex++;
+            } else {
+                currentCardIndex = 0;
+            }
+            updateFlashcardUI();
+        });
+
+        btnShuffle.addEventListener('click', () => {
+            for (let i = flashcardData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcardData[i], flashcardData[j]] = [flashcardData[j], flashcardData[i]];
+            }
+            currentCardIndex = 0;
+            updateFlashcardUI();
+        });
+
+        loadFlashcardData();
+    }
+
+    // --- SECTION 3: Interactive Practice --- //
+    let currentQuizType = 'matching';
+    let currentQuestions = [];
+        
+        // Utilities
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function getRandomItems(array, n, exclude = []) {
+            const filtered = array.filter(item => !exclude.includes(item));
+            return shuffleArray(filtered).slice(0, n);
+        }
+
+        // Generators
+        function generateMatching() {
+            const items = getRandomItems(vocabData, 5);
+            currentQuestions = items.map(item => ({ question: item.english, answer: item.vietnamese }));
+            
+            const shuffledMeanings = shuffleArray(items.map(item => item.vietnamese));
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+
+            let html = `<p class="text-sm text-stone-500 mb-6 font-medium">Match the English word on the left with the correct Vietnamese meaning on the right.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="font-bold text-stone-700 border-b pb-2">English Word</h4>`;
+            
+            items.forEach((item, index) => {
+                html += `
+                <div class="flex items-center gap-3 bg-white p-3 rounded border border-stone-200 shadow-sm" data-idx="${index}">
+                    <span class="font-bold text-stone-400">${index + 1}.</span>
+                    <span class="font-medium text-stone-800 flex-1">${item.english}</span>
+                    <select class="quiz-select border border-stone-300 rounded px-2 py-1 text-sm bg-stone-50 focus:ring-2 focus:ring-teal-500 outline-none" data-answer="${item.vietnamese}">
+                        <option value="">--</option>
+                        ${letters.map((l, i) => `<option value="${shuffledMeanings[i]}">${l}</option>`).join('')}
+                    </select>
+                </div>`;
+            });
+
+            html += `</div><div class="space-y-4">
+                        <h4 class="font-bold text-stone-700 border-b pb-2">Vietnamese Meaning</h4>`;
+            
+            shuffledMeanings.forEach((meaning, index) => {
+                html += `
+                <div class="flex items-center gap-3 bg-stone-50 p-3 rounded border border-stone-200">
+                    <span class="font-bold text-teal-700 bg-teal-100 w-6 h-6 flex items-center justify-center rounded">${letters[index]}</span>
+                    <span class="text-stone-700 text-sm">${meaning}</span>
+                </div>`;
+            });
+            
+            html += `</div></div>`;
+            return html;
+        }
+
+        function generateMC_EN_VI() {
+            const items = getRandomItems(vocabData, 5);
+            currentQuestions = items;
+            
+            let html = `<p class="text-sm text-stone-500 mb-6 font-medium">Choose the correct Vietnamese meaning for each English word.</p><div class="space-y-6">`;
+            
+            items.forEach((item, qIndex) => {
+                const distractors = getRandomItems(vocabData, 3, [item]).map(d => d.vietnamese);
+                const options = shuffleArray([item.vietnamese, ...distractors]);
+                
+                html += `
+                <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm quiz-item" data-correct="${item.vietnamese}">
+                    <h4 class="text-lg font-bold text-stone-800 mb-3">${qIndex + 1}. ${item.english}</h4>
+                    <div class="space-y-2 pl-4">`;
+                    options.forEach((opt, oIndex) => {
+                        html += `
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="q_${qIndex}" value="${opt}" class="quiz-radio w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300">
+                            <span class="text-stone-700 group-hover:text-stone-900 transition-colors">${opt}</span>
+                        </label>`;
+                    });
+                html += `</div></div>`;
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        function generateMC_VI_EN() {
+            const items = getRandomItems(vocabData, 5);
+            currentQuestions = items;
+            
+            let html = `<p class="text-sm text-stone-500 mb-6 font-medium">Choose the correct English word for each Vietnamese meaning.</p><div class="space-y-6">`;
+            
+            items.forEach((item, qIndex) => {
+                const distractors = getRandomItems(vocabData, 3, [item]).map(d => d.english);
+                const options = shuffleArray([item.english, ...distractors]);
+                
+                html += `
+                <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm quiz-item" data-correct="${item.english}">
+                    <h4 class="text-lg font-bold text-stone-800 mb-3">${qIndex + 1}. "${item.vietnamese}"</h4>
+                    <div class="space-y-2 pl-4">`;
+                    options.forEach((opt, oIndex) => {
+                        html += `
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="q_vi_${qIndex}" value="${opt}" class="quiz-radio w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300">
+                            <span class="text-stone-700 group-hover:text-stone-900 transition-colors">${opt}</span>
+                        </label>`;
+                    });
+                html += `</div></div>`;
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        function generateBlanks() {
+            const items = getRandomItems(vocabData, 5);
+            currentQuestions = items;
+            
+            let html = `<p class="text-sm text-stone-500 mb-6 font-medium">Type the exact English word/phrase for the given meaning and type. Spelling matters!</p><div class="space-y-4">`;
+            
+            items.forEach((item, index) => {
+                html += `
+                <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 quiz-item" data-correct="${item.english.toLowerCase()}">
+                    <div class="flex-1">
+                        <span class="font-bold text-stone-400 mr-2">${index + 1}.</span>
+                        <span class="text-stone-800 font-medium">${item.vietnamese}</span>
+                        <span class="text-xs font-mono text-stone-400 border border-stone-200 rounded px-1 ml-2 bg-stone-50">${item.type}</span>
+                    </div>
+                    <div class="w-full sm:w-1/2">
+                        <input type="text" class="quiz-input w-full border border-stone-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-shadow text-stone-700" placeholder="Type answer here...">
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        // Flow Management
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            document.getElementById('quizResult').classList.add('hidden');
+            
+            if (currentQuizType === 'matching') container.innerHTML = generateMatching();
+            else if (currentQuizType === 'mc-en-vi') container.innerHTML = generateMC_EN_VI();
+            else if (currentQuizType === 'mc-vi-en') container.innerHTML = generateMC_VI_EN();
+            else if (currentQuizType === 'blanks') container.innerHTML = generateBlanks();
+        }
+
+        function checkAnswers() {
+            let score = 0;
+            const total = 5;
+
+            if (currentQuizType === 'matching') {
+                const selects = document.querySelectorAll('.quiz-select');
+                selects.forEach(select => {
+                    const parent = select.closest('div');
+                    parent.classList.remove('bg-green-50', 'border-green-300', 'bg-red-50', 'border-red-300');
+                    if (select.value === select.getAttribute('data-answer')) {
+                        score++;
+                        parent.classList.add('bg-green-50', 'border-green-300');
+                    } else {
+                        parent.classList.add('bg-red-50', 'border-red-300');
+                    }
+                });
+            } 
+            else if (currentQuizType === 'mc-en-vi' || currentQuizType === 'mc-vi-en') {
+                const items = document.querySelectorAll('.quiz-item');
+                items.forEach(item => {
+                    const correctVal = item.getAttribute('data-correct');
+                    const selected = item.querySelector('input[type="radio"]:checked');
+                    item.classList.remove('border-green-400', 'bg-green-50', 'border-red-400', 'bg-red-50');
+                    
+                    if (selected && selected.value === correctVal) {
+                        score++;
+                        item.classList.add('border-green-400', 'bg-green-50');
+                    } else {
+                        item.classList.add('border-red-400', 'bg-red-50');
+                        // Highlight correct answer slightly if wrong
+                        const correctRadio = Array.from(item.querySelectorAll('input[type="radio"]')).find(r => r.value === correctVal);
+                        if(correctRadio) correctRadio.nextElementSibling.classList.add('text-green-700', 'font-bold');
+                    }
+                });
+            } 
+            else if (currentQuizType === 'blanks') {
+                const items = document.querySelectorAll('.quiz-item');
+                items.forEach(item => {
+                    const correctVal = item.getAttribute('data-correct');
+                    const input = item.querySelector('.quiz-input');
+                    const userVal = input.value.trim().toLowerCase();
+                    
+                    input.classList.remove('border-green-500', 'bg-green-50', 'text-green-800', 'border-red-500', 'bg-red-50', 'text-red-800');
+                    if (userVal === correctVal) {
+                        score++;
+                        input.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                    } else {
+                        input.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                        // Show correct answer snippet
+                        if(!item.querySelector('.correct-answer-hint')) {
+                            const hint = document.createElement('div');
+                            hint.className = 'correct-answer-hint text-sm text-green-700 mt-2 font-medium';
+                            hint.textContent = `Correct: ${item.getAttribute('data-correct')}`;
+                            item.querySelector('.w-full.sm\\:w-1\\/2').appendChild(hint);
+                        }
+                    }
+                });
+            }
+
+            const resultDiv = document.getElementById('quizResult');
+            const scoreText = document.getElementById('scoreText');
+            scoreText.textContent = `${score} / ${total}`;
+            scoreText.className = score === total ? 'text-green-600' : (score > 2 ? 'text-orange-500' : 'text-red-500');
+            resultDiv.classList.remove('hidden');
+        }
+
+        // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        initChart();
+        renderWordLibrary(vocabData);
+        setupFilters();
+        initFlashcards();
+        
+        // Practice Tabs Logic
+        const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    currentQuizType = e.currentTarget.getAttribute('data-type');
+                    renderQuiz();
+                });
+            });
+
+            document.getElementById('btnGenerateQuiz').addEventListener('click', renderQuiz);
+            document.getElementById('btnCheckAnswers').addEventListener('click', checkAnswers);
+            
+            // Initial Quiz Render
+            renderQuiz();
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
