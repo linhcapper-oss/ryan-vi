@@ -3,158 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IELTS Task 1 Upgrade Worksheet</title>
+  <title>IELTS Task 1 Upgrade App</title>
   <style>
     :root {
-      --bg: #f3f6fb;
-      --card: #ffffff;
+      --bg: #f5f7fb;
+      --card: rgba(255,255,255,0.92);
       --text: #0f172a;
       --muted: #64748b;
       --line: #dbe4f0;
       --primary: #2563eb;
+      --primary-deep: #1d4ed8;
       --primary-soft: #dbeafe;
-      --good: #047857;
-      --good-soft: #d1fae5;
-      --warn: #9a3412;
-      --warn-soft: #ffedd5;
-      --chip: #eef2ff;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 22px;
+      --purple-soft: #eef2ff;
+      --green: #047857;
+      --green-soft: #d1fae5;
+      --red: #be123c;
+      --red-soft: #fff1f2;
+      --shadow: 0 18px 48px rgba(15,23,42,0.08);
+      --radius: 28px;
     }
-
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
       font-family: Inter, Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
       color: var(--text);
+      background:
+        radial-gradient(circle at top left, #e0ecff 0%, transparent 28%),
+        radial-gradient(circle at top right, #ede9fe 0%, transparent 24%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
     }
-
+    img { max-width: 100%; display: block; }
     .container {
-      width: min(1180px, calc(100% - 24px));
+      width: min(1200px, calc(100% - 24px));
       margin: 0 auto;
       padding: 16px 0 40px;
     }
-
     .hero {
-      display: grid;
-      grid-template-columns: 1.7fr 0.9fr;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(219, 228, 240, 0.9);
-      border-radius: var(--radius);
+      padding: 24px;
+      border-radius: 34px;
       box-shadow: var(--shadow);
+      background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(255,255,255,0.88));
+      border: 1px solid rgba(219,228,240,0.88);
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
     }
-
-    .hero-main, .hero-side, .section {
-      padding: 20px;
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(37,99,235,0.14), transparent 65%);
+      pointer-events: none;
     }
-
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
     .badges {
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 12px;
     }
-
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
       border-radius: 999px;
-      background: var(--chip);
-      color: #3730a3;
+      padding: 8px 12px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
+      background: var(--purple-soft);
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
     }
-
     h1 {
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.15;
       margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.06;
+      letter-spacing: -0.02em;
     }
-
     .subtext {
       color: var(--muted);
-      line-height: 1.7;
-      margin-top: 12px;
+      line-height: 1.72;
       font-size: 15px;
     }
-
-    .stats {
+    .hero-stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
       gap: 10px;
       margin-top: 18px;
+      max-width: 440px;
     }
-
     .stat {
       border: 1px solid var(--line);
+      background: rgba(248,250,252,0.9);
       border-radius: 18px;
       padding: 14px;
-      background: #f8fafc;
     }
-
-    .stat-label { color: var(--muted); font-size: 13px; }
-    .stat-value { font-size: 26px; font-weight: 800; margin-top: 4px; }
-
-    .side-title {
-      font-size: 18px;
-      font-weight: 800;
-      margin: 0 0 14px;
-    }
-
-    .step {
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      border-radius: 16px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      color: #334155;
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
+    .stat-label { font-size: 12px; color: var(--muted); }
+    .stat-value { font-size: 26px; font-weight: 900; margin-top: 4px; }
     .tabs {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 18px;
     }
-
     .tab-btn {
       border: 1px solid var(--line);
-      background: #fff;
-      color: #0f172a;
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s ease;
-      min-height: 46px;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .section-title {
-      font-size: 22px;
+      background: rgba(255,255,255,0.92);
+      padding: 13px 16px;
+      border-radius: 18px;
       font-weight: 800;
-      margin: 0 0 16px;
+      color: var(--text);
+      cursor: pointer;
+      min-height: 48px;
+      transition: .18s ease;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.04);
     }
-
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(37,99,235,0.22);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(219,228,240,0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
     .search {
       width: min(420px, 100%);
       border: 1px solid var(--line);
@@ -163,502 +166,639 @@
       padding: 14px 16px;
       outline: none;
       font-size: 15px;
-      margin-bottom: 18px;
     }
-
-    .grid-3 {
+    .search:focus, textarea:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    }
+    .vocab-layout {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
     }
-
-    .mini-card {
+    .sidebar {
       border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 24px;
+      padding: 14px;
+      background: rgba(255,255,255,0.9);
+      position: sticky;
+      top: 12px;
+      height: fit-content;
+    }
+    .menu-group-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 8px 0 10px;
+    }
+    .menu-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      border-radius: 16px;
+      padding: 11px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      transition: .16s ease;
+    }
+    .menu-btn:hover { background: #f8fafc; }
+    .menu-btn.active {
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+      border-color: #bfdbfe;
+    }
+    .menu-meta {
+      font-size: 11px;
+      opacity: .82;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .vocab-display { display: grid; gap: 14px; }
+    .topic-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(255,255,255,0.94);
+    }
+    .topic-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .topic-title { font-size: 22px; font-weight: 900; margin: 0; }
+    .topic-tag {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      background: var(--purple-soft);
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+    }
+    .topic-desc { color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+    .chip-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .word-chip {
+      border: 1px solid var(--line);
       background: white;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .16s ease;
     }
-
-    .mini-card h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
+    .word-chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 8px 20px rgba(37,99,235,0.2);
     }
-
-    .vocab-item {
+    .word-detail {
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      background: #f8fafc;
+      border-radius: 20px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+    .detail-word { font-size: 20px; font-weight: 900; margin: 0 0 8px; }
+    .detail-labels {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 10px;
     }
-
-    .vocab-word { font-weight: 700; }
-    .vocab-meaning { font-size: 14px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
-
-    .grid-2, .grid-patterns {
+    .mini-badge {
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #334155;
+    }
+    .detail-meaning { color: var(--muted); line-height: 1.62; margin-bottom: 10px; }
+    .detail-example {
+      border-left: 4px solid #bfdbfe;
+      padding-left: 12px;
+      color: #334155;
+      line-height: 1.7;
+      font-style: italic;
+    }
+    .patterns-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
     }
-
-    .pattern-box {
+    .pattern-card {
       border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.94);
+      padding: 18px;
+    }
+    .pattern-card h3 { margin: 0 0 12px; font-size: 20px; }
+    .box-basic, .box-structure, .box-upgraded {
       border-radius: 18px;
-      padding: 16px;
-      background: white;
-    }
-
-    .label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .basic { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 12px; margin-bottom: 10px; }
-    .upgrade { background: var(--good-soft); border: 1px solid #a7f3d0; border-radius: 14px; padding: 12px; }
-    .basic .label { color: #be123c; }
-    .upgrade .label { color: var(--good); }
-
-    details {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: white;
-      margin-bottom: 10px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 700;
-      list-style: none;
-    }
-
-    summary::-webkit-details-marker { display: none; }
-
-    .exercise {
-      margin-bottom: 16px;
-    }
-
-    .exercise-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: start;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      display: inline-block;
-      background: var(--primary-soft);
-      color: #1d4ed8;
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .progress-wrap {
-      width: 180px;
-      max-width: 100%;
-    }
-
-    .progress-bar {
-      height: 10px;
-      background: #e2e8f0;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, #3b82f6, #2563eb);
-      border-radius: 999px;
-      transition: width 0.2s ease;
-    }
-
-    .question {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #f8fafc;
       padding: 14px;
-      margin-bottom: 12px;
-    }
-
-    .qtext {
-      font-weight: 700;
-      line-height: 1.55;
       margin-bottom: 10px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 92px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      font: inherit;
-      resize: vertical;
-      outline: none;
-      background: white;
-    }
-
-    textarea:focus, .search:focus {
-      border-color: #93c5fd;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-    }
-
-    .answer-key {
-      display: none;
-      margin-top: 10px;
-      border: 1px solid #a7f3d0;
-      border-radius: 14px;
-      background: var(--good-soft);
-      padding: 12px;
-      color: #065f46;
-      font-size: 14px;
       line-height: 1.6;
     }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 6px;
+    .box-basic { background: var(--red-soft); border-color: #fecdd3; }
+    .box-structure { background: var(--purple-soft); border-color: #c7d2fe; }
+    .box-upgraded { background: var(--green-soft); border-color: #a7f3d0; display: none; }
+    .box-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 900;
+      margin-bottom: 8px;
     }
-
+    .box-basic .box-label { color: var(--red); }
+    .box-structure .box-label { color: #4338ca; }
+    .box-upgraded .box-label { color: var(--green); }
     .btn {
       border: 1px solid var(--line);
       background: white;
       color: var(--text);
-      border-radius: 16px;
       padding: 12px 16px;
-      font-weight: 700;
+      border-radius: 16px;
+      font-weight: 800;
       cursor: pointer;
       min-height: 46px;
+      transition: .16s ease;
     }
-
     .btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-deep));
       color: white;
+      border-color: transparent;
     }
-
-    .samples-grid {
-      display: grid;
-      gap: 16px;
-    }
-
-    .sample-card {
+    .quiz-grid { display: grid; gap: 16px; }
+    .quiz-card {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--line);
+      border-radius: 24px;
       padding: 18px;
+      box-shadow: var(--shadow);
     }
-
-    .sample-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+    .quiz-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+      border: 1px solid #bfdbfe;
+    }
+    .quiz-question { font-size: 18px; font-weight: 800; line-height: 1.6; margin-bottom: 14px; }
+    .options { display: grid; gap: 10px; }
+    .option {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 13px 14px;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      transition: .16s ease;
+    }
+    .option.selected { border-color: #93c5fd; background: #eff6ff; }
+    .option.correct { border-color: #86efac; background: #f0fdf4; }
+    .option.wrong { border-color: #fda4af; background: #fff1f2; }
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      background: #e2e8f0;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+    .option.correct .option-letter { background: #bbf7d0; }
+    .option.wrong .option-letter { background: #fecdd3; }
+    .option.selected .option-letter { background: #bfdbfe; }
+    .quiz-feedback {
+      display: none;
+      margin-top: 12px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      line-height: 1.65;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #334155;
+    }
+    .quiz-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-top: 14px;
     }
-
+    .score-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .score-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .score-num { font-size: 28px; font-weight: 900; line-height: 1; }
+    .samples-wrap { display: grid; gap: 16px; }
+    .sample-card {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .sample-image {
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+      margin-bottom: 14px;
+    }
+    .sample-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 14px;
+    }
     .sample-box {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 14px;
+      background: white;
+    }
+    .sample-box h4 { margin: 0 0 10px; font-size: 15px; }
+    textarea {
+      width: 100%;
+      min-height: 260px;
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: 14px;
-      background: #fff;
+      font: inherit;
+      resize: vertical;
+      background: white;
+      outline: none;
     }
-
-    .sample-box h4 {
-      margin: 0 0 10px;
-      font-size: 15px;
+    .readonly { background: #f8fafc; }
+    .line-hints {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
     }
-
-    .sample-box textarea {
-      min-height: 340px;
-    }
-
-    .readonly {
+    .line-hint-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
       background: #f8fafc;
     }
-
-    .chip-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .chip {
-      background: #f1f5f9;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 6px 10px;
+    .line-hint-title {
       font-size: 12px;
-      color: #475569;
-      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 900;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
-
-    .count {
-      display: inline-block;
-      background: var(--chip);
-      color: #3730a3;
+    .hint-chip-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hint-chip {
       border-radius: 999px;
-      padding: 6px 10px;
+      padding: 7px 10px;
       font-size: 12px;
       font-weight: 800;
+      background: white;
+      border: 1px solid var(--line);
+      color: #334155;
     }
-
-    @media (max-width: 980px) {
-      .hero, .grid-3, .grid-2, .grid-patterns, .sample-grid {
-        grid-template-columns: 1fr;
-      }
-      .hero-main, .hero-side, .section, .sample-card { padding: 16px; }
+    .sentence-helper {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 12px;
+      margin-top: 12px;
     }
-
+    .sentence-helper strong { display: block; margin-bottom: 8px; }
+    .sentence-helper-item {
+      border-top: 1px dashed var(--line);
+      padding: 10px 0;
+      line-height: 1.65;
+    }
+    .sentence-helper-item:first-child { border-top: none; padding-top: 0; }
+    .sample-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .count {
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: var(--purple-soft);
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .footer-note { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+    @media (max-width: 1024px) {
+      .vocab-layout, .patterns-grid, .sample-grid { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
     @media (max-width: 640px) {
       .container { width: min(100% - 16px, 100%); padding-top: 10px; }
+      .hero, .card, .sample-card { padding: 16px; border-radius: 24px; }
       .tabs { display: grid; grid-template-columns: repeat(2, 1fr); }
-      .tab-btn { width: 100%; }
-      .question, .mini-card, .pattern-box, details { border-radius: 16px; }
-      textarea { min-height: 110px; }
-      .sample-box textarea { min-height: 260px; }
-      .exercise-head { align-items: stretch; }
-      .progress-wrap { width: 100%; }
+      .tab-btn { width: 100%; border-radius: 16px; }
+      .hero-stats { grid-template-columns: repeat(3, 1fr); max-width: 100%; }
+      .section-title { font-size: 22px; }
+      .topic-title { font-size: 20px; }
+      .quiz-question { font-size: 17px; }
+      textarea { min-height: 220px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="hero">
-      <div class="card hero-main">
-        <div class="badges">
-          <span class="badge">IELTS Writing Task 1</span>
-          <span class="badge">Mobile-friendly worksheet</span>
-        </div>
-        <h1>Upgrade Sentences and Vocabulary</h1>
-        <div class="subtext">
-          This worksheet helps students move from very basic Task 1 sentences to more flexible structures.
-          It focuses on vocabulary, model sentence patterns, controlled rewriting practice, and three simple samples for upgrading.
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-label">Topics</div>
-            <div class="stat-value">3</div>
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="badges">
+            <span class="badge">IELTS Writing Task 1</span>
+            <span class="badge">Interactive worksheet</span>
+            <span class="badge">Mobile-friendly</span>
           </div>
-          <div class="stat">
-            <div class="stat-label">Exercise sets</div>
-            <div class="stat-value">4</div>
+          <h1>Upgrade Sentences and Vocabulary</h1>
+          <div class="subtext" style="max-width:760px; margin-top:12px;">
+            This app-style worksheet helps students move beyond very basic Task 1 language. It includes grouped vocabulary, clickable word families with meanings and examples, sentence upgrade patterns, multiple-choice quizzes, and three upgrade samples with guided vocabulary and structure hints.
           </div>
         </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-label">Topics</div><div class="stat-value">3</div></div>
+          <div class="stat"><div class="stat-label">Quizzes</div><div class="stat-value">12</div></div>
+          <div class="stat"><div class="stat-label">Patterns</div><div class="stat-value">9</div></div>
+        </div>
       </div>
-      <div class="card hero-side">
-        <div class="side-title">Suggested teaching flow</div>
-        <div class="step">1. Teach key vocabulary first.</div>
-        <div class="step">2. Show the difference between basic and upgraded structures.</div>
-        <div class="step">3. Let students rewrite short sentences with support.</div>
-        <div class="step">4. Ask students to improve the three very simple samples.</div>
-      </div>
-    </div>
+    </section>
 
     <div class="tabs">
       <button class="tab-btn active" data-tab="vocabulary">Vocabulary</button>
       <button class="tab-btn" data-tab="patterns">Sentence Patterns</button>
-      <button class="tab-btn" data-tab="practice">Practice</button>
+      <button class="tab-btn" data-tab="practice">Quiz Practice</button>
       <button class="tab-btn" data-tab="samples">Upgrade Samples</button>
     </div>
 
-    <section id="vocabulary" class="tab-panel active card section">
-      <h2 class="section-title">Vocabulary Bank</h2>
-      <input id="searchInput" class="search" type="text" placeholder="Search vocabulary or meaning..." />
-      <div class="grid-3" id="vocabGrid"></div>
+    <section id="vocabulary" class="panel active card">
+      <div class="section-head">
+        <h2 class="section-title">Grouped Vocabulary Explorer</h2>
+        <input id="searchInput" class="search" type="text" placeholder="Search word, meaning, usage, or example..." />
+      </div>
+      <div class="vocab-layout">
+        <aside class="sidebar" id="vocabMenu"></aside>
+        <div class="vocab-display" id="vocabDisplay"></div>
+      </div>
     </section>
 
-    <section id="patterns" class="tab-panel card section">
-      <h2 class="section-title">Basic to Upgraded Sentence Patterns</h2>
-      <div class="grid-patterns" id="patternsGrid"></div>
+    <section id="patterns" class="panel card">
+      <h2 class="section-title">Sentence Patterns</h2>
+      <div class="patterns-grid" id="patternsGrid"></div>
+    </section>
 
-      <div style="height: 16px"></div>
-      <h2 class="section-title">Quick Model Sentence Bank</h2>
-      <details>
-        <summary>For Tables</summary>
-        <div class="subtext">
-          The table compares the number of exchange students between Europe and Australia in 2007 and 2009.<br />
-          Overall, the total number of students going from Europe to Australia increased, while the reverse figure remained stable.<br />
-          Germany recorded the most noticeable rise over the period.
+    <section id="practice" class="panel">
+      <div class="card">
+        <div class="score-card">
+          <div>
+            <h2 class="section-title" style="margin-bottom:8px;">Quiz Practice</h2>
+            <div class="subtext">Use these multiple-choice questions to check whether students remember vocabulary groups and sentence upgrade patterns.</div>
+          </div>
+          <div class="score-box">
+            <div class="pill" id="quizStatus">Not checked yet</div>
+            <div class="score-num" id="quizScore">0/12</div>
+          </div>
         </div>
-      </details>
-      <details>
-        <summary>For Bar Charts</summary>
-        <div class="subtext">
-          The bar charts illustrate the distribution of employment in three sectors in three countries in 1980 and 2020.<br />
-          Overall, services accounted for the largest share in Countries A and C, while agriculture was dominant in Country B in 1980.<br />
-          The service sector expanded in each country by 2020.
+        <div class="quiz-grid" id="quizWrap"></div>
+        <div class="quiz-controls">
+          <button class="btn primary" id="checkQuizBtn">Check answers</button>
+          <button class="btn" id="resetQuizBtn">Reset quiz</button>
         </div>
-      </details>
-      <details>
-        <summary>For Line Graphs</summary>
-        <div class="subtext">
-          The line graph shows the level of satisfaction with the healthcare system in four countries between 1991 and 2007.<br />
-          Overall, the Netherlands remained relatively stable at a high level, whereas the US stayed much lower than the other countries.<br />
-          Canada experienced the most dramatic fluctuation during the period.
-        </div>
-      </details>
+      </div>
     </section>
 
-    <section id="practice" class="tab-panel">
-      <div id="exerciseWrap"></div>
+    <section id="samples" class="panel">
+      <div class="samples-wrap" id="samplesWrap"></div>
     </section>
 
-    <section id="samples" class="tab-panel">
-      <div class="samples-grid" id="samplesWrap"></div>
-    </section>
+    <div class="footer-note">Built as a static HTML worksheet, so it can run smoothly on GitHub Pages and mobile devices.</div>
   </div>
 
   <script>
-    const vocabSections = [
-      {
-        title: 'Verbs for Change',
-        items: [
-          ['increase', 'go up'],
-          ['rise', 'increase'],
-          ['grow', 'increase'],
-          ['climb', 'increase strongly'],
-          ['decrease', 'go down'],
-          ['fall', 'decrease'],
-          ['drop', 'go down'],
-          ['decline', 'decrease'],
-          ['remain unchanged', 'stay the same'],
-          ['remain stable', 'stay steady']
-        ]
-      },
-      {
-        title: 'Adverbs of Degree',
-        items: [
-          ['slightly', 'a little'],
-          ['gradually', 'slowly over time'],
-          ['steadily', 'in a regular way'],
-          ['significantly', 'clearly and noticeably'],
-          ['considerably', 'by quite a lot'],
-          ['sharply', 'suddenly and strongly'],
-          ['dramatically', 'by a very large amount'],
-          ['marginally', 'only a little']
-        ]
-      },
-      {
-        title: 'Useful Academic Words',
-        items: [
-          ['figure', 'number shown in a chart or table'],
-          ['proportion', 'percentage or share'],
-          ['share', 'part of a total'],
-          ['distribution', 'the way something is divided'],
-          ['sector', 'part of an economy'],
-          ['level', 'amount or degree'],
-          ['account for', 'make up a part of the total'],
-          ['respectively', 'in the same order mentioned']
-        ]
-      }
+    const sampleImages = [
+      '/mnt/data/220a5c6f-4e61-4633-9b77-e5691a3c4c7d.png',
+      '/mnt/data/8ea7100e-4c39-4cb3-9550-442d58ecd03a.png',
+      '/mnt/data/b3e9bfd0-e626-45fe-b2d9-e0973c5bba24.png'
     ];
+
+    const vocabGroups = [
+      { key:'verb-increase', menu:'Verbs for Change', title:'Increase Group', tag:'Representative: increase', desc:'Use these verbs when a number, figure, level, or percentage goes up.', words:[
+        { word:'increase', meaning:'go up', usage:'number and percentage', example:'The figure for Germany increased from 27 to 62.' },
+        { word:'rise', meaning:'increase', usage:'number and percentage', example:'The proportion of services rose to 55% in 2020.' },
+        { word:'grow', meaning:'increase gradually', usage:'number and percentage', example:'The total number of students grew over the period.' },
+        { word:'climb', meaning:'increase noticeably', usage:'number and percentage', example:'The figure climbed from 20% to 40% in Country B.' },
+        { word:'go up', meaning:'increase', usage:'number and percentage', example:'Satisfaction in the UK went up slightly by 2007.' }
+      ]},
+      { key:'verb-decrease', menu:'Verbs for Change', title:'Decrease Group', tag:'Representative: decrease', desc:'Use these verbs when a number, figure, level, or percentage goes down.', words:[
+        { word:'decrease', meaning:'go down', usage:'number and percentage', example:'Agriculture decreased from 20% to 12% in Country A.' },
+        { word:'fall', meaning:'decrease', usage:'number and percentage', example:'The figure for France fell slightly from 61 to 60.' },
+        { word:'drop', meaning:'go down, often clearly', usage:'number and percentage', example:'Canada dropped dramatically to 18% in 1998.' },
+        { word:'decline', meaning:'decrease', usage:'number and percentage', example:'The UK recorded a decline in exchange students.' },
+        { word:'go down', meaning:'decrease', usage:'number and percentage', example:'The number of students going to the Netherlands went down in 2009.' }
+      ]},
+      { key:'noun-increase', menu:'Nouns for Change', title:'Increase Nouns', tag:'Representative: increase', desc:'Use noun forms to create more academic Task 1 sentences.', words:[
+        { word:'an increase', meaning:'a rise in something', usage:'number and percentage', example:'There was an increase in the total from 189 to 226.' },
+        { word:'a rise', meaning:'an increase', usage:'number and percentage', example:'Germany saw a sharp rise in 2009.' },
+        { word:'growth', meaning:'an increase over time', usage:'mainly number and general trend', example:'The table shows growth in exchanges from Europe to Australia.' },
+        { word:'a climb', meaning:'an upward movement', usage:'percentage and number', example:'The chart illustrates a climb in industry in Country B.' }
+      ]},
+      { key:'noun-decrease', menu:'Nouns for Change', title:'Decrease Nouns', tag:'Representative: decrease', desc:'These noun forms help students avoid repeating simple verbs.', words:[
+        { word:'a decrease', meaning:'a reduction', usage:'number and percentage', example:'There was a decrease in agriculture in all three countries.' },
+        { word:'a fall', meaning:'a decrease', usage:'number and percentage', example:'Canada experienced a dramatic fall in 1998.' },
+        { word:'a drop', meaning:'a decrease, often stronger', usage:'number and percentage', example:'The Netherlands saw a drop from 32 to 18.' },
+        { word:'a decline', meaning:'a decrease', usage:'number and percentage', example:'The UK showed a slight decline over the period.' }
+      ]},
+      { key:'adverb-large', menu:'Adverbs of Degree', title:'Large Change Adverbs', tag:'Representative: sharply', desc:'Use these adverbs to show that the change was large or noticeable.', words:[
+        { word:'sharply', meaning:'suddenly and strongly', usage:'number and percentage', example:'Germany rose sharply from 27 to 62.' },
+        { word:'significantly', meaning:'clearly and noticeably', usage:'number and percentage', example:'France increased significantly from 37 to 58.' },
+        { word:'considerably', meaning:'by quite a lot', usage:'number and percentage', example:'Industry in Country B increased considerably.' },
+        { word:'dramatically', meaning:'by a very large amount', usage:'number and percentage', example:'Canada fell dramatically between 1991 and 1998.' }
+      ]},
+      { key:'adverb-small', menu:'Adverbs of Degree', title:'Small Change Adverbs', tag:'Representative: slightly', desc:'Use these adverbs to show that the change was small.', words:[
+        { word:'slightly', meaning:'a little', usage:'number and percentage', example:'The US rose slightly from 10% to 12%.' },
+        { word:'marginally', meaning:'only a little', usage:'number and percentage', example:'Industry in Country A fell marginally from 30% to 29%.' },
+        { word:'modestly', meaning:'by a small amount', usage:'number and percentage', example:'The UK increased modestly by the end of the period.' }
+      ]},
+      { key:'adverb-speed', menu:'Adverbs of Degree', title:'Speed / Manner Adverbs', tag:'Representative: gradually', desc:'These adverbs describe how a trend happened over time, not only how big it was.', words:[
+        { word:'gradually', meaning:'slowly over time', usage:'number and percentage', example:'The UK rose gradually between 1991 and 2007.' },
+        { word:'steadily', meaning:'in a regular and even way', usage:'number and percentage', example:'The service sector increased steadily in Country A.' },
+        { word:'consistently', meaning:'in the same way throughout', usage:'both number and general comparison', example:'The US remained consistently lower than the other countries.' }
+      ]},
+      { key:'adjective-highlow', menu:'Adjectives', title:'High / Low Adjectives', tag:'Representative: highest / lowest', desc:'Use these adjectives to compare positions and importance in data.', words:[
+        { word:'high', meaning:'large in amount', usage:'number and percentage', example:'The Netherlands maintained a high level of satisfaction.' },
+        { word:'low', meaning:'small in amount', usage:'number and percentage', example:'The US had a low figure throughout the period.' },
+        { word:'highest', meaning:'the largest', usage:'number and percentage', example:'Germany recorded the highest figure in 2009.' },
+        { word:'lowest', meaning:'the smallest', usage:'number and percentage', example:'The US had the lowest percentage in all three years.' },
+        { word:'dominant', meaning:'larger or more important than the others', usage:'mainly percentage and share', example:'Services were the dominant sector in Country C.' }
+      ]},
+      { key:'adjective-size', menu:'Adjectives', title:'Size of Change Adjectives', tag:'Representative: significant / slight', desc:'Use these adjectives before change nouns such as increase, fall, or decline.', words:[
+        { word:'slight', meaning:'small', usage:'number and percentage', example:'France saw a slight fall from 61 to 60.' },
+        { word:'significant', meaning:'large enough to notice', usage:'number and percentage', example:'There was a significant increase in Germany’s figure.' },
+        { word:'considerable', meaning:'fairly large', usage:'number and percentage', example:'Country B experienced a considerable rise in industry.' },
+        { word:'dramatic', meaning:'very large and striking', usage:'number and percentage', example:'Canada underwent a dramatic drop in 1998.' },
+        { word:'steady', meaning:'regular and even', usage:'number and percentage', example:'The UK showed a steady increase over the period.' }
+      ]},
+      { key:'academic-numbers', menu:'Useful Academic Words', title:'Words for Numbers', tag:'Used mainly for quantities', desc:'These words are especially useful when describing raw numbers rather than percentages.', words:[
+        { word:'figure', meaning:'the number shown in the data', usage:'mainly number', example:'The figure for France was 61 in 2007.' },
+        { word:'total', meaning:'the final combined number', usage:'both number and percentage', example:'The total rose from 189 to 226.' },
+        { word:'level', meaning:'amount or degree', usage:'both number and percentage', example:'The US had a very low level of satisfaction.' },
+        { word:'record', meaning:'show a particular number', usage:'both number and percentage', example:'Germany recorded the highest figure in 2009.' }
+      ]},
+      { key:'academic-percentages', menu:'Useful Academic Words', title:'Words for Percentages', tag:'Used mainly for percentages', desc:'These are especially useful for pie charts, bar charts, and percentages in line graphs.', words:[
+        { word:'percentage', meaning:'a number out of 100', usage:'percentage', example:'The percentage of workers in services reached 80% in Country C.' },
+        { word:'proportion', meaning:'the share or percentage of a total', usage:'percentage', example:'The proportion of employment in agriculture declined.' },
+        { word:'share', meaning:'part of a whole', usage:'percentage', example:'Services accounted for the largest share in 2020.' },
+        { word:'account for', meaning:'make up part of a total', usage:'percentage and number', example:'Services accounted for 45% of employment in Country A.' }
+      ]},
+      { key:'academic-both', menu:'Useful Academic Words', title:'Words Used for Both', tag:'Used for number and percentage', desc:'These words can be used flexibly across different Task 1 visuals.', words:[
+        { word:'distribution', meaning:'the way something is divided', usage:'mainly percentage, sometimes categories generally', example:'The bar chart shows the distribution of employment across three sectors.' },
+        { word:'respectively', meaning:'in the same order mentioned before', usage:'number and percentage', example:'The figures for Sweden and the UK were 42 and 26 respectively.' },
+        { word:'sector', meaning:'a part of an economy', usage:'mainly percentage', example:'Services remained the largest sector in Country C.' },
+        { word:'level', meaning:'amount or degree', usage:'number and percentage', example:'Canada ended the period at a higher level than the UK.' }
+      ]},
+      { key:'linking-overview', menu:'Linking Words', title:'Overview / Main Trend Linking Words', tag:'Representative: overall', desc:'Use these words when summarising the main features of the chart.', words:[
+        { word:'overall', meaning:'considering everything together', usage:'overview sentence', example:'Overall, services became more important by 2020.' },
+        { word:'in general', meaning:'generally speaking', usage:'overview sentence', example:'In general, Europe sent more students to Australia.' },
+        { word:'on the whole', meaning:'generally', usage:'overview sentence', example:'On the whole, the Netherlands remained stable throughout the period.' }
+      ]},
+      { key:'linking-contrast', menu:'Linking Words', title:'Contrast Linking Words', tag:'Representative: however', desc:'Use these words to compare opposite or different trends.', words:[
+        { word:'however', meaning:'but; in contrast', usage:'contrast between sentences', example:'Germany rose sharply. However, the UK declined.' },
+        { word:'by contrast', meaning:'when compared with something different', usage:'contrast between sentences', example:'France increased. By contrast, Sweden fell.' },
+        { word:'whereas', meaning:'while showing contrast', usage:'contrast in one sentence', example:'Whereas agriculture decreased, services increased.' },
+        { word:'while', meaning:'at the same time / showing contrast', usage:'contrast in one sentence', example:'While Canada dropped dramatically, the Netherlands remained stable.' }
+      ]},
+      { key:'linking-addition', menu:'Linking Words', title:'Addition / Detail Linking Words', tag:'Representative: also', desc:'Use these to add more information smoothly.', words:[
+        { word:'also', meaning:'in addition', usage:'adding another point', example:'Germany also increased over the period.' },
+        { word:'meanwhile', meaning:'at the same time in another case', usage:'parallel description', example:'Meanwhile, the total for Australia to Europe remained unchanged.' },
+        { word:'in addition', meaning:'also', usage:'formal addition', example:'In addition, services became the dominant sector in Country A.' }
+      ]}
+    ];
+
+    const menuOrder = ['Verbs for Change', 'Nouns for Change', 'Adverbs of Degree', 'Adjectives', 'Useful Academic Words', 'Linking Words'];
 
     const sentencePatterns = [
-      {
-        name: 'Verb Pattern',
-        basic: 'The figure increased from 20 to 30.',
-        upgrade: 'The figure rose from 20 to 30.'
-      },
-      {
-        name: 'Noun Pattern',
-        basic: 'The figure increased from 20 to 30.',
-        upgrade: 'There was an increase in the figure from 20 to 30.'
-      },
-      {
-        name: 'Recorded / Saw / Experienced',
-        basic: 'Germany increased from 27 to 62.',
-        upgrade: 'Germany saw a sharp increase from 27 to 62.'
-      },
-      {
-        name: 'While / Whereas',
-        basic: 'Germany increased. The UK decreased.',
-        upgrade: 'While Germany rose sharply, the UK declined.'
-      },
-      {
-        name: 'Accounted for',
-        basic: 'Services were 45% in Country A in 1980.',
-        upgrade: 'Services accounted for 45% of employment in Country A in 1980.'
-      },
-      {
-        name: 'Superlative Pattern',
-        basic: 'Germany was highest in 2009.',
-        upgrade: 'Germany recorded the highest figure in 2009.'
-      }
+      { title:'Verb Pattern', basic:'The figure increased from 20 to 30.', structure:'Subject + rise / fall / climb / decline + from A to B', upgraded:'The figure rose from 20 to 30.' },
+      { title:'Noun Pattern', basic:'Germany increased from 27 to 62.', structure:'There was + adjective + increase / rise / fall / decline + in + noun', upgraded:'There was a sharp increase in Germany’s figure from 27 to 62.' },
+      { title:'Recorded / Saw / Experienced', basic:'Country B industry increased from 20% to 40%.', structure:'Subject + recorded / saw / experienced + a/an + change noun', upgraded:'Country B experienced a sharp increase in industry, from 20% to 40%.' },
+      { title:'Comparative Pattern', basic:'France had more students than Sweden.', structure:'X was higher / lower than Y or X had a larger / smaller figure than Y', upgraded:'France had a higher figure than Sweden in 2007.' },
+      { title:'While / Whereas Pattern', basic:'Germany increased. The UK decreased.', structure:'While / Whereas + clause, + clause', upgraded:'While Germany rose sharply, the UK declined.' },
+      { title:'Accounted for Pattern', basic:'Services were 45% in Country A in 1980.', structure:'Subject + accounted for + percentage / number + of + total / category', upgraded:'Services accounted for 45% of employment in Country A in 1980.' },
+      { title:'With Structure', basic:'Country C had the largest service sector. It was 80% in 2020.', structure:'Clause, + with + noun phrase / number / percentage', upgraded:'Country C had the largest service sector in 2020, with services accounting for 80%.' },
+      { title:'Respectively Pattern', basic:'Sweden was 42 and the UK was 26.', structure:'The figures for A and B were X and Y respectively.', upgraded:'The figures for Sweden and the UK were 42 and 26 respectively.' },
+      { title:'Superlative Pattern', basic:'Germany was highest in 2009.', structure:'Subject + recorded / had + the highest / lowest + figure / proportion / level', upgraded:'Germany recorded the highest figure in 2009.' }
     ];
 
-    const exercises = [
-      {
-        title: 'Exercise A: Rewrite using a better verb',
-        tip: 'Replace simple verbs with stronger or more varied verbs.',
-        items: [
-          { q: 'France decreased from 61 to 60.', a: 'France fell slightly from 61 to 60.' },
-          { q: 'Sweden increased from 34 to 42.', a: 'Sweden rose from 34 to 42.' },
-          { q: 'The UK decreased from 31 to 26.', a: 'The UK declined from 31 to 26.' },
-          { q: 'Services increased from 45% to 55% in Country A.', a: 'Services climbed from 45% to 55% in Country A.' },
-          { q: 'The US increased from 10% to 12%.', a: 'The US rose slightly from 10% to 12%.' }
-        ]
-      },
-      {
-        title: 'Exercise B: Rewrite using a noun phrase',
-        tip: 'Turn verbs into noun phrases like an increase, a fall, a decline.',
-        items: [
-          { q: 'France decreased from 61 to 60.', a: "There was a slight fall in France's figure from 61 to 60." },
-          { q: 'Industry in Country B increased from 20% to 40%.', a: 'Country B experienced a sharp increase in industry, from 20% to 40%.' },
-          { q: 'Agriculture in Country C decreased from 5% to 2%.', a: 'There was a decline in agriculture in Country C, from 5% to 2%.' },
-          { q: 'Canada fell from 58% to 18% in 1998.', a: 'Canada saw a dramatic fall from 58% to 18% by 1998.' },
-          { q: 'The UK rose from 23% to 28%.', a: 'The UK recorded a gradual increase from 23% to 28%.' }
-        ]
-      },
-      {
-        title: 'Exercise C: Combine using while / whereas',
-        tip: 'Join two trends into one clearer comparative sentence.',
-        items: [
-          { q: 'France fell slightly. Germany rose sharply.', a: 'While France fell slightly, Germany rose sharply.' },
-          { q: 'Agriculture decreased in Country A. Services increased in Country A.', a: 'Whereas agriculture decreased in Country A, services increased.' },
-          { q: 'Canada dropped dramatically in 1998. The Netherlands stayed stable.', a: 'While Canada dropped dramatically in 1998, the Netherlands remained stable.' },
-          { q: 'The US rose slightly. The UK rose steadily.', a: 'While the US rose slightly, the UK increased steadily.' },
-          { q: 'Sweden fell. France increased.', a: 'Whereas Sweden declined, France increased.' }
-        ]
-      },
-      {
-        title: 'Exercise D: Rewrite using accounted for',
-        tip: 'Use this pattern for percentages and shares.',
-        items: [
-          { q: 'Agriculture was 55% in Country B in 1980.', a: 'Agriculture accounted for 55% of employment in Country B in 1980.' },
-          { q: 'Services were 80% in Country C in 2020.', a: 'Services accounted for 80% of employment in Country C in 2020.' },
-          { q: 'Industry was 30% in Country A in 1980.', a: 'Industry accounted for 30% of employment in Country A in 1980.' },
-          { q: 'The US was about 10% in 1991.', a: 'The US accounted for about 10% in 1991.' },
-          { q: 'France was 58 in 2009 in the Australia-to-Europe table.', a: 'France accounted for 58 exchange students in 2009 in the Australia-to-Europe table.' }
-        ]
-      }
+    const quizQuestions = [
+      { category:'Vocabulary', question:'Which word best fits a large increase in a percentage?', options:['slightly','sharply','marginally','steadily'], answer:1, explanation:'“Sharply” is used for a large or noticeable change. “Slightly” and “marginally” describe small changes.' },
+      { category:'Vocabulary', question:'Which word group is best for describing a small change?', options:['dramatically / sharply','slightly / marginally','considerably / sharply','highest / dominant'], answer:1, explanation:'“Slightly” and “marginally” both show that the change was small.' },
+      { category:'Vocabulary', question:'Which word is most suitable when describing a percentage share of a total?', options:['figure','proportion','student','country'], answer:1, explanation:'“Proportion” is especially useful for percentages and shares.' },
+      { category:'Vocabulary', question:'Choose the best linking word for an overview sentence.', options:['however','overall','whereas','meanwhile'], answer:1, explanation:'“Overall” is commonly used to introduce the overview in Task 1.' },
+      { category:'Vocabulary', question:'Which noun best completes this sentence: “There was a significant ___ in industry in Country B.”', options:['increase','increasing','increased','up'], answer:0, explanation:'After “There was a significant…”, we need a noun. “Increase” is the correct noun form.' },
+      { category:'Patterns', question:'Which sentence correctly uses the comparative pattern?', options:['France had a higher figure than Sweden.','France higher than Sweden figure.','France had higher figure Sweden.','France was increase than Sweden.'], answer:0, explanation:'The correct comparative structure is “X had a higher figure than Y.”' },
+      { category:'Patterns', question:'Which sentence correctly uses “accounted for”?', options:['Services accounted 45% in Country A.','Services accounted for 45% of employment in Country A.','Services was accounted for 45%.','Services accounted by 45%.'], answer:1, explanation:'The correct pattern is “accounted for + percentage + of + category.”' },
+      { category:'Patterns', question:'Which sentence correctly uses “with” structure?', options:['Country C had the largest service sector, with services accounting for 80%.','Country C had the largest service sector with was 80%.','Country C with services was 80% had largest.','Country C had the largest service sector, with 80% was services.'], answer:0, explanation:'The “with” structure helps add extra data smoothly after the main clause.' },
+      { category:'Patterns', question:'Choose the best sentence using “respectively”.', options:['Sweden and the UK were respectively 42 and 26 figures.','The figures for Sweden and the UK were 42 and 26 respectively.','The figures respectively for Sweden and the UK was 42 and 26.','Sweden was 42 respectively UK 26.'], answer:1, explanation:'The natural structure is “The figures for A and B were X and Y respectively.”' },
+      { category:'Patterns', question:'Which sentence best upgrades “Germany increased. The UK decreased.”?', options:['Germany increased and the UK decreased.','While Germany rose sharply, the UK declined.','Germany rose sharply because the UK declined.','Germany rose sharply which the UK declined.'], answer:1, explanation:'“While” creates a clear contrast between two trends in one sentence.' },
+      { category:'Patterns', question:'Which sentence correctly uses a noun pattern?', options:['There was a sharp increase in Germany’s figure.','There was sharply increase in Germany’s figure.','Germany was a sharp increase.','There sharp increase Germany figure.'], answer:0, explanation:'The correct noun structure is “There was a/an + adjective + change noun + in + noun.”' },
+      { category:'Vocabulary + Pattern', question:'Which sentence sounds the most academic for Task 1?', options:['Country B industry went up a lot.','Industry in Country B experienced a considerable rise from 20% to 40%.','Industry in Country B was going up big.','Country B had industry increase a lot.'], answer:1, explanation:'This sentence uses a strong academic verb, a noun phrase, and precise data.' }
     ];
 
     const simpleSamples = [
       {
-        title: 'Sample 1: Exchange Students',
-        text: `The table shows exchange students between Europe and Australia in 2007 and 2009.\n\nOverall, Europe sent more students to Australia than Australia sent to Europe. The total for Europe to Australia increased, but the total for Australia to Europe stayed the same.\n\nFor Europe to Australia, France was 61 in 2007 and 60 in 2009. Sweden increased from 34 to 42. The UK decreased from 31 to 26. Germany increased from 27 to 62. The Netherlands stayed at 36. The total increased from 189 to 226.\n\nFor Australia to Europe, France increased from 37 to 58. Sweden decreased from 33 to 27. The UK decreased from 32 to 23. Germany increased from 18 to 26. The Netherlands decreased from 32 to 18. The total stayed at 152.`
+        title:'Sample 1: Exchange Students',
+        image: sampleImages[0],
+        text:`The table shows exchange students between Europe and Australia in 2007 and 2009.\n\nOverall, Europe sent more students to Australia than Australia sent to Europe. The total for Europe to Australia increased, but the total for Australia to Europe stayed the same.\n\nFor Europe to Australia, France was 61 in 2007 and 60 in 2009. Sweden increased from 34 to 42. The UK decreased from 31 to 26. Germany increased from 27 to 62. The Netherlands stayed at 36. The total increased from 189 to 226.\n\nFor Australia to Europe, France increased from 37 to 58. Sweden decreased from 33 to 27. The UK decreased from 32 to 23. Germany increased from 18 to 26. The Netherlands decreased from 32 to 18. The total stayed at 152.`,
+        vocabHints:['figure','total','increase','decline','remain unchanged','respectively','overall','by contrast'],
+        structureHints:['Comparative Pattern','While / Whereas','Noun Pattern','Recorded / Saw / Experienced','Respectively Pattern'],
+        sentenceHints:[
+          'Intro: replace “shows” with “compares” and use “the number of exchange students”.',
+          'Overview: use “Overall” + a comparison + one key trend about totals.',
+          'Body 1: use “recorded the highest figure”, “rose sharply”, and “remained unchanged”.',
+          'Body 2: add contrast words such as “By contrast” or “Whereas”.'
+        ]
       },
       {
-        title: 'Sample 2: Employment Distribution',
-        text: `The bar charts show employment in agriculture, industry and services in three countries in 1980 and 2020.\n\nOverall, services were high in Countries A and C, while agriculture was high in Country B in 1980. In 2020, services increased in all countries. Agriculture decreased in all countries.\n\nIn Country A, agriculture decreased from 20% to 12%. Industry decreased slightly from 30% to 29%. Services increased from 45% to 55%.\n\nIn Country B, agriculture decreased from 55% to 48%. Industry increased from 20% to 40%. Services increased from 25% to 42%.\n\nIn Country C, agriculture decreased from 5% to 2%. Industry decreased from 35% to 25%. Services increased from 70% to 80%.`
+        title:'Sample 2: Employment Distribution',
+        image: sampleImages[1],
+        text:`The bar charts show employment in agriculture, industry and services in three countries in 1980 and 2020.\n\nOverall, services were high in Countries A and C, while agriculture was high in Country B in 1980. In 2020, services increased in all countries. Agriculture decreased in all countries.\n\nIn Country A, agriculture decreased from 20% to 12%. Industry decreased slightly from 30% to 29%. Services increased from 45% to 55%.\n\nIn Country B, agriculture decreased from 55% to 48%. Industry increased from 20% to 40%. Services increased from 25% to 42%.\n\nIn Country C, agriculture decreased from 5% to 2%. Industry decreased from 35% to 25%. Services increased from 70% to 80%.`,
+        vocabHints:['proportion','share','sector','accounted for','dominant','considerably','overall','whereas'],
+        structureHints:['Accounted for Pattern','With Structure','Comparative Pattern','While / Whereas','Superlative Pattern'],
+        sentenceHints:[
+          'Intro: use “illustrate the distribution of employment”.',
+          'Overview: mention that services became more important, while agriculture declined overall.',
+          'Details: use “accounted for”, “dominant sector”, and “with services accounting for …”.',
+          'Try comparing countries, not only listing numbers one by one.'
+        ]
       },
       {
-        title: 'Sample 3: Healthcare Satisfaction',
-        text: `The line graph shows satisfaction with the healthcare system in four countries from 1991 to 2007.\n\nOverall, the Netherlands was high and stable. The US was the lowest in all years. Canada changed a lot. The UK increased slowly.\n\nCanada decreased from 58% in 1991 to 18% in 1998, then increased to 40% in 2007. The UK increased from 23% to 25% and then to 28%. The Netherlands was 48% in 1991, 49% in 1998 and 47% in 2007. The US increased slightly from 10% to 11% and then to 12%.`
+        title:'Sample 3: Healthcare Satisfaction',
+        image: sampleImages[2],
+        text:`The line graph shows satisfaction with the healthcare system in four countries from 1991 to 2007.\n\nOverall, the Netherlands was high and stable. The US was the lowest in all years. Canada changed a lot. The UK increased slowly.\n\nCanada decreased from 58% in 1991 to 18% in 1998, then increased to 40% in 2007. The UK increased from 23% to 25% and then to 28%. The Netherlands was 48% in 1991, 49% in 1998 and 47% in 2007. The US increased slightly from 10% to 11% and then to 12%.`,
+        vocabHints:['level','dramatically','steadily','consistently','lowest','overall','however','respectively'],
+        structureHints:['Noun Pattern','Recorded / Saw / Experienced','Comparative Pattern','With Structure','Respectively Pattern'],
+        sentenceHints:[
+          'Intro: use “the level of satisfaction with the healthcare system”.',
+          'Overview: highlight the stable Netherlands, the lowest US, and the sharp fluctuation in Canada.',
+          'Details: use “experienced a dramatic fall”, “showed a steady increase”, and “remained relatively stable”.',
+          'Use one sentence to compare two countries where possible.'
+        ]
       }
     ];
 
     const tabs = document.querySelectorAll('.tab-btn');
-    const panels = document.querySelectorAll('.tab-panel');
+    const panels = document.querySelectorAll('.panel');
     tabs.forEach(btn => {
       btn.addEventListener('click', () => {
         tabs.forEach(b => b.classList.remove('active'));
@@ -669,164 +809,257 @@
       });
     });
 
-    const vocabGrid = document.getElementById('vocabGrid');
+    const vocabMenu = document.getElementById('vocabMenu');
+    const vocabDisplay = document.getElementById('vocabDisplay');
     const searchInput = document.getElementById('searchInput');
+    let currentVocabKey = vocabGroups[0].key;
+    const selectedWords = {};
 
-    function renderVocab(filter = '') {
+    function renderVocabMenu(filter = '') {
       const q = filter.trim().toLowerCase();
-      vocabGrid.innerHTML = '';
-      vocabSections.forEach(section => {
-        const filteredItems = section.items.filter(([word, meaning]) => {
-          if (!q) return true;
-          return word.toLowerCase().includes(q) || meaning.toLowerCase().includes(q);
+      vocabMenu.innerHTML = '';
+      menuOrder.forEach(menuName => {
+        const title = document.createElement('div');
+        title.className = 'menu-group-title';
+        title.textContent = menuName;
+        vocabMenu.appendChild(title);
+        vocabGroups.filter(g => g.menu === menuName).forEach(group => {
+          const matched = !q || JSON.stringify(group).toLowerCase().includes(q);
+          if (!matched) return;
+          const btn = document.createElement('button');
+          btn.className = 'menu-btn' + (group.key === currentVocabKey ? ' active' : '');
+          btn.innerHTML = `<span>${group.title}</span><span class="menu-meta">${group.words.length} words</span>`;
+          btn.addEventListener('click', () => {
+            currentVocabKey = group.key;
+            if (!selectedWords[group.key]) selectedWords[group.key] = group.words[0].word;
+            renderVocabMenu(searchInput.value);
+            renderVocabDisplay(searchInput.value);
+          });
+          vocabMenu.appendChild(btn);
         });
-        if (!filteredItems.length) return;
-        const card = document.createElement('div');
-        card.className = 'mini-card';
-        card.innerHTML = `<h3>${section.title}</h3>`;
-        filteredItems.forEach(([word, meaning]) => {
-          const item = document.createElement('div');
-          item.className = 'vocab-item';
-          item.innerHTML = `<div class="vocab-word">${word}</div><div class="vocab-meaning">${meaning}</div>`;
-          card.appendChild(item);
-        });
-        vocabGrid.appendChild(card);
       });
     }
 
-    searchInput.addEventListener('input', e => renderVocab(e.target.value));
-    renderVocab();
+    function renderVocabDisplay(filter = '') {
+      const q = filter.trim().toLowerCase();
+      vocabDisplay.innerHTML = '';
+      const filteredGroups = vocabGroups.filter(group => !q || JSON.stringify(group).toLowerCase().includes(q));
+      let group = filteredGroups.find(g => g.key === currentVocabKey) || filteredGroups[0];
+      if (!group) {
+        vocabDisplay.innerHTML = '<div class="topic-card"><div class="topic-desc">No matching vocabulary found.</div></div>';
+        return;
+      }
+      currentVocabKey = group.key;
+      const visibleWords = group.words.filter(word => !q || JSON.stringify(word).toLowerCase().includes(q));
+      selectedWords[group.key] = selectedWords[group.key] && visibleWords.some(w => w.word === selectedWords[group.key]) ? selectedWords[group.key] : visibleWords[0].word;
+      const activeWord = visibleWords.find(w => w.word === selectedWords[group.key]) || visibleWords[0];
+      const card = document.createElement('div');
+      card.className = 'topic-card';
+      card.innerHTML = `
+        <div class="topic-head">
+          <h3 class="topic-title">${group.title}</h3>
+          <span class="topic-tag">${group.tag}</span>
+        </div>
+        <div class="topic-desc">${group.desc}</div>
+      `;
+      const chips = document.createElement('div');
+      chips.className = 'chip-grid';
+      visibleWords.forEach(item => {
+        const chip = document.createElement('button');
+        chip.className = 'word-chip' + (item.word === activeWord.word ? ' active' : '');
+        chip.textContent = item.word;
+        chip.addEventListener('click', () => {
+          selectedWords[group.key] = item.word;
+          renderVocabDisplay(searchInput.value);
+        });
+        chips.appendChild(chip);
+      });
+      card.appendChild(chips);
+      const detail = document.createElement('div');
+      detail.className = 'word-detail';
+      detail.innerHTML = `
+        <h4 class="detail-word">${activeWord.word}</h4>
+        <div class="detail-labels">
+          <span class="mini-badge">Meaning: ${activeWord.meaning}</span>
+          <span class="mini-badge">Used for: ${activeWord.usage}</span>
+        </div>
+        <div class="detail-meaning">This item is useful in IELTS Writing Task 1 when you need clearer, more varied language.</div>
+        <div class="detail-example">Example: ${activeWord.example}</div>
+      `;
+      card.appendChild(detail);
+      vocabDisplay.appendChild(card);
+    }
+
+    searchInput.addEventListener('input', e => {
+      renderVocabMenu(e.target.value);
+      renderVocabDisplay(e.target.value);
+    });
+    renderVocabMenu();
+    renderVocabDisplay();
 
     const patternsGrid = document.getElementById('patternsGrid');
-    sentencePatterns.forEach(pattern => {
-      const box = document.createElement('div');
-      box.className = 'pattern-box';
-      box.innerHTML = `
-        <h3 style="margin-top:0; font-size:18px;">${pattern.name}</h3>
-        <div class="basic">
-          <div class="label">Basic</div>
-          <div>${pattern.basic}</div>
-        </div>
-        <div class="upgrade">
-          <div class="label">Upgraded</div>
-          <div>${pattern.upgrade}</div>
-        </div>
+    sentencePatterns.forEach((pattern, index) => {
+      const card = document.createElement('div');
+      card.className = 'pattern-card';
+      card.innerHTML = `
+        <h3>${pattern.title}</h3>
+        <div class="box-basic"><div class="box-label">Basic sentence</div><div>${pattern.basic}</div></div>
+        <div class="box-structure"><div class="box-label">Upgrade structure</div><div>${pattern.structure}</div></div>
+        <button class="btn primary" data-target="upgrade-${index}">Show upgraded sentence</button>
+        <div class="box-upgraded" id="upgrade-${index}"><div class="box-label">Upgraded sentence</div><div>${pattern.upgraded}</div></div>
       `;
-      patternsGrid.appendChild(box);
+      card.querySelector('button').addEventListener('click', (e) => {
+        const target = document.getElementById(e.currentTarget.dataset.target);
+        const shown = target.style.display === 'block';
+        target.style.display = shown ? 'none' : 'block';
+        e.currentTarget.textContent = shown ? 'Show upgraded sentence' : 'Hide upgraded sentence';
+      });
+      patternsGrid.appendChild(card);
     });
 
-    const exerciseWrap = document.getElementById('exerciseWrap');
+    const quizWrap = document.getElementById('quizWrap');
+    const quizStatus = document.getElementById('quizStatus');
+    const quizScore = document.getElementById('quizScore');
+    let selectedAnswers = Array(quizQuestions.length).fill(null);
+    let checked = false;
 
-    function makeProgressText(pct) {
-      if (pct >= 80) return 'Excellent';
-      if (pct >= 60) return 'Good';
-      if (pct >= 40) return 'Developing';
-      return 'Keep going';
-    }
-
-    exercises.forEach((exercise, exIndex) => {
-      const section = document.createElement('div');
-      section.className = 'card section exercise';
-      section.innerHTML = `
-        <div class="exercise-head">
-          <div>
-            <h2 class="section-title" style="margin-bottom:8px;">${exercise.title}</h2>
-            <div class="subtext" style="margin-top:0;">${exercise.tip}</div>
+    function renderQuiz() {
+      quizWrap.innerHTML = '';
+      quizQuestions.forEach((q, qi) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        const selected = selectedAnswers[qi];
+        card.innerHTML = `
+          <div class="quiz-top">
+            <div class="pill">${q.category}</div>
+            <div class="subtext" style="font-size:13px;">Question ${qi + 1}</div>
           </div>
-          <div class="progress-wrap">
-            <div class="pill" id="status-${exIndex}">Keep going: 0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="fill-${exIndex}"></div></div>
-          </div>
-        </div>
-      `;
-
-      const inputs = [];
-
-      exercise.items.forEach((item, i) => {
-        const q = document.createElement('div');
-        q.className = 'question';
-        q.innerHTML = `
-          <div class="qtext">${exIndex + 1}.${i + 1} ${item.q}</div>
-          <textarea placeholder="Write your upgraded sentence here..."></textarea>
-          <div class="answer-key"><strong>Suggested answer:</strong> ${item.a}</div>
+          <div class="quiz-question">${q.question}</div>
+          <div class="options"></div>
+          <div class="quiz-feedback"></div>
         `;
-        const textarea = q.querySelector('textarea');
-        textarea.addEventListener('input', () => updateProgress());
-        inputs.push(textarea);
-        section.appendChild(q);
-      });
-
-      const btnRow = document.createElement('div');
-      btnRow.className = 'btn-row';
-      btnRow.innerHTML = `
-        <button class="btn primary">Show key</button>
-        <button class="btn">Reset answers</button>
-      `;
-      section.appendChild(btnRow);
-      exerciseWrap.appendChild(section);
-
-      const showBtn = btnRow.children[0];
-      const resetBtn = btnRow.children[1];
-      let visible = false;
-
-      showBtn.addEventListener('click', () => {
-        visible = !visible;
-        section.querySelectorAll('.answer-key').forEach(el => {
-          el.style.display = visible ? 'block' : 'none';
+        const options = card.querySelector('.options');
+        q.options.forEach((opt, oi) => {
+          const div = document.createElement('div');
+          let cls = 'option';
+          if (selected === oi) cls += ' selected';
+          if (checked && oi === q.answer) cls += ' correct';
+          if (checked && selected === oi && oi !== q.answer) cls += ' wrong';
+          div.className = cls;
+          div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + oi)}</span><span>${opt}</span>`;
+          div.addEventListener('click', () => {
+            if (checked) return;
+            selectedAnswers[qi] = oi;
+            renderQuiz();
+          });
+          options.appendChild(div);
         });
-        showBtn.textContent = visible ? 'Hide key' : 'Show key';
+        const feedback = card.querySelector('.quiz-feedback');
+        if (checked) {
+          feedback.style.display = 'block';
+          const isCorrect = selected === q.answer;
+          feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Answer: ' + String.fromCharCode(65 + q.answer) + '.'}</strong> ${q.explanation}`;
+          feedback.style.borderColor = isCorrect ? '#86efac' : '#fecdd3';
+          feedback.style.background = isCorrect ? '#f0fdf4' : '#fff8f8';
+        }
+        quizWrap.appendChild(card);
       });
-
-      resetBtn.addEventListener('click', () => {
-        inputs.forEach(input => input.value = '');
-        updateProgress();
-      });
-
-      function updateProgress() {
-        const done = inputs.filter(input => input.value.trim()).length;
-        const pct = Math.round((done / inputs.length) * 100);
-        document.getElementById(`fill-${exIndex}`).style.width = pct + '%';
-        document.getElementById(`status-${exIndex}`).textContent = `${makeProgressText(pct)}: ${pct}%`;
+    }
+    function updateQuizSummary() {
+      const attempted = selectedAnswers.filter(v => v !== null).length;
+      if (!checked) {
+        quizStatus.textContent = attempted === 0 ? 'Not checked yet' : `Answered ${attempted}/${quizQuestions.length}`;
+        quizScore.textContent = `0/${quizQuestions.length}`;
+      } else {
+        const correct = selectedAnswers.filter((v, i) => v === quizQuestions[i].answer).length;
+        quizScore.textContent = `${correct}/${quizQuestions.length}`;
+        if (correct >= 10) quizStatus.textContent = 'Excellent recall';
+        else if (correct >= 7) quizStatus.textContent = 'Good job';
+        else if (correct >= 4) quizStatus.textContent = 'Keep reviewing';
+        else quizStatus.textContent = 'Needs more practice';
       }
+    }
+    document.getElementById('checkQuizBtn').addEventListener('click', () => {
+      checked = true;
+      renderQuiz();
+      updateQuizSummary();
     });
+    document.getElementById('resetQuizBtn').addEventListener('click', () => {
+      checked = false;
+      selectedAnswers = Array(quizQuestions.length).fill(null);
+      renderQuiz();
+      updateQuizSummary();
+    });
+    renderQuiz();
+    updateQuizSummary();
 
     const samplesWrap = document.getElementById('samplesWrap');
     simpleSamples.forEach(sample => {
       const card = document.createElement('div');
-      card.className = 'card sample-card';
+      card.className = 'sample-card';
       card.innerHTML = `
-        <h2 class="section-title" style="margin-bottom:8px;">${sample.title}</h2>
-        <div class="subtext" style="margin-top:0;">This sample is intentionally simple. Rewrite it with better vocabulary and sentence structures.</div>
+        <div class="sample-top">
+          <h2 class="section-title" style="margin:0;">${sample.title}</h2>
+          <span class="count">0 words</span>
+        </div>
+        <div class="sample-image"><img src="${sample.image}" alt="${sample.title}" /></div>
+        <div class="subtext" style="margin-bottom:12px;">This sample is intentionally simple. Students should upgrade the wording, vary the sentence patterns, and improve the overview and comparisons.</div>
         <div class="sample-grid">
           <div class="sample-box">
             <h4>Original simple sample</h4>
             <textarea class="readonly" readonly></textarea>
           </div>
           <div class="sample-box">
-            <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
-              <h4 style="margin:0;">Student upgraded version</h4>
-              <span class="count">0 words</span>
-            </div>
+            <h4>Student upgraded version</h4>
             <textarea></textarea>
-            <div class="chip-row">
-              <span class="chip">Try: saw / recorded / experienced</span>
-              <span class="chip">Use: while / whereas</span>
-              <span class="chip">Add noun phrases</span>
-              <span class="chip">Add comparisons</span>
+            <div class="line-hints">
+              <div class="line-hint-card">
+                <div class="line-hint-title">Vocabulary to try</div>
+                <div class="hint-chip-wrap vocab-hints"></div>
+              </div>
+              <div class="line-hint-card">
+                <div class="line-hint-title">Structures to try</div>
+                <div class="hint-chip-wrap structure-hints"></div>
+              </div>
+              <div class="sentence-helper">
+                <strong>Sentence-by-sentence guidance</strong>
+                <div class="sentence-helper-list"></div>
+              </div>
             </div>
           </div>
         </div>
       `;
       const textareas = card.querySelectorAll('textarea');
+      const count = card.querySelector('.count');
       textareas[0].value = sample.text;
       textareas[1].value = sample.text;
-      const count = card.querySelector('.count');
-      textareas[1].addEventListener('input', () => {
+      const vocabList = card.querySelector('.vocab-hints');
+      sample.vocabHints.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'hint-chip';
+        chip.textContent = item;
+        vocabList.appendChild(chip);
+      });
+      const structureList = card.querySelector('.structure-hints');
+      sample.structureHints.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'hint-chip';
+        chip.textContent = item;
+        structureList.appendChild(chip);
+      });
+      const helperList = card.querySelector('.sentence-helper-list');
+      sample.sentenceHints.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'sentence-helper-item';
+        row.textContent = item;
+        helperList.appendChild(row);
+      });
+      function updateCount() {
         const words = textareas[1].value.trim() ? textareas[1].value.trim().split(/\s+/).length : 0;
         count.textContent = `${words} words`;
-      });
-      const initialWords = textareas[1].value.trim().split(/\s+/).length;
-      count.textContent = `${initialWords} words`;
+      }
+      textareas[1].addEventListener('input', updateCount);
+      updateCount();
       samplesWrap.appendChild(card);
     });
   </script>
