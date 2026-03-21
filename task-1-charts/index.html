@@ -1,454 +1,834 @@
-import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Progress } from "@/components/ui/progress";
-import { BookOpen, PenSquare, RefreshCcw, CheckCircle2, Lightbulb, BarChart3 } from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IELTS Task 1 Upgrade Worksheet</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #dbe4f0;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --good: #047857;
+      --good-soft: #d1fae5;
+      --warn: #9a3412;
+      --warn-soft: #ffedd5;
+      --chip: #eef2ff;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
 
-const vocabSections = [
-  {
-    title: "Verbs for Change",
-    items: [
-      ["increase", "go up"],
-      ["rise", "increase"],
-      ["grow", "increase"],
-      ["climb", "increase strongly"],
-      ["decrease", "go down"],
-      ["fall", "decrease"],
-      ["drop", "go down"],
-      ["decline", "decrease"],
-      ["remain unchanged", "stay the same"],
-      ["remain stable", "stay steady"],
-    ],
-  },
-  {
-    title: "Adverbs of Degree",
-    items: [
-      ["slightly", "a little"],
-      ["gradually", "slowly over time"],
-      ["steadily", "in a regular way"],
-      ["significantly", "clearly and noticeably"],
-      ["considerably", "by quite a lot"],
-      ["sharply", "suddenly and strongly"],
-      ["dramatically", "by a very large amount"],
-      ["marginally", "only a little"],
-    ],
-  },
-  {
-    title: "Useful Academic Words",
-    items: [
-      ["figure", "number shown in a chart or table"],
-      ["proportion", "percentage or share"],
-      ["share", "part of a total"],
-      ["distribution", "the way something is divided"],
-      ["sector", "part of an economy"],
-      ["level", "amount or degree"],
-      ["account for", "make up a part of the total"],
-      ["respectively", "in the same order mentioned"],
-    ],
-  },
-];
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
 
-const sentencePatterns = [
-  {
-    name: "Verb Pattern",
-    basic: "The figure increased from 20 to 30.",
-    upgrade: "The figure rose from 20 to 30.",
-  },
-  {
-    name: "Noun Pattern",
-    basic: "The figure increased from 20 to 30.",
-    upgrade: "There was an increase in the figure from 20 to 30.",
-  },
-  {
-    name: "Recorded / Saw / Experienced",
-    basic: "Germany increased from 27 to 62.",
-    upgrade: "Germany saw a sharp increase from 27 to 62.",
-  },
-  {
-    name: "While / Whereas",
-    basic: "Germany increased. The UK decreased.",
-    upgrade: "While Germany rose sharply, the UK declined.",
-  },
-  {
-    name: "Accounted for",
-    basic: "Services were 45% in Country A in 1980.",
-    upgrade: "Services accounted for 45% of employment in Country A in 1980.",
-  },
-  {
-    name: "Superlative Pattern",
-    basic: "Germany was highest in 2009.",
-    upgrade: "Germany recorded the highest figure in 2009.",
-  },
-];
+    .container {
+      width: min(1180px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 16px 0 40px;
+    }
 
-const exercises = [
-  {
-    title: "Exercise A: Rewrite using a better verb",
-    tip: "Replace simple verbs with stronger or more varied verbs.",
-    items: [
-      { q: "France decreased from 61 to 60.", a: "France fell slightly from 61 to 60." },
-      { q: "Sweden increased from 34 to 42.", a: "Sweden rose from 34 to 42." },
-      { q: "The UK decreased from 31 to 26.", a: "The UK declined from 31 to 26." },
-      { q: "Services increased from 45% to 55% in Country A.", a: "Services climbed from 45% to 55% in Country A." },
-      { q: "The US increased from 10% to 12%.", a: "The US rose slightly from 10% to 12%." },
-    ],
-  },
-  {
-    title: "Exercise B: Rewrite using a noun phrase",
-    tip: "Turn verbs into noun phrases like an increase, a fall, a decline.",
-    items: [
-      { q: "France decreased from 61 to 60.", a: "There was a slight fall in France's figure from 61 to 60." },
-      { q: "Industry in Country B increased from 20% to 40%.", a: "Country B experienced a sharp increase in industry, from 20% to 40%." },
-      { q: "Agriculture in Country C decreased from 5% to 2%.", a: "There was a decline in agriculture in Country C, from 5% to 2%." },
-      { q: "Canada fell from 58% to 18% in 1998.", a: "Canada saw a dramatic fall from 58% to 18% by 1998." },
-      { q: "The UK rose from 23% to 28%.", a: "The UK recorded a gradual increase from 23% to 28%." },
-    ],
-  },
-  {
-    title: "Exercise C: Combine using while / whereas",
-    tip: "Join two trends into one clearer comparative sentence.",
-    items: [
-      { q: "France fell slightly. Germany rose sharply.", a: "While France fell slightly, Germany rose sharply." },
-      { q: "Agriculture decreased in Country A. Services increased in Country A.", a: "Whereas agriculture decreased in Country A, services increased." },
-      { q: "Canada dropped dramatically in 1998. The Netherlands stayed stable.", a: "While Canada dropped dramatically in 1998, the Netherlands remained stable." },
-      { q: "The US rose slightly. The UK rose steadily.", a: "While the US rose slightly, the UK increased steadily." },
-      { q: "Sweden fell. France increased.", a: "Whereas Sweden declined, France increased." },
-    ],
-  },
-  {
-    title: "Exercise D: Rewrite using accounted for",
-    tip: "Use this pattern for percentages and shares.",
-    items: [
-      { q: "Agriculture was 55% in Country B in 1980.", a: "Agriculture accounted for 55% of employment in Country B in 1980." },
-      { q: "Services were 80% in Country C in 2020.", a: "Services accounted for 80% of employment in Country C in 2020." },
-      { q: "Industry was 30% in Country A in 1980.", a: "Industry accounted for 30% of employment in Country A in 1980." },
-      { q: "The US was about 10% in 1991.", a: "The US accounted for about 10% in 1991." },
-      { q: "France was 58 in 2009 in the Australia-to-Europe table.", a: "France accounted for 58 exchange students in 2009 in the Australia-to-Europe table." },
-    ],
-  },
-];
+    .hero {
+      display: grid;
+      grid-template-columns: 1.7fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
 
-const simpleSamples = [
-  {
-    title: "Sample 1: Exchange Students",
-    text: `The table shows exchange students between Europe and Australia in 2007 and 2009.\n\nOverall, Europe sent more students to Australia than Australia sent to Europe. The total for Europe to Australia increased, but the total for Australia to Europe stayed the same.\n\nFor Europe to Australia, France was 61 in 2007 and 60 in 2009. Sweden increased from 34 to 42. The UK decreased from 31 to 26. Germany increased from 27 to 62. The Netherlands stayed at 36. The total increased from 189 to 226.\n\nFor Australia to Europe, France increased from 37 to 58. Sweden decreased from 33 to 27. The UK decreased from 32 to 23. Germany increased from 18 to 26. The Netherlands decreased from 32 to 18. The total stayed at 152.`
-  },
-  {
-    title: "Sample 2: Employment Distribution",
-    text: `The bar charts show employment in agriculture, industry and services in three countries in 1980 and 2020.\n\nOverall, services were high in Countries A and C, while agriculture was high in Country B in 1980. In 2020, services increased in all countries. Agriculture decreased in all countries.\n\nIn Country A, agriculture decreased from 20% to 12%. Industry decreased slightly from 30% to 29%. Services increased from 45% to 55%.\n\nIn Country B, agriculture decreased from 55% to 48%. Industry increased from 20% to 40%. Services increased from 25% to 42%.\n\nIn Country C, agriculture decreased from 5% to 2%. Industry decreased from 35% to 25%. Services increased from 70% to 80%.`
-  },
-  {
-    title: "Sample 3: Healthcare Satisfaction",
-    text: `The line graph shows satisfaction with the healthcare system in four countries from 1991 to 2007.\n\nOverall, the Netherlands was high and stable. The US was the lowest in all years. Canada changed a lot. The UK increased slowly.\n\nCanada decreased from 58% in 1991 to 18% in 1998, then increased to 40% in 2007. The UK increased from 23% to 25% and then to 28%. The Netherlands was 48% in 1991, 49% in 1998 and 47% in 2007. The US increased slightly from 10% to 11% and then to 12%.`
-  },
-];
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(219, 228, 240, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
 
-function ScoreBadge({ score }) {
-  let label = "Keep going";
-  if (score >= 80) label = "Excellent";
-  else if (score >= 60) label = "Good";
-  else if (score >= 40) label = "Developing";
+    .hero-main, .hero-side, .section {
+      padding: 20px;
+    }
 
-  return <Badge className="rounded-full px-3 py-1 text-sm">{label}: {score}%</Badge>;
-}
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
 
-function ExerciseCard({ exercise, idx }) {
-  const [answers, setAnswers] = useState(Array(exercise.items.length).fill(""));
-  const [showKey, setShowKey] = useState(false);
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: #3730a3;
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-  const completed = answers.filter((x) => x.trim()).length;
-  const progress = Math.round((completed / exercise.items.length) * 100);
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.15;
+      margin: 0;
+    }
 
-  return (
-    <Card className="rounded-2xl shadow-sm border-0 bg-white/90">
-      <CardHeader>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <CardTitle className="text-xl">{exercise.title}</CardTitle>
-            <p className="text-sm text-slate-600 mt-2">{exercise.tip}</p>
-          </div>
-          <ScoreBadge score={progress} />
+    .subtext {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #f8fafc;
+    }
+
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+
+    .side-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      color: #334155;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #0f172a;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      min-height: 46px;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 0 16px;
+    }
+
+    .search {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 16px;
+      padding: 14px 16px;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: white;
+    }
+
+    .mini-card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .vocab-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+    }
+
+    .vocab-word { font-weight: 700; }
+    .vocab-meaning { font-size: 14px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+    .grid-2, .grid-patterns {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .pattern-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: white;
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .basic { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 12px; margin-bottom: 10px; }
+    .upgrade { background: var(--good-soft); border: 1px solid #a7f3d0; border-radius: 14px; padding: 12px; }
+    .basic .label { color: #be123c; }
+    .upgrade .label { color: var(--good); }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: white;
+      margin-bottom: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .exercise {
+      margin-bottom: 16px;
+    }
+
+    .exercise-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-block;
+      background: var(--primary-soft);
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .progress-wrap {
+      width: 180px;
+      max-width: 100%;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      border-radius: 999px;
+      transition: width 0.2s ease;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #f8fafc;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .qtext {
+      font-weight: 700;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      font: inherit;
+      resize: vertical;
+      outline: none;
+      background: white;
+    }
+
+    textarea:focus, .search:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    }
+
+    .answer-key {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid #a7f3d0;
+      border-radius: 14px;
+      background: var(--good-soft);
+      padding: 12px;
+      color: #065f46;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 46px;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .samples-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .sample-card {
+      padding: 18px;
+    }
+
+    .sample-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .sample-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .sample-box h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .sample-box textarea {
+      min-height: 340px;
+    }
+
+    .readonly {
+      background: #f8fafc;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .count {
+      display: inline-block;
+      background: var(--chip);
+      color: #3730a3;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      .hero, .grid-3, .grid-2, .grid-patterns, .sample-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-main, .hero-side, .section, .sample-card { padding: 16px; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(100% - 16px, 100%); padding-top: 10px; }
+      .tabs { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .tab-btn { width: 100%; }
+      .question, .mini-card, .pattern-box, details { border-radius: 16px; }
+      textarea { min-height: 110px; }
+      .sample-box textarea { min-height: 260px; }
+      .exercise-head { align-items: stretch; }
+      .progress-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="card hero-main">
+        <div class="badges">
+          <span class="badge">IELTS Writing Task 1</span>
+          <span class="badge">Mobile-friendly worksheet</span>
         </div>
-        <Progress value={progress} className="mt-4" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {exercise.items.map((item, i) => (
-          <div key={i} className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
-            <p className="font-medium text-slate-800 mb-3">{idx + 1}.{i + 1} {item.q}</p>
-            <Textarea
-              value={answers[i]}
-              onChange={(e) => {
-                const next = [...answers];
-                next[i] = e.target.value;
-                setAnswers(next);
-              }}
-              placeholder="Write your upgraded sentence here..."
-              className="min-h-[92px] rounded-xl bg-white"
-            />
-            {showKey && (
-              <div className="mt-3 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-900">
-                <span className="font-semibold">Suggested answer:</span> {item.a}
-              </div>
-            )}
-          </div>
-        ))}
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Button onClick={() => setShowKey((s) => !s)} className="rounded-2xl">
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            {showKey ? "Hide key" : "Show key"}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setAnswers(Array(exercise.items.length).fill(""))}
-            className="rounded-2xl"
-          >
-            <RefreshCcw className="w-4 h-4 mr-2" />
-            Reset answers
-          </Button>
+        <h1>Upgrade Sentences and Vocabulary</h1>
+        <div class="subtext">
+          This worksheet helps students move from very basic Task 1 sentences to more flexible structures.
+          It focuses on vocabulary, model sentence patterns, controlled rewriting practice, and three simple samples for upgrading.
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SampleUpgradeCard({ sample }) {
-  const [draft, setDraft] = useState(sample.text);
-  const wordCount = useMemo(() => draft.trim() ? draft.trim().split(/\s+/).length : 0, [draft]);
-
-  return (
-    <Card className="rounded-2xl shadow-sm border-0 bg-white/90">
-      <CardHeader>
-        <CardTitle className="text-xl">{sample.title}</CardTitle>
-        <p className="text-sm text-slate-600">This sample is intentionally simple. Rewrite it with better vocabulary and sentence structures.</p>
-      </CardHeader>
-      <CardContent className="grid md:grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-700 mb-2">Original simple sample</p>
-          <Textarea value={sample.text} readOnly className="min-h-[360px] rounded-xl bg-slate-50" />
-        </div>
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-slate-700">Student upgraded version</p>
-            <Badge className="rounded-full">{wordCount} words</Badge>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Topics</div>
+            <div class="stat-value">3</div>
           </div>
-          <Textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            className="min-h-[360px] rounded-xl bg-white"
-          />
-          <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
-            <Badge variant="secondary" className="rounded-full">Try: saw / recorded / experienced</Badge>
-            <Badge variant="secondary" className="rounded-full">Use: while / whereas</Badge>
-            <Badge variant="secondary" className="rounded-full">Add noun phrases</Badge>
-            <Badge variant="secondary" className="rounded-full">Add comparisons</Badge>
+          <div class="stat">
+            <div class="stat-label">Exercise sets</div>
+            <div class="stat-value">4</div>
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function IELTSWorksheetApp() {
-  const [search, setSearch] = useState("");
-
-  const filteredVocab = useMemo(() => {
-    if (!search.trim()) return vocabSections;
-    const q = search.toLowerCase();
-    return vocabSections
-      .map((section) => ({
-        ...section,
-        items: section.items.filter(([word, meaning]) => word.toLowerCase().includes(q) || meaning.toLowerCase().includes(q)),
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [search]);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-100 text-slate-900">
-      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="grid lg:grid-cols-[1.5fr_0.8fr] gap-6"
-        >
-          <Card className="rounded-3xl border-0 shadow-lg bg-white/90">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge className="rounded-full px-3 py-1">IELTS Writing Task 1</Badge>
-                    <Badge variant="secondary" className="rounded-full px-3 py-1">Interactive Worksheet</Badge>
-                  </div>
-                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Upgrade Sentences and Vocabulary</h1>
-                  <p className="text-slate-600 mt-3 max-w-3xl leading-7">
-                    A classroom-friendly web worksheet for three Task 1 topics: exchange students, employment distribution, and healthcare satisfaction.
-                    Students start from simple structures and learn how to upgrade them.
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-3 min-w-[220px]">
-                  <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200">
-                    <div className="text-sm text-slate-500">Topics</div>
-                    <div className="text-2xl font-bold">3</div>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200">
-                    <div className="text-sm text-slate-500">Exercises</div>
-                    <div className="text-2xl font-bold">4</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border-0 shadow-lg bg-white/90">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Lightbulb className="w-5 h-5" />
-                <h2 className="text-lg font-semibold">Teaching Path</h2>
-              </div>
-              <div className="space-y-3 text-sm leading-6 text-slate-700">
-                <div className="rounded-2xl bg-slate-50 p-3 border">1. Learn useful vocabulary.</div>
-                <div className="rounded-2xl bg-slate-50 p-3 border">2. Compare basic and upgraded sentence patterns.</div>
-                <div className="rounded-2xl bg-slate-50 p-3 border">3. Rewrite short sentences.</div>
-                <div className="rounded-2xl bg-slate-50 p-3 border">4. Upgrade three very simple Task 1 samples.</div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <Tabs defaultValue="vocabulary" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 h-auto gap-2 bg-transparent p-0">
-            <TabsTrigger value="vocabulary" className="rounded-2xl py-3">Vocabulary</TabsTrigger>
-            <TabsTrigger value="patterns" className="rounded-2xl py-3">Sentence Patterns</TabsTrigger>
-            <TabsTrigger value="practice" className="rounded-2xl py-3">Practice</TabsTrigger>
-            <TabsTrigger value="samples" className="rounded-2xl py-3">Upgrade Samples</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="vocabulary" className="space-y-6">
-            <Card className="rounded-3xl border-0 shadow-sm bg-white/90">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <BookOpen className="w-5 h-5" />
-                  <h2 className="text-xl font-semibold">Vocabulary Bank</h2>
-                </div>
-                <Input
-                  placeholder="Search vocabulary or meaning..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="rounded-2xl max-w-md mb-6"
-                />
-                <div className="grid lg:grid-cols-3 gap-4">
-                  {filteredVocab.map((section) => (
-                    <Card key={section.title} className="rounded-2xl border border-slate-200 shadow-none">
-                      <CardHeader>
-                        <CardTitle className="text-lg">{section.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {section.items.map(([word, meaning]) => (
-                          <div key={word} className="rounded-xl bg-slate-50 p-3 border border-slate-200">
-                            <div className="font-semibold">{word}</div>
-                            <div className="text-sm text-slate-600 mt-1">{meaning}</div>
-                          </div>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="patterns" className="space-y-6">
-            <Card className="rounded-3xl border-0 shadow-sm bg-white/90">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <PenSquare className="w-5 h-5" />
-                  <h2 className="text-xl font-semibold">Basic to Upgraded Sentence Patterns</h2>
-                </div>
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {sentencePatterns.map((pattern) => (
-                    <motion.div key={pattern.name} whileHover={{ y: -2 }}>
-                      <Card className="rounded-2xl border border-slate-200 shadow-none h-full">
-                        <CardHeader>
-                          <CardTitle className="text-lg">{pattern.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="rounded-xl bg-rose-50 border border-rose-200 p-3">
-                            <div className="text-xs uppercase tracking-wide text-rose-700 font-semibold mb-1">Basic</div>
-                            <div>{pattern.basic}</div>
-                          </div>
-                          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3">
-                            <div className="text-xs uppercase tracking-wide text-emerald-700 font-semibold mb-1">Upgraded</div>
-                            <div>{pattern.upgrade}</div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-3xl border-0 shadow-sm bg-white/90">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <BarChart3 className="w-5 h-5" />
-                  <h2 className="text-xl font-semibold">Quick Model Sentence Bank</h2>
-                </div>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="tables">
-                    <AccordionTrigger>For Tables</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 text-slate-700">
-                        <p>The table compares the number of exchange students between Europe and Australia in 2007 and 2009.</p>
-                        <p>Overall, the total number of students going from Europe to Australia increased, while the reverse figure remained stable.</p>
-                        <p>Germany recorded the most noticeable rise over the period.</p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="barcharts">
-                    <AccordionTrigger>For Bar Charts</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 text-slate-700">
-                        <p>The bar charts illustrate the distribution of employment in three sectors in three countries in 1980 and 2020.</p>
-                        <p>Overall, services accounted for the largest share in Countries A and C, while agriculture was dominant in Country B in 1980.</p>
-                        <p>The service sector expanded in each country by 2020.</p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="linegraph">
-                    <AccordionTrigger>For Line Graphs</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 text-slate-700">
-                        <p>The line graph shows the level of satisfaction with the healthcare system in four countries between 1991 and 2007.</p>
-                        <p>Overall, the Netherlands remained relatively stable at a high level, whereas the US stayed much lower than the other countries.</p>
-                        <p>Canada experienced the most dramatic fluctuation during the period.</p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="practice" className="space-y-6">
-            {exercises.map((exercise, idx) => (
-              <ExerciseCard key={exercise.title} exercise={exercise} idx={idx} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="samples" className="space-y-6">
-            {simpleSamples.map((sample) => (
-              <SampleUpgradeCard key={sample.title} sample={sample} />
-            ))}
-          </TabsContent>
-        </Tabs>
+      </div>
+      <div class="card hero-side">
+        <div class="side-title">Suggested teaching flow</div>
+        <div class="step">1. Teach key vocabulary first.</div>
+        <div class="step">2. Show the difference between basic and upgraded structures.</div>
+        <div class="step">3. Let students rewrite short sentences with support.</div>
+        <div class="step">4. Ask students to improve the three very simple samples.</div>
       </div>
     </div>
-  );
-}
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="vocabulary">Vocabulary</button>
+      <button class="tab-btn" data-tab="patterns">Sentence Patterns</button>
+      <button class="tab-btn" data-tab="practice">Practice</button>
+      <button class="tab-btn" data-tab="samples">Upgrade Samples</button>
+    </div>
+
+    <section id="vocabulary" class="tab-panel active card section">
+      <h2 class="section-title">Vocabulary Bank</h2>
+      <input id="searchInput" class="search" type="text" placeholder="Search vocabulary or meaning..." />
+      <div class="grid-3" id="vocabGrid"></div>
+    </section>
+
+    <section id="patterns" class="tab-panel card section">
+      <h2 class="section-title">Basic to Upgraded Sentence Patterns</h2>
+      <div class="grid-patterns" id="patternsGrid"></div>
+
+      <div style="height: 16px"></div>
+      <h2 class="section-title">Quick Model Sentence Bank</h2>
+      <details>
+        <summary>For Tables</summary>
+        <div class="subtext">
+          The table compares the number of exchange students between Europe and Australia in 2007 and 2009.<br />
+          Overall, the total number of students going from Europe to Australia increased, while the reverse figure remained stable.<br />
+          Germany recorded the most noticeable rise over the period.
+        </div>
+      </details>
+      <details>
+        <summary>For Bar Charts</summary>
+        <div class="subtext">
+          The bar charts illustrate the distribution of employment in three sectors in three countries in 1980 and 2020.<br />
+          Overall, services accounted for the largest share in Countries A and C, while agriculture was dominant in Country B in 1980.<br />
+          The service sector expanded in each country by 2020.
+        </div>
+      </details>
+      <details>
+        <summary>For Line Graphs</summary>
+        <div class="subtext">
+          The line graph shows the level of satisfaction with the healthcare system in four countries between 1991 and 2007.<br />
+          Overall, the Netherlands remained relatively stable at a high level, whereas the US stayed much lower than the other countries.<br />
+          Canada experienced the most dramatic fluctuation during the period.
+        </div>
+      </details>
+    </section>
+
+    <section id="practice" class="tab-panel">
+      <div id="exerciseWrap"></div>
+    </section>
+
+    <section id="samples" class="tab-panel">
+      <div class="samples-grid" id="samplesWrap"></div>
+    </section>
+  </div>
+
+  <script>
+    const vocabSections = [
+      {
+        title: 'Verbs for Change',
+        items: [
+          ['increase', 'go up'],
+          ['rise', 'increase'],
+          ['grow', 'increase'],
+          ['climb', 'increase strongly'],
+          ['decrease', 'go down'],
+          ['fall', 'decrease'],
+          ['drop', 'go down'],
+          ['decline', 'decrease'],
+          ['remain unchanged', 'stay the same'],
+          ['remain stable', 'stay steady']
+        ]
+      },
+      {
+        title: 'Adverbs of Degree',
+        items: [
+          ['slightly', 'a little'],
+          ['gradually', 'slowly over time'],
+          ['steadily', 'in a regular way'],
+          ['significantly', 'clearly and noticeably'],
+          ['considerably', 'by quite a lot'],
+          ['sharply', 'suddenly and strongly'],
+          ['dramatically', 'by a very large amount'],
+          ['marginally', 'only a little']
+        ]
+      },
+      {
+        title: 'Useful Academic Words',
+        items: [
+          ['figure', 'number shown in a chart or table'],
+          ['proportion', 'percentage or share'],
+          ['share', 'part of a total'],
+          ['distribution', 'the way something is divided'],
+          ['sector', 'part of an economy'],
+          ['level', 'amount or degree'],
+          ['account for', 'make up a part of the total'],
+          ['respectively', 'in the same order mentioned']
+        ]
+      }
+    ];
+
+    const sentencePatterns = [
+      {
+        name: 'Verb Pattern',
+        basic: 'The figure increased from 20 to 30.',
+        upgrade: 'The figure rose from 20 to 30.'
+      },
+      {
+        name: 'Noun Pattern',
+        basic: 'The figure increased from 20 to 30.',
+        upgrade: 'There was an increase in the figure from 20 to 30.'
+      },
+      {
+        name: 'Recorded / Saw / Experienced',
+        basic: 'Germany increased from 27 to 62.',
+        upgrade: 'Germany saw a sharp increase from 27 to 62.'
+      },
+      {
+        name: 'While / Whereas',
+        basic: 'Germany increased. The UK decreased.',
+        upgrade: 'While Germany rose sharply, the UK declined.'
+      },
+      {
+        name: 'Accounted for',
+        basic: 'Services were 45% in Country A in 1980.',
+        upgrade: 'Services accounted for 45% of employment in Country A in 1980.'
+      },
+      {
+        name: 'Superlative Pattern',
+        basic: 'Germany was highest in 2009.',
+        upgrade: 'Germany recorded the highest figure in 2009.'
+      }
+    ];
+
+    const exercises = [
+      {
+        title: 'Exercise A: Rewrite using a better verb',
+        tip: 'Replace simple verbs with stronger or more varied verbs.',
+        items: [
+          { q: 'France decreased from 61 to 60.', a: 'France fell slightly from 61 to 60.' },
+          { q: 'Sweden increased from 34 to 42.', a: 'Sweden rose from 34 to 42.' },
+          { q: 'The UK decreased from 31 to 26.', a: 'The UK declined from 31 to 26.' },
+          { q: 'Services increased from 45% to 55% in Country A.', a: 'Services climbed from 45% to 55% in Country A.' },
+          { q: 'The US increased from 10% to 12%.', a: 'The US rose slightly from 10% to 12%.' }
+        ]
+      },
+      {
+        title: 'Exercise B: Rewrite using a noun phrase',
+        tip: 'Turn verbs into noun phrases like an increase, a fall, a decline.',
+        items: [
+          { q: 'France decreased from 61 to 60.', a: "There was a slight fall in France's figure from 61 to 60." },
+          { q: 'Industry in Country B increased from 20% to 40%.', a: 'Country B experienced a sharp increase in industry, from 20% to 40%.' },
+          { q: 'Agriculture in Country C decreased from 5% to 2%.', a: 'There was a decline in agriculture in Country C, from 5% to 2%.' },
+          { q: 'Canada fell from 58% to 18% in 1998.', a: 'Canada saw a dramatic fall from 58% to 18% by 1998.' },
+          { q: 'The UK rose from 23% to 28%.', a: 'The UK recorded a gradual increase from 23% to 28%.' }
+        ]
+      },
+      {
+        title: 'Exercise C: Combine using while / whereas',
+        tip: 'Join two trends into one clearer comparative sentence.',
+        items: [
+          { q: 'France fell slightly. Germany rose sharply.', a: 'While France fell slightly, Germany rose sharply.' },
+          { q: 'Agriculture decreased in Country A. Services increased in Country A.', a: 'Whereas agriculture decreased in Country A, services increased.' },
+          { q: 'Canada dropped dramatically in 1998. The Netherlands stayed stable.', a: 'While Canada dropped dramatically in 1998, the Netherlands remained stable.' },
+          { q: 'The US rose slightly. The UK rose steadily.', a: 'While the US rose slightly, the UK increased steadily.' },
+          { q: 'Sweden fell. France increased.', a: 'Whereas Sweden declined, France increased.' }
+        ]
+      },
+      {
+        title: 'Exercise D: Rewrite using accounted for',
+        tip: 'Use this pattern for percentages and shares.',
+        items: [
+          { q: 'Agriculture was 55% in Country B in 1980.', a: 'Agriculture accounted for 55% of employment in Country B in 1980.' },
+          { q: 'Services were 80% in Country C in 2020.', a: 'Services accounted for 80% of employment in Country C in 2020.' },
+          { q: 'Industry was 30% in Country A in 1980.', a: 'Industry accounted for 30% of employment in Country A in 1980.' },
+          { q: 'The US was about 10% in 1991.', a: 'The US accounted for about 10% in 1991.' },
+          { q: 'France was 58 in 2009 in the Australia-to-Europe table.', a: 'France accounted for 58 exchange students in 2009 in the Australia-to-Europe table.' }
+        ]
+      }
+    ];
+
+    const simpleSamples = [
+      {
+        title: 'Sample 1: Exchange Students',
+        text: `The table shows exchange students between Europe and Australia in 2007 and 2009.\n\nOverall, Europe sent more students to Australia than Australia sent to Europe. The total for Europe to Australia increased, but the total for Australia to Europe stayed the same.\n\nFor Europe to Australia, France was 61 in 2007 and 60 in 2009. Sweden increased from 34 to 42. The UK decreased from 31 to 26. Germany increased from 27 to 62. The Netherlands stayed at 36. The total increased from 189 to 226.\n\nFor Australia to Europe, France increased from 37 to 58. Sweden decreased from 33 to 27. The UK decreased from 32 to 23. Germany increased from 18 to 26. The Netherlands decreased from 32 to 18. The total stayed at 152.`
+      },
+      {
+        title: 'Sample 2: Employment Distribution',
+        text: `The bar charts show employment in agriculture, industry and services in three countries in 1980 and 2020.\n\nOverall, services were high in Countries A and C, while agriculture was high in Country B in 1980. In 2020, services increased in all countries. Agriculture decreased in all countries.\n\nIn Country A, agriculture decreased from 20% to 12%. Industry decreased slightly from 30% to 29%. Services increased from 45% to 55%.\n\nIn Country B, agriculture decreased from 55% to 48%. Industry increased from 20% to 40%. Services increased from 25% to 42%.\n\nIn Country C, agriculture decreased from 5% to 2%. Industry decreased from 35% to 25%. Services increased from 70% to 80%.`
+      },
+      {
+        title: 'Sample 3: Healthcare Satisfaction',
+        text: `The line graph shows satisfaction with the healthcare system in four countries from 1991 to 2007.\n\nOverall, the Netherlands was high and stable. The US was the lowest in all years. Canada changed a lot. The UK increased slowly.\n\nCanada decreased from 58% in 1991 to 18% in 1998, then increased to 40% in 2007. The UK increased from 23% to 25% and then to 28%. The Netherlands was 48% in 1991, 49% in 1998 and 47% in 2007. The US increased slightly from 10% to 11% and then to 12%.`
+      }
+    ];
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    const vocabGrid = document.getElementById('vocabGrid');
+    const searchInput = document.getElementById('searchInput');
+
+    function renderVocab(filter = '') {
+      const q = filter.trim().toLowerCase();
+      vocabGrid.innerHTML = '';
+      vocabSections.forEach(section => {
+        const filteredItems = section.items.filter(([word, meaning]) => {
+          if (!q) return true;
+          return word.toLowerCase().includes(q) || meaning.toLowerCase().includes(q);
+        });
+        if (!filteredItems.length) return;
+        const card = document.createElement('div');
+        card.className = 'mini-card';
+        card.innerHTML = `<h3>${section.title}</h3>`;
+        filteredItems.forEach(([word, meaning]) => {
+          const item = document.createElement('div');
+          item.className = 'vocab-item';
+          item.innerHTML = `<div class="vocab-word">${word}</div><div class="vocab-meaning">${meaning}</div>`;
+          card.appendChild(item);
+        });
+        vocabGrid.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', e => renderVocab(e.target.value));
+    renderVocab();
+
+    const patternsGrid = document.getElementById('patternsGrid');
+    sentencePatterns.forEach(pattern => {
+      const box = document.createElement('div');
+      box.className = 'pattern-box';
+      box.innerHTML = `
+        <h3 style="margin-top:0; font-size:18px;">${pattern.name}</h3>
+        <div class="basic">
+          <div class="label">Basic</div>
+          <div>${pattern.basic}</div>
+        </div>
+        <div class="upgrade">
+          <div class="label">Upgraded</div>
+          <div>${pattern.upgrade}</div>
+        </div>
+      `;
+      patternsGrid.appendChild(box);
+    });
+
+    const exerciseWrap = document.getElementById('exerciseWrap');
+
+    function makeProgressText(pct) {
+      if (pct >= 80) return 'Excellent';
+      if (pct >= 60) return 'Good';
+      if (pct >= 40) return 'Developing';
+      return 'Keep going';
+    }
+
+    exercises.forEach((exercise, exIndex) => {
+      const section = document.createElement('div');
+      section.className = 'card section exercise';
+      section.innerHTML = `
+        <div class="exercise-head">
+          <div>
+            <h2 class="section-title" style="margin-bottom:8px;">${exercise.title}</h2>
+            <div class="subtext" style="margin-top:0;">${exercise.tip}</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="pill" id="status-${exIndex}">Keep going: 0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="fill-${exIndex}"></div></div>
+          </div>
+        </div>
+      `;
+
+      const inputs = [];
+
+      exercise.items.forEach((item, i) => {
+        const q = document.createElement('div');
+        q.className = 'question';
+        q.innerHTML = `
+          <div class="qtext">${exIndex + 1}.${i + 1} ${item.q}</div>
+          <textarea placeholder="Write your upgraded sentence here..."></textarea>
+          <div class="answer-key"><strong>Suggested answer:</strong> ${item.a}</div>
+        `;
+        const textarea = q.querySelector('textarea');
+        textarea.addEventListener('input', () => updateProgress());
+        inputs.push(textarea);
+        section.appendChild(q);
+      });
+
+      const btnRow = document.createElement('div');
+      btnRow.className = 'btn-row';
+      btnRow.innerHTML = `
+        <button class="btn primary">Show key</button>
+        <button class="btn">Reset answers</button>
+      `;
+      section.appendChild(btnRow);
+      exerciseWrap.appendChild(section);
+
+      const showBtn = btnRow.children[0];
+      const resetBtn = btnRow.children[1];
+      let visible = false;
+
+      showBtn.addEventListener('click', () => {
+        visible = !visible;
+        section.querySelectorAll('.answer-key').forEach(el => {
+          el.style.display = visible ? 'block' : 'none';
+        });
+        showBtn.textContent = visible ? 'Hide key' : 'Show key';
+      });
+
+      resetBtn.addEventListener('click', () => {
+        inputs.forEach(input => input.value = '');
+        updateProgress();
+      });
+
+      function updateProgress() {
+        const done = inputs.filter(input => input.value.trim()).length;
+        const pct = Math.round((done / inputs.length) * 100);
+        document.getElementById(`fill-${exIndex}`).style.width = pct + '%';
+        document.getElementById(`status-${exIndex}`).textContent = `${makeProgressText(pct)}: ${pct}%`;
+      }
+    });
+
+    const samplesWrap = document.getElementById('samplesWrap');
+    simpleSamples.forEach(sample => {
+      const card = document.createElement('div');
+      card.className = 'card sample-card';
+      card.innerHTML = `
+        <h2 class="section-title" style="margin-bottom:8px;">${sample.title}</h2>
+        <div class="subtext" style="margin-top:0;">This sample is intentionally simple. Rewrite it with better vocabulary and sentence structures.</div>
+        <div class="sample-grid">
+          <div class="sample-box">
+            <h4>Original simple sample</h4>
+            <textarea class="readonly" readonly></textarea>
+          </div>
+          <div class="sample-box">
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+              <h4 style="margin:0;">Student upgraded version</h4>
+              <span class="count">0 words</span>
+            </div>
+            <textarea></textarea>
+            <div class="chip-row">
+              <span class="chip">Try: saw / recorded / experienced</span>
+              <span class="chip">Use: while / whereas</span>
+              <span class="chip">Add noun phrases</span>
+              <span class="chip">Add comparisons</span>
+            </div>
+          </div>
+        </div>
+      `;
+      const textareas = card.querySelectorAll('textarea');
+      textareas[0].value = sample.text;
+      textareas[1].value = sample.text;
+      const count = card.querySelector('.count');
+      textareas[1].addEventListener('input', () => {
+        const words = textareas[1].value.trim() ? textareas[1].value.trim().split(/\s+/).length : 0;
+        count.textContent = `${words} words`;
+      });
+      const initialWords = textareas[1].value.trim().split(/\s+/).length;
+      count.textContent = `${initialWords} words`;
+      samplesWrap.appendChild(card);
+    });
+  </script>
+</body>
+</html>
