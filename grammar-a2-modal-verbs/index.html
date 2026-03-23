@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Modal Verbs Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals with Indigo Accents (Slate-50 bg, White cards, Slate-800 text, Indigo-600 highlights) -->
+    <!-- Application Structure Plan: The application uses a task-oriented dashboard structure. The layout features a persistent side navigation (or top nav on mobile) allowing users to switch between different exercise parts non-linearly. A central "Dashboard" tab provides an overview of their learning progress using a Chart.js visualization. Each exercise section contains interactive form elements (radio buttons, text inputs) that provide immediate feedback and display the rationale from the source report's answer key upon submission. This interactive structure transforms static homework into an engaging, self-paced learning tool, prioritizing user understanding through immediate contextual feedback. -->
+    <!-- Visualization & Content Choices: 1. Goal: Inform/Progress -> Viz: Doughnut Chart (Chart.js) -> Interaction: Updates as user completes exercises -> Justification: Provides a clear, motivating visual summary of correct/incorrect/pending tasks. 2. Goal: Practice/Evaluate -> Viz: Interactive Forms (Radio/Text) -> Interaction: Real-time validation and reveal of Answer Key explanations -> Justification: Active learning requires interaction and immediate feedback, which static text cannot provide. NO SVG/Mermaid used; Unicode icons (✔, ✘) and Tailwind classes handle all visual styling. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col md:flex-row">
+
+    <nav class="w-full md:w-64 bg-white shadow-md flex flex-col md:h-screen sticky top-0 z-10">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-2xl font-bold text-indigo-700">Modal Verbs</h1>
+            <p class="text-sm text-slate-500 mt-1">Level: A2 - B1</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-4" id="nav-container">
+            <button onclick="navigate('part1')" id="btn-part1" class="nav-btn w-full text-left px-4 py-3 rounded-lg bg-indigo-50 text-indigo-700 font-medium transition-colors">📝 Part 1: Multiple Choice</button>
+            <button onclick="navigate('part2')" id="btn-part2" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">✏️ Part 2: Fill in the Blanks</button>
+            <button onclick="navigate('part3')" id="btn-part3" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">🔍 Part 3: Find & Correct</button>
+            <button onclick="navigate('part4')" id="btn-part4" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors">🔄 Part 4: Transformation</button>
+            <button onclick="navigate('results')" id="btn-results" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors hidden mt-4 border border-indigo-200 bg-indigo-50 font-bold">📊 Final Results</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+        <div class="max-w-4xl mx-auto">
+
+            <section id="sec-results" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-8 text-center">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">Quiz Completed!</h2>
+                    <p class="text-slate-600 mb-6">You have finished all parts of the Modal Verbs practice.</p>
+                    
+                    <div class="mb-8 p-6 bg-indigo-50 rounded-2xl inline-block min-w-[300px] border border-indigo-100 shadow-sm">
+                        <p class="text-indigo-900 font-semibold mb-1 uppercase tracking-wide text-sm">Your Total Score</p>
+                        <div id="final-score" class="text-6xl font-extrabold text-indigo-700">0/22</div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center gap-8 text-left">
+                        <div class="w-full md:w-1/2 flex justify-center">
+                            <div class="chart-container">
+                                <canvas id="progressChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 grid grid-cols-2 gap-4">
+                            <div class="bg-emerald-50 rounded-xl p-4 text-center">
+                                <span class="block text-3xl font-bold text-emerald-600" id="stat-correct">0</span>
+                                <span class="text-sm text-emerald-800 font-medium">Correct</span>
+                            </div>
+                            <div class="bg-rose-50 rounded-xl p-4 text-center">
+                                <span class="block text-3xl font-bold text-rose-600" id="stat-incorrect">0</span>
+                                <span class="text-sm text-rose-800 font-medium">Incorrect</span>
+                            </div>
+                            <div class="bg-slate-100 rounded-xl p-4 text-center col-span-2">
+                                <span class="block text-3xl font-bold text-slate-600" id="stat-unanswered">22</span>
+                                <span class="text-sm text-slate-700 font-medium">Unanswered</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 border-t border-slate-100 pt-8 flex justify-center gap-4">
+                        <button onclick="navigate('part1')" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors">Review Answers</button>
+                        <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors">🔄 Restart Quiz</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-part1" class="content-section block">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">Part 1: Multiple Choice</h2>
+                    <p class="text-slate-600 mb-8 pb-6 border-b border-slate-100 leading-relaxed">
+                        This section tests your ability to select the most contextually appropriate modal verb (Can, Could, Must, Have to, Should, May, Shall, Will, Would) from a list of options. Understanding the subtle differences in meaning (e.g., advice vs. obligation vs. possibility) is crucial here. Select an answer and click "Check Answers" to see the explanation from the answer key.
+                    </p>
+                    <div id="container-part1" class="space-y-8"></div>
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="navigate('part2')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors flex items-center gap-2">Next: Part 2 ➔</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-part2" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">Part 2: Fill in the Blanks</h2>
+                    <p class="text-slate-600 mb-8 pb-6 border-b border-slate-100 leading-relaxed">
+                        In this section, you must recall and apply the correct modal verb based on the sentence's context without the help of multiple choices. You will choose from a predefined list (can, could, must, have to, should) and determine if a negative form is required to make logical sense of the sentence.
+                    </p>
+                    <div class="bg-slate-100 p-4 rounded-lg mb-6 text-center font-medium text-slate-700">
+                        Available verbs: (can / could / must / have to / should)
+                    </div>
+                    <div id="container-part2" class="space-y-8"></div>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="navigate('part1')" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3 px-6 rounded-lg transition-colors">⬅ Back</button>
+                        <button onclick="navigate('part3')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors flex items-center gap-2">Next: Part 3 ➔</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-part3" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">Part 3: Find and Correct the Mistakes</h2>
+                    <p class="text-slate-600 mb-8 pb-6 border-b border-slate-100 leading-relaxed">
+                        This section targets common grammatical errors associated with modal verbs, such as using "to" after a modal, conjugating the main verb, or using incorrect question structures. Identify the structural mistake in each sentence and type the fully corrected sentence in the input field.
+                    </p>
+                    <div id="container-part3" class="space-y-8"></div>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="navigate('part2')" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3 px-6 rounded-lg transition-colors">⬅ Back</button>
+                        <button onclick="navigate('part4')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors flex items-center gap-2">Next: Part 4 ➔</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-part4" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                    <h2 class="text-3xl font-bold mb-2 text-slate-800">Part 4: Sentence Transformation</h2>
+                    <p class="text-slate-600 mb-8 pb-6 border-b border-slate-100 leading-relaxed">
+                        Sentence transformation requires you to understand the core meaning of a statement and express that exact same meaning using a different grammatical structure—specifically, the modal verb provided in brackets. This is a high-level skill that proves true comprehension.
+                    </p>
+                    <div id="container-part4" class="space-y-8"></div>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="navigate('part3')" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3 px-6 rounded-lg transition-colors">⬅ Back</button>
+                        <button id="btn-submit-quiz" onclick="submitQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors text-lg">🏁 Submit All Answers</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            scores: { correct: 0, incorrect: 0, unanswered: 22 },
+            results: {},
+            isSubmitted: false
+        };
+
+        const data = {
+            part1: [
+                { id: "p1_1", text: "1. You look very tired. You _______ go to bed early tonight.", options: ["must", "should", "would", "may"], answer: "should", exp: "should - giving advice" },
+                { id: "p1_2", text: "2. When I was a child, I _______ climb trees very fast, but now I can't.", options: ["can", "might", "could", "should"], answer: "could", exp: "could - past ability" },
+                { id: "p1_3", text: "3. _______ I borrow your dictionary for a moment, please?", options: ["May", "Must", "Should", "Will"], answer: "May", exp: "May - polite permission" },
+                { id: "p1_4", text: "4. You _______ wear a helmet when you ride a motorbike. It's the law.", options: ["must", "can", "may", "would"], answer: "must", exp: "must - obligation/rule. Note: 'have to' is also correct but not among the options" },
+                { id: "p1_5", text: "5. I am not sure about my weekend plans. I _______ go to the cinema with my friends.", options: ["will", "must", "may", "shall"], answer: "may", exp: "may - future possibility, but not certain" },
+                { id: "p1_6", text: "6. Tomorrow is Sunday, so I _______ wake up early.", options: ["mustn't", "don't have to", "shouldn't", "couldn't"], answer: "don't have to", exp: "don't have to - lack of obligation" },
+                { id: "p1_7", text: "7. _______ you like a cup of tea or coffee?", options: ["Could", "Will", "Shall", "Would"], answer: "Would", exp: "Would - polite offer 'Would you like...'" },
+                { id: "p1_8", text: "8. 'I am freezing!' - '_______ I close the window for you?'", options: ["Shall", "Will", "Would", "Must"], answer: "Shall", exp: "Shall - offering help 'Shall I...'" }
+            ],
+            part2: [
+                { id: "p2_1", text: "1. My grandfather speaks five languages. He _______ speak English, French, Spanish, Italian, and Russian.", answer: "can", exp: "can (present ability)" },
+                { id: "p2_2", text: "2. You _______ smoke in the hospital. It is strictly forbidden.", answer: "mustn't", exp: "mustn't (prohibition)" },
+                { id: "p2_3", text: "3. It's a great movie. You really _______ see it!", answer: "should", alt: "must", exp: "should / must (strong advice / recommendation)" },
+                { id: "p2_4", text: "4. Sorry, I can't come to your party tomorrow because I _______ work late.", answer: "have to", exp: "have to (external obligation)" },
+                { id: "p2_5", text: "5. I searched everywhere for my keys yesterday, but I _______ find them.", answer: "couldn't", exp: "couldn't (lack of past ability)" }
+            ],
+            part3: [
+                { id: "p3_1", text: "1. You must to finish your homework before watching TV.", answer: "You must finish your homework before watching TV.", exp: "Remove 'to': Modal verbs are followed by a bare infinitive." },
+                { id: "p3_2", text: "2. She can plays the piano beautifully.", answer: "She can play the piano beautifully.", exp: "Remove 's' in plays: The verb after a modal verb is not conjugated." },
+                { id: "p3_3", text: "3. Do you must wear a uniform at your school?", answer: "Do you have to wear a uniform at your school?", exp: "Change 'must' to 'have to': We use the auxiliary verb 'Do' to make questions with 'have to', not with 'must'." },
+                { id: "p3_4", text: "4. We shouldn't driving too fast when it is raining.", answer: "We shouldn't drive too fast when it is raining.", exp: "Change 'driving' to 'drive': Modal verbs are followed by a bare infinitive." }
+            ],
+            part4: [
+                { id: "p4_1", text: "1. It is a good idea to drink plenty of water every day. (SHOULD)", prefix: "➔ You", answer: "should drink plenty of water every day", exp: "You should drink plenty of water every day." },
+                { id: "p4_2", text: "2. It is necessary for us to leave now or we will miss the bus. (MUST)", prefix: "➔ We", answer: "must leave now or we will miss the bus", exp: "We must leave now or we will miss the bus." },
+                { id: "p4_3", text: "3. Do you want me to help you with those heavy bags? (SHALL)", prefix: "➔", suffix: "?", answer: "Shall I help you with those heavy bags", exp: "Shall I help you with those heavy bags?" },
+                { id: "p4_4", text: "4. I know how to swim, but I'm not very good at it. (CAN)", prefix: "➔ I", suffix: ", but I'm not very good at it.", answer: "can swim", exp: "I can swim, but I'm not very good at it." },
+                { id: "p4_5", text: "5. It isn't necessary for them to buy tickets in advance. (HAVE TO)", prefix: "➔ They don't", answer: "have to buy tickets in advance", exp: "They don't have to buy tickets in advance." }
+            ]
+        };
+
+        let progressChartInstance = null;
+
+        function initApp() {
+            renderPart1();
+            renderPart2();
+            renderPart3();
+            renderPart4();
+            initChart();
+            // Default load into part 1, clear inputs in case of browser refresh
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[type="text"]').forEach(el => el.value = '');
+        }
+
+        function navigate(section) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`sec-${section}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-medium', 'font-bold');
+                btn.classList.add('hover:bg-slate-50', 'text-slate-600');
+            });
+            const activeBtn = document.getElementById(`btn-${section}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('hover:bg-slate-50', 'text-slate-600');
+                activeBtn.classList.add('bg-indigo-50', 'text-indigo-700', section === 'results' ? 'font-bold' : 'font-medium');
+            }
+        }
+
+        function createFeedbackHTML(id) {
+            return `<div id="fb-${id}" class="mt-3 p-4 rounded-lg hidden text-sm font-medium"></div>`;
+        }
+
+        function renderPart1() {
+            const container = document.getElementById('container-part1');
+            data.part1.forEach((q, idx) => {
+                let optionsHTML = q.options.map(opt => `
+                    <label class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="radio" name="${q.id}" value="${opt}" class="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 focus:ring-indigo-500">
+                        <span class="ml-3 text-slate-700">${opt}</span>
+                    </label>
+                `).join('');
+                container.innerHTML += `
+                    <div class="mb-4">
+                        <p class="text-lg font-medium text-slate-800 mb-3">${q.text.replace('_______', '______')}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">${optionsHTML}</div>
+                        ${createFeedbackHTML(q.id)}
+                    </div>
+                `;
+            });
+        }
+
+        function renderPart2() {
+            const container = document.getElementById('container-part2');
+            data.part2.forEach(q => {
+                container.innerHTML += `
+                    <div class="mb-4">
+                        <p class="text-lg font-medium text-slate-800 mb-2">${q.text.replace('_______', `<input type="text" id="input-${q.id}" class="inline-block w-32 border-b-2 border-slate-300 bg-transparent text-center focus:outline-none focus:border-indigo-600 text-indigo-700 font-semibold mx-1" placeholder="...">`)}</p>
+                        ${createFeedbackHTML(q.id)}
+                    </div>
+                `;
+            });
+        }
+
+        function renderPart3() {
+            const container = document.getElementById('container-part3');
+            data.part3.forEach(q => {
+                container.innerHTML += `
+                    <div class="mb-4 bg-slate-50 p-5 rounded-xl border border-slate-100">
+                        <p class="text-lg text-rose-700 font-medium mb-3 line-through decoration-rose-300">${q.text}</p>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-slate-500">➔</span>
+                            <input type="text" id="input-${q.id}" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800" placeholder="Type the corrected sentence here...">
+                        </div>
+                        ${createFeedbackHTML(q.id)}
+                    </div>
+                `;
+            });
+        }
+
+        function renderPart4() {
+            const container = document.getElementById('container-part4');
+            data.part4.forEach(q => {
+                const pre = q.prefix ? `<span class="font-medium text-slate-700 whitespace-nowrap">${q.prefix}</span>` : '';
+                const suf = q.suffix ? `<span class="font-medium text-slate-700 whitespace-nowrap">${q.suffix}</span>` : '';
+                container.innerHTML += `
+                    <div class="mb-4 bg-slate-50 p-5 rounded-xl border border-slate-100">
+                        <p class="text-lg text-slate-800 font-medium mb-4">${q.text}</p>
+                        <div class="flex flex-wrap items-center gap-2">
+                            ${pre}
+                            <input type="text" id="input-${q.id}" class="flex-1 min-w-[200px] border-b-2 border-slate-300 bg-transparent focus:outline-none focus:border-indigo-600 text-indigo-700 font-semibold px-2 py-1" placeholder="...">
+                            ${suf}
+                        </div>
+                        ${createFeedbackHTML(q.id)}
+                    </div>
+                `;
+            });
+        }
+
+        function normalizeText(text) {
+            return text.toLowerCase().replace(/[.,?!]/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function submitQuiz() {
+            checkPartForSubmit('part1');
+            checkPartForSubmit('part2');
+            checkPartForSubmit('part3');
+            checkPartForSubmit('part4');
+            
+            updateStats();
+            state.isSubmitted = true;
+            
+            // Show results tab in nav
+            document.getElementById('btn-results').classList.remove('hidden');
+            
+            // Go to results
+            navigate('results');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function checkPartForSubmit(part) {
+            data[part].forEach(q => {
+                let isCorrect = false;
+                let isAnswered = false;
+                
+                if(part === 'part1') {
+                    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                    if(selected) {
+                        isAnswered = true;
+                        isCorrect = selected.value === q.answer;
+                    }
+                } else if(part === 'part2') {
+                    const input = document.getElementById(`input-${q.id}`);
+                    if(input && input.value.trim() !== '') {
+                        isAnswered = true;
+                        const val = normalizeText(input.value);
+                        isCorrect = val === normalizeText(q.answer) || (q.alt && val === normalizeText(q.alt));
+                    }
+                } else {
+                    const input = document.getElementById(`input-${q.id}`);
+                    if(input && input.value.trim() !== '') {
+                        isAnswered = true;
+                        isCorrect = normalizeText(input.value) === normalizeText(q.answer);
+                    }
+                }
+                
+                state.results[q.id] = { isAnswered, isCorrect };
+                
+                // Show inline feedback
+                const fb = document.getElementById(`fb-${q.id}`);
+                fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800', 'bg-slate-100', 'text-slate-800');
+                
+                if (!isAnswered) {
+                    fb.classList.add('bg-slate-100', 'text-slate-800');
+                    fb.innerHTML = `&#9888; Not answered. <span class="block mt-1 text-sm font-normal">Correct answer: ${q.exp}</span>`;
+                } else if(isCorrect) {
+                    fb.classList.add('bg-emerald-100', 'text-emerald-800');
+                    fb.innerHTML = `&#10004; Correct! <span class="block mt-1 text-sm font-normal">${q.exp}</span>`;
+                } else {
+                    fb.classList.add('bg-rose-100', 'text-rose-800');
+                    fb.innerHTML = `&#10008; Incorrect. <span class="block mt-1 text-sm font-normal">Explanation: ${q.exp}</span>`;
+                }
+            });
+        }
+
+        function updateStats() {
+            let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+            
+            for(let id in state.results) {
+                const res = state.results[id];
+                if (!res.isAnswered) {
+                    unanswered++;
+                } else if (res.isCorrect) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            }
+            
+            state.scores.correct = correct;
+            state.scores.incorrect = incorrect;
+            state.scores.unanswered = unanswered;
+            
+            document.getElementById('stat-correct').innerText = correct;
+            document.getElementById('stat-incorrect').innerText = incorrect;
+            document.getElementById('stat-unanswered').innerText = unanswered;
+            document.getElementById('final-score').innerText = `${correct}/22`;
+            
+            updateChart();
+        }
+
+        function restartQuiz() {
+            // Reset state
+            state.results = {};
+            state.scores = { correct: 0, incorrect: 0, unanswered: 22 };
+            state.isSubmitted = false;
+            
+            // Clear all inputs
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[type="text"]').forEach(el => el.value = '');
+            
+            // Hide feedback
+            document.querySelectorAll('[id^="fb-"]').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800', 'bg-slate-100', 'text-slate-800');
+            });
+            
+            // Hide results tab
+            document.getElementById('btn-results').classList.add('hidden');
+            
+            // Go to start
+            navigate('part1');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct', 'Incorrect', 'Unanswered'],
+                    datasets: [{
+                        data: [state.scores.correct, state.scores.incorrect, state.scores.unanswered],
+                        backgroundColor: ['#10b981', '#f43f5e', '#cbd5e1'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.raw + ' questions';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            if(progressChartInstance) {
+                progressChartInstance.data.datasets[0].data = [state.scores.correct, state.scores.incorrect, state.scores.unanswered];
+                progressChartInstance.update();
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
