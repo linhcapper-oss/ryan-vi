@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indirect Speech &amp; Embedded Questions — Bài tập tương tác</title>
+<style>
+  :root{
+    --line:#d0d0d0;
+    --ink:#1a1a1a;
+    --muted:#666;
+    --ok:#e8f3e8;
+    --okline:#3a7d3a;
+    --no:#fbeaea;
+    --noline:#b03030;
+    --box:#f6f6f6;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:24px 16px 120px;
+    font:16px/1.65 Georgia,"Times New Roman",serif;
+    color:var(--ink);background:#fff;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px;font-weight:normal;border-bottom:2px solid var(--ink);padding-bottom:8px}
+  .sub{color:var(--muted);font-size:14px;margin:8px 0 28px}
+  h2{font-size:18px;margin:36px 0 6px;font-weight:normal;border-bottom:1px solid var(--line);padding-bottom:6px}
+  h3{font-size:15px;margin:22px 0 6px;font-weight:bold}
+  .note{font-size:14px;color:var(--muted);margin:0 0 14px;font-style:italic}
+  .conv{border-left:3px solid var(--line);padding:8px 0 8px 14px;margin:14px 0}
+  .conv .who{font-weight:bold}
+  .line{margin:6px 0}
+  .item{margin:14px 0}
+  .item .prompt{margin-bottom:4px}
+  .num{color:var(--muted);font-size:14px;margin-right:6px}
+  label.opt{
+    display:inline-block;border:1px solid var(--line);border-radius:3px;
+    padding:1px 8px;margin:0 4px 0 0;cursor:pointer;font-size:15px;background:#fff;
+  }
+  label.opt:hover{background:var(--box)}
+  label.opt input{margin-right:5px}
+  label.opt.sel{border-color:var(--ink);background:var(--box)}
+  input[type=text]{
+    font:15px/1.4 Georgia,serif;padding:4px 6px;border:1px solid var(--line);
+    border-radius:3px;width:100%;max-width:620px;background:#fff;
+  }
+  input.inline{width:auto;min-width:150px;max-width:100%}
+  input[type=text]:focus{outline:2px solid #888;outline-offset:0}
+  .hint{font-size:13px;color:var(--muted)}
+  .fb{display:none;margin-top:6px;padding:8px 10px;border-left:3px solid;font-size:14.5px;background:var(--box)}
+  .graded .fb{display:block}
+  .fb.ok{background:var(--ok);border-color:var(--okline)}
+  .fb.no{background:var(--no);border-color:var(--noline)}
+  .fb .key{font-weight:bold}
+  .fb .exp{color:#333;display:block;margin-top:3px}
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--ink);
+    padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
+    font-family:system-ui,sans-serif;font-size:14px;
+  }
+  button{
+    font:15px system-ui,sans-serif;padding:8px 18px;border:1px solid var(--ink);
+    background:var(--ink);color:#fff;border-radius:3px;cursor:pointer;
+  }
+  button.alt{background:#fff;color:var(--ink)}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  #result{
+    display:none;border:1px solid var(--ink);padding:14px 16px;margin:20px 0;
+    font-family:system-ui,sans-serif;
+  }
+  #result.show{display:block}
+  #score{font-size:30px;font-weight:bold}
+  #result p{margin:6px 0;font-size:14px;color:#333}
+  .missing input[type=text]{border-color:var(--noline)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Indirect Speech &amp; Embedded Questions — Bài tập tương tác</h1>
+<p class="sub">Làm hết <b>62</b> câu rồi bấm <b>Nộp bài</b>. Sau khi nộp, bạn sẽ thấy điểm trên thang 10 và đáp án kèm giải thích cho từng câu.</p>
+
+<div id="result">
+  <div id="score"></div>
+  <p id="detail"></p>
+  <p id="warn">Lưu ý: các câu viết tự do (Bài 2 phần B và Bài 5) được chấm bằng cách so khớp với đáp án mẫu. Nếu bạn viết đúng ngữ pháp nhưng dùng từ khác mà máy báo sai, hãy tự đối chiếu với đáp án mẫu bên dưới.</p>
+</div>
+
+<div id="app"></div>
+
+</div>
+
+<div class="bar">
+  <span id="progress">Đã làm 0/62</span>
+  <button id="submit" disabled>Nộp bài</button>
+  <button id="reset" class="alt">Làm lại</button>
+</div>
+
+<script>
+/* ---------- dữ liệu câu hỏi ---------- */
+// Cú pháp đáp án: {a|b} = chọn một; [x] = tùy chọn có/không
+const Q = {
+  // ===== Exercise 1 =====
+  "1":{t:"mc",o:["said","told"],a:"said",e:"Vì không có tân ngữ chỉ người nghe đi kèm ngay sau nó."},
+  "2":{t:"mc",o:["said","told"],a:"told",e:"Vì có tân ngữ chỉ người nghe là \"me\"."},
+  "3":{t:"mc",o:["will","would"],a:"would",e:"Động từ tường thuật ở quá khứ, lùi thì từ \"will\" thành \"would\"."},
+  "4":{t:"mc",o:["her","she"],a:"her",e:"Đại từ tân ngữ, chỉ \"Sarah\"."},
+  "5":{t:"mc",o:["is","was"],a:"was",e:"Lùi thì từ hiện tại đơn sang quá khứ đơn."},
+  "6":{t:"mc",o:["tomorrow","the next day"],a:"the next day",e:"Chuyển đổi từ chỉ thời gian \"tomorrow\" trong câu gián tiếp."},
+  "7":{t:"mc",o:["have returned","had returned"],a:"had returned",e:"Lùi thì từ quá khứ đơn/hiện tại hoàn thành sang quá khứ hoàn thành."},
+  "8":{t:"mc",o:["here","there"],a:"there",e:"Chuyển đổi từ chỉ nơi chốn \"here\" thành \"there\"."},
+  "9":{t:"mc",o:["if","that"],a:"if",e:"Câu hỏi Yes/No gián tiếp dùng \"if\" hoặc \"whether\"."},
+  "10":{t:"mc",o:["where did you work","where you worked"],a:"where you worked",e:"Câu hỏi gián tiếp bắt buộc dùng trật tự của câu trần thuật: S + V, không đảo trợ động từ \"did\"."},
+  "11":{t:"mc",o:["I made","did I make"],a:"I made",e:"Tương tự câu 10, trật tự câu trần thuật: Chủ ngữ + Động từ."},
+  "12":{t:"mc",o:["get","to get"],a:"to get",e:"Câu khuyên bảo/yêu cầu gián tiếp dùng cấu trúc: V + tân ngữ + to V."},
+  "13":{t:"mc",o:["to not drink","not to drink"],a:"not to drink",e:"Phủ định của mệnh lệnh gián tiếp là \"not + to V\"."},
+  "14":{t:"mc",o:["to come","coming"],a:"to come",e:"Cấu trúc \"ask someone to do something\"."},
+  "15":{t:"mc",o:["is the subway station","the subway station is"],a:"the subway station is",e:"Câu hỏi nhúng luôn dùng trật tự câu trần thuật: S + V."},
+  "16":{t:"mc",o:["whether","who"],a:"whether",e:"Hỏi thông tin Có/Không trong câu hỏi nhúng, dùng \"whether\" hoặc \"if\"."},
+  "17":{t:"mc",o:["costs","does it cost"],a:"costs",e:"Không mượn trợ động từ \"does\" trong câu hỏi nhúng, dùng trật tự khẳng định."},
+
+  // ===== Exercise 2 - Part A =====
+  "A1":{t:"tx",a:["[she said] [that] she always got up early"],k:"(that) she always got up early.",
+    e:"Lùi thì từ Hiện tại đơn (get up) sang Quá khứ đơn (got up). Đổi đại từ I thành she."},
+  "A2":{t:"tx",a:["[they said] [that] the storm had changed direction the night before"],k:"the storm had changed direction the night before.",
+    e:"Lùi thì từ Quá khứ đơn (changed) sang Quá khứ hoàn thành (had changed). Đổi last night thành the night before."},
+  "A3":{t:"tx",a:["[he asked me] where I worked"],k:"where I worked.",
+    e:"Câu hỏi Wh-: giữ nguyên where, đổi về trật tự câu trần thuật (không dùng trợ động từ do), lùi thì work → worked, đổi you → I."},
+  "A4":{t:"tx",a:["[she asked] {if|whether} I could type"],k:"if / whether I could type.",
+    e:"Câu hỏi Yes/No nên phải mượn if hoặc whether. Lùi thì can → could. Đổi you → I."},
+  "A5":{t:"tx",a:["[the doctor told me] not to eat after {9:00|9|900} {pm|p m|oclock}","[the doctor told me] not to eat after {9:00|9} in the evening"],k:"not to eat after 9:00 p.m.",
+    e:"Câu mệnh lệnh phủ định. Cấu trúc: told + tân ngữ + not + to V (not to eat)."},
+
+  // ===== Exercise 2 - Part B =====
+  "B1":{t:"tx",a:["[the local weather forecaster said] {it is|its} going to be a terrible storm"],k:"\"It is going to be a terrible storm.\"",
+    e:"Đưa thì Quá khứ (was going to be) về lại Hiện tại (is going to be)."},
+  "B2":{t:"tx",a:["[she said] the winds may exceed 45 miles per hour"],k:"\"The winds may exceed 45 miles per hour.\"",
+    e:"Đưa động từ khuyết thiếu might về lại may."},
+  "B3":{t:"tx",a:["[she told them] [the] emergency relief workers arrived yesterday"],k:"\"Emergency relief workers arrived yesterday.\"",
+    e:"Đưa thì Quá khứ hoàn thành (had arrived) về Quá khứ đơn (arrived). Đổi the day before về lại yesterday."},
+  "B4":{t:"tx",a:["[ms wong told the class] {i am|im} going to teach you how to do algebra"],k:"\"I am going to teach you how to do algebra.\"",
+    e:"Lùi thì ngược lại was → am. Đổi she → I (lời của cô Wong), đổi them → you (chỉ cả lớp)."},
+  "B5":{t:"tx",a:["[the teacher told brianna] i can explain that again"],k:"\"I can explain that again.\"",
+    e:"Đưa động từ khuyết thiếu could về lại can. Đổi đại từ she thành I."},
+
+  // ===== Exercise 2 - Part C =====
+  "C1":{t:"tx",a:["[the headline said] [that] a divorced mans children {wouldnt|would not} speak to him"],k:"a divorced man's children wouldn't speak to him.",
+    e:"Thêm mạo từ \"a\" trước divorced man's children. Lùi thì won't → wouldn't."},
+  "C2":{t:"tx",a:["[a famous actress said] [that] she was leaving her husband for the third time"],k:"she was leaving her husband for the third time.",
+    e:"Lùi thì Hiện tại tiếp diễn ('s leaving) sang Quá khứ tiếp diễn (was leaving)."},
+  "C3":{t:"tx",a:["[the headline said] [that] a couple {was|were} going to sue a restaurant because of {rude waiters|the rude waiters}"],k:"a couple was going to sue a restaurant because of rude waiters.",
+    e:"Thêm mạo từ \"a\" trước couple và restaurant. Lùi thì Hiện tại (is going to) sang Quá khứ (was going to)."},
+  "C4":{t:"tx",a:["[congress said] [that] the president had vetoed the health bill because of {a miscommunication|miscommunication}"],k:"the president had vetoed the health bill because of a miscommunication.",
+    e:"Thêm mạo từ \"the\" trước president và health bill, thêm \"a\" trước miscommunication. Lùi thì vetoed → had vetoed."},
+  "C5":{t:"tx",a:["[the headline said] [that] a womans sister {refused|had refused} to invite her to her wedding"],k:"a woman's sister refused (hoặc had refused) to invite her to her wedding.",
+    e:"Thêm mạo từ \"a\" trước woman's sister. Lùi thì refuses → refused. Có thể dùng had refused vì sự việc đã xảy ra trong quá khứ."},
+
+  // ===== Exercise 3 =====
+  "E1":{t:"tx",a:["she asked when the interview was"],k:"She asked when the interview was.",
+    e:"Câu hỏi Wh-: when + trật tự câu trần thuật: Chủ ngữ (the interview) + Động từ đã lùi thì (was)."},
+  "E2":{t:"tx",a:["she asked where the company was"],k:"She asked where the company was.",
+    e:"where + Chủ ngữ (the company) + Động từ (was). Tuyệt đối không viết \"where was the company\"."},
+  "E3":{t:"tx",a:["she asked {if|whether} he needed directions"],k:"She asked if he needed directions.",
+    e:"Câu hỏi Yes/No nên mượn if. Trật tự khẳng định: he + needed. \"you\" → \"he\" (chỉ Jason)."},
+  "E4":{t:"tx",a:["she asked how long it {takes|took} to get there"],k:"She asked how long it takes to get there.",
+    e:"Từ để hỏi là cụm how long. Động từ takes giữ nguyên thì hiện tại vì đây là sự thật/khoảng cách cố định không thay đổi."},
+  "E5":{t:"tx",a:["she asked {if|whether} he was going to drive"],k:"She asked if he was going to drive.",
+    e:"Câu hỏi Yes/No dùng if. Lùi thì are going to → was going to. Đổi \"you\" thành \"he\"."},
+  "E6":{t:"tx",a:["she asked who was going to interview him"],k:"She asked who was going to interview him.",
+    e:"who đóng vai trò chủ ngữ nên giữ nguyên trật tự; lùi thì is going to → was going to; \"you\" → \"him\"."},
+  "E7":{t:"tx",a:["she asked when they would let him know"],k:"She asked when they would let him know.",
+    e:"when + Chủ ngữ (they). Lùi thì will → would. Đổi \"you\" thành \"him\"."},
+
+  // ===== Exercise 4 =====
+  "F2":{t:"tx",n:2,a:["i could"],k:"I could",
+    e:"Câu gốc: \"Yes, I can.\" Lùi thì can → could. Đại từ \"I\" giữ nguyên vì người thuật lại chính là Bố."},
+  "F3":{t:"tx",n:3,a:["what she needed"],k:"what she needed",
+    e:"Câu gốc: \"What do you need?\" Giữ what, đổi you → she, về trật tự trần thuật và lùi thì need → needed."},
+  "F4":{t:"tx",n:4,a:["she had to write"],k:"she had to write",
+    e:"Câu gốc: \"I have to write a report...\" Đổi I → she, lùi thì have to → had to."},
+  "F5":{t:"tx",n:1,a:["her"],k:"her",
+    e:"Câu gốc: \"...for my communications class.\" Đổi tính từ sở hữu my → her."},
+  "F6":{t:"tx",n:4,a:["what the quotation was"],k:"what the quotation was",
+    e:"Câu gốc: \"What's the quotation?\" Trật tự trần thuật: the quotation lên trước, lùi thì is → was."},
+  "F7":{t:"tx",n:2,a:["it was"],k:"it was",
+    e:"Câu gốc: \"It's by William Mizner...\" Lùi thì is → was."},
+  "F8":{t:"tx",n:5,a:["what she thought it meant"],k:"what she thought it meant",
+    e:"Câu gốc: \"What do you think it means?\" Đổi you → she, về trật tự trần thuật, lùi thì think → thought, means → meant."},
+  "F9":{t:"tx",n:2,a:["it meant"],k:"it meant",
+    e:"Câu gốc: \"Well, maybe it means that...\" Lùi thì means → meant."},
+  "F10":{t:"tx",n:2,a:["would like"],k:"would like",
+    e:"Câu gốc: \"...people will like you...\" Lùi thì will → would."},
+  "F11":{t:"tx",n:1,a:["was"],k:"was",
+    e:"Câu gốc: \"That's part of it.\" Chữ \"that\" liền trước chỗ trống đóng vai trò chủ ngữ, chỉ cần lùi thì is → was."},
+  "F12":{t:"tx",n:5,a:["{if|whether} she thought it meant"],k:"if she thought it meant",
+    e:"Câu gốc: \"Do you think it means anything else?\" Câu Yes/No nên bắt đầu bằng if/whether; đổi you → she; lùi thì think → thought, means → meant."},
+  "F13":{t:"tx",n:2,a:["could learn"],k:"could learn",
+    e:"Câu gốc: \"...you can learn something if you listen.\" Lùi thì can → could, động từ chính giữ nguyên."},
+  "F14":{t:"tx",n:2,a:["she understood"],k:"she understood",
+    e:"Câu gốc: \"You understand the quotation really well.\" Đổi You → she, lùi thì understand → understood."},
+
+  // ===== Exercise 5 =====
+  "T1":{t:"tx",a:["she said [that] she would {go to|have|attend} a job interview the {next|following} day"],
+    k:"She said (that) she would go to a job interview the next day / the following day.",
+    e:"Lùi thì tương lai đơn (will go → would go). Đổi trạng từ thời gian (tomorrow → the next day / the following day)."},
+  "T2":{t:"tx",a:["they told me [that] they had finished that project the {week before|previous week|week before that}"],
+    k:"They told me (that) they had finished that project the week before / the previous week.",
+    e:"Dùng told + tân ngữ (me). Lùi thì Quá khứ đơn → Quá khứ hoàn thành (had finished). Đổi last week → the week before / the previous week."},
+  "T3":{t:"tx",a:["the doctor {advised|told} me not to drink coffee after {2:00|2|200} {pm|p m|oclock}",
+                 "the doctor {advised|told} me not to drink coffee after {2:00|2} in the afternoon"],
+    k:"The doctor advised / told me not to drink coffee after 2:00 p.m.",
+    e:"Câu lời khuyên gián tiếp phủ định: S + advised/told + O + not to + V."},
+  "T4":{t:"tx",a:["the interviewer asked me {if|whether} i had {teamwork experience|any teamwork experience|experience in teamwork|experience working in a team|any experience in teamwork|experience in working in a team}"],
+    k:"The interviewer asked me if / whether I had teamwork experience.",
+    e:"Câu hỏi gián tiếp Yes/No: mượn if / whether, trật tự trần thuật, lùi thì (I had)."},
+  "T5":{t:"tx",a:["the police[ officer] asked the man where he was going","the policeman asked the man where he was going"],
+    k:"The police officer asked the man where he was going.",
+    e:"Câu hỏi Wh- gián tiếp: giữ where, trật tự trần thuật, lùi thì hiện tại tiếp diễn → quá khứ tiếp diễn (he was going)."},
+  "T6":{t:"tx",a:["do you know what time the next flight {departs|leaves}"],
+    k:"Do you know what time the next flight departs / leaves?",
+    e:"Câu hỏi nhúng: sau what time phải là trật tự trần thuật (the next flight + departs). Không mượn trợ động từ does."},
+  "T7":{t:"tx",a:["i wonder {if|whether} the tip {is|has been} included in the bill"],
+    k:"I wonder if / whether the tip is included in the bill.",
+    e:"Câu hỏi nhúng dạng Yes/No: mượn if/whether, không đảo ngữ, không lùi thì (is included)."},
+  "T8":{t:"tx",a:["i {dont|do not} know how much tip to leave for the {server|waiter}",
+                 "i {dont|do not} know how much tip i should leave for the {server|waiter}",
+                 "i {dont|do not} know how much to tip the {server|waiter}"],
+    k:"I don't know how much tip to leave for the server. (Hoặc: I don't know how much tip I should leave...)",
+    e:"Câu hỏi nhúng rút gọn: Từ để hỏi + to V (how much tip to leave)."},
+  "T9":{t:"tx",a:["he asked me why i {had been|was} late for the meeting that morning"],
+    k:"He asked me why I had been late for the meeting that morning.",
+    e:"Câu hỏi Wh- gián tiếp: giữ why, lùi thì Quá khứ đơn → Quá khứ hoàn thành (had been). Đổi this morning → that morning."},
+  "T10":{t:"tx",a:["our teacher said [that] the earth {goes|moves|revolves|travels} around the sun"],
+    k:"Our teacher said (that) the Earth goes around the Sun.",
+    e:"Ngoại lệ KHÔNG lùi thì: sự thật hiển nhiên / chân lý khoa học nên động từ giữ ở hiện tại đơn (goes)."}
+};
+
+/* ---------- nội dung bài ---------- */
+const HTML = `
+<h2>Exercise 1. Circle the correct words.</h2>
+<p class="note">Đọc 5 đoạn hội thoại và chọn từ / cụm từ đúng.</p>
+
+<h3>Conversation 1: At the office</h3>
+<div class="conv">
+<div class="line"><span class="who">Anna:</span> Did you hear the news? The manager {{1}} that he was going to hire a new assistant.</div>
+<div class="line"><span class="who">Ben:</span> Really? He {{2}} me that the company didn't have enough budget this year.</div>
+<div class="line"><span class="who">Anna:</span> Well, he announced it this morning. He also said that the interviews {{3}} start next week.</div>
+<div class="line"><span class="who">Ben:</span> I see. My friend Sarah is looking for a job. I will tell {{4}} that she should apply.</div>
+</div>
+
+<h3>Conversation 2: A delayed flight</h3>
+<div class="conv">
+<div class="line"><span class="who">Tom:</span> Did the airline agent call you?</div>
+<div class="line"><span class="who">Lisa:</span> Yes, she called yesterday. She said that our flight {{5}} canceled because of the bad weather.</div>
+<div class="line"><span class="who">Tom:</span> Oh no! Did she say when we could fly?</div>
+<div class="line"><span class="who">Lisa:</span> She said they had booked us on another flight for {{6}}.</div>
+<div class="line"><span class="who">Tom:</span> That's terrible. I talked to my boss last week, and I told him that I {{7}} to work by Monday!</div>
+<div class="line"><span class="who">Lisa:</span> You'd better call him again. Tell him we are stuck {{8}} at the airport.</div>
+</div>
+
+<h3>Conversation 3: After a job interview</h3>
+<div class="conv">
+<div class="line"><span class="who">Mom:</span> How was your job interview, sweetie? What did they ask you?</div>
+<div class="line"><span class="who">Alex:</span> It was okay. The interviewer asked me {{9}} I had any experience in graphic design.</div>
+<div class="line"><span class="who">Mom:</span> And what did you say? Did they ask {{10}} previously?</div>
+<div class="line"><span class="who">Alex:</span> Yes, they did. They also wanted to know how much money {{11}} at my last job.</div>
+<div class="line"><span class="who">Mom:</span> That's a common question. I hope you answered confidently!</div>
+</div>
+
+<h3>Conversation 4: Doctor's advice</h3>
+<div class="conv">
+<div class="line"><span class="who">Sarah:</span> You don't look very well. What did Dr. Ray say to you yesterday?</div>
+<div class="line"><span class="who">John:</span> He advised me {{12}} more sleep and exercise regularly.</div>
+<div class="line"><span class="who">Sarah:</span> Did he give you any medication?</div>
+<div class="line"><span class="who">John:</span> No, but he told me {{13}} anything with caffeine after 2:00 p.m.</div>
+<div class="line"><span class="who">Sarah:</span> That makes sense. My doctor also asked me {{14}} back for a check-up next month. You should take care of yourself.</div>
+</div>
+
+<h3>Conversation 5: A tourist asking for directions</h3>
+<div class="conv">
+<div class="line"><span class="who">Tourist:</span> Excuse me, I'm new to the city. Can you tell me where {{15}}?</div>
+<div class="line"><span class="who">Local:</span> Sure. It's just around the corner, next to the bank.</div>
+<div class="line"><span class="who">Tourist:</span> Thank you! Do you know {{16}} I can buy a ticket with a credit card?</div>
+<div class="line"><span class="who">Local:</span> Yes, you can. The machines take both cash and cards.</div>
+<div class="line"><span class="who">Tourist:</span> One last thing. I don't know exactly how much a day-pass {{17}}. Could you explain that to me?</div>
+<div class="line"><span class="who">Local:</span> It's $5. Have a great trip!</div>
+</div>
+
+<h2>Exercise 2. Rewriting sentences.</h2>
+
+<h3>Part A. Direct → Indirect speech</h3>
+<p class="note">Viết tiếp phần còn thiếu (chỉ viết phần sau chỗ gợi ý). Đổi thì, đại từ, trạng từ thời gian/nơi chốn cho đúng.</p>
+{{A1|1. "I always get up early," she said.<br>&rArr; She said …|that she always got up early}}
+{{A2|2. "The storm changed direction last night," they said.<br>&rArr; They said that …|the storm had…}}
+{{A3|3. He asked me, "Where do you work?"<br>&rArr; He asked me …|where I…}}
+{{A4|4. She asked, "Can you type?"<br>&rArr; She asked …|if I…}}
+{{A5|5. "Don't eat after 9:00 p.m.," the doctor said to me.<br>&rArr; The doctor told me …|not to…}}
+
+<h3>Part B. Indirect → Direct speech</h3>
+<p class="note">Viết đúng lời nói gốc của người nói (không cần gõ dấu ngoặc kép).</p>
+{{B1|1. The local weather forecaster said that it was going to be a terrible storm.<br>&rArr; The local weather forecaster said, …|It is…}}
+{{B2|2. She said the winds might exceed 45 miles per hour.<br>&rArr; She said, …|The winds…}}
+{{B3|3. She told them that the emergency relief workers had arrived the day before.<br>&rArr; She told them, …|Emergency relief workers…}}
+{{B4|4. Ms. Wong told the class she was going to teach them how to do algebra.<br>&rArr; Ms. Wong told the class, …|I am…}}
+{{B5|5. The teacher told Brianna that she could explain that again.<br>&rArr; The teacher told Brianna, …|I can…}}
+
+<h3>Part C. Headlines → Indirect speech</h3>
+<p class="note">Nhớ thêm lại mạo từ (a, an, the) và lùi thì.</p>
+{{C1|1. Divorced Man's Children Won't Speak to Him<br>&rArr; The headline said (that) …|a divorced man's…}}
+{{C2|2. Famous Actress Says She's Leaving Her Husband for the Third Time<br>&rArr; A famous actress said (that) …|she was…}}
+{{C3|3. Couple Is Going to Sue Restaurant Because of Rude Waiters<br>&rArr; The headline said (that) …|a couple…}}
+{{C4|4. Congress Says President Vetoed Health Bill Because of Miscommunication<br>&rArr; Congress said (that) …|the president…}}
+{{C5|5. Woman's Sister Refuses to Invite Her to Her Wedding<br>&rArr; The headline said (that) …|a woman's sister…}}
+
+<h2>Exercise 3. Word order.</h2>
+<p class="note">Sắp xếp các từ trong ngoặc thành câu tường thuật hoàn chỉnh. Viết cả câu.<br>
+Ví dụ: (asked / kind of job / what / was / it / she) &rArr; She asked what kind of job it was.</p>
+{{E1|1. CLAIRE: When is the interview? — (the interview / she / was / when / asked)|She asked when…}}
+{{E2|2. CLAIRE: Where's the company? — (was / where / she / the company / asked)|She asked where…}}
+{{E3|3. CLAIRE: Do you need directions? — (asked / needed / she / if / he / directions)|She asked if…}}
+{{E4|4. CLAIRE: How long does it take to get there? — (asked / to get there / it / she / takes / how long)|She asked how long…}}
+{{E5|5. CLAIRE: Are you going to drive? — (was going to / asked / if / he / drive / she)|She asked if…}}
+{{E6|6. CLAIRE: Who's going to interview you? — (she / was going to / him / who / interview / asked)|She asked who…}}
+{{E7|7. CLAIRE: When will they let you know? — (him / they / would / asked / she / when / let / know)|She asked when…}}
+
+<h2>Exercise 4. Comprehensive overview.</h2>
+<p class="note">Đọc lại hội thoại giữa Sally và Bố, rồi điền vào lời kể của người Bố. Số trong ngoặc là số từ cần điền.</p>
+<div class="conv">
+<div class="line"><span class="who">SALLY:</span> Dad, can you help me with my homework?</div>
+<div class="line"><span class="who">DAD:</span> Yes, I can. What do you need?</div>
+<div class="line"><span class="who">SALLY:</span> I have to write a report for my communications class. It's on a quotation.</div>
+<div class="line"><span class="who">DAD:</span> OK. What's the quotation?</div>
+<div class="line"><span class="who">SALLY:</span> It's by William Mizner, and it says, "A good listener is not only popular everywhere, but after a while he gets to know something."</div>
+<div class="line"><span class="who">DAD:</span> What do you think it means?</div>
+<div class="line"><span class="who">SALLY:</span> Well, maybe it means that people will like you if you're a good listener.</div>
+<div class="line"><span class="who">DAD:</span> Good. That's part of it. Do you think it means anything else?</div>
+<div class="line"><span class="who">SALLY:</span> Well, maybe that you can learn something if you listen.</div>
+<div class="line"><span class="who">DAD:</span> Very good! You understand the quotation really well.</div>
+</div>
+<div class="item"><div class="prompt">My daughter Sally asked me <i>if I could help her with her</i> homework. <span class="hint">(câu mẫu — đã điền sẵn)</span></div></div>
+{{F2|I told her <b>______</b>|I…}}
+{{F3|… and asked her <b>______</b>.|what she…}}
+{{F4|She said <b>______</b> a report on a quotation for …|she…}}
+{{F5|… for <b>______</b> communications class.|my &rarr; …}}
+{{F6|I asked her <b>______</b>.|what the…}}
+{{F7|She said <b>______</b> by William Mizner and went like this: "A good listener is not only popular everywhere, but after a while he gets to know something."|it…}}
+{{F8|I asked her <b>______</b>.|what she…}}
+{{F9|She said she thought maybe <b>______</b> that people …|it…}}
+{{F10|… that people <b>______</b> you if you were a good listener.|would…}}
+{{F11|I told her that <b>______</b> part of it …|is &rarr; …}}
+{{F12|… and asked <b>______</b> anything else.|if she…}}
+{{F13|She said she thought maybe it meant you <b>______</b> something if you listened.|could…}}
+{{F14|I told her <b>______</b> the quotation really well.|she…}}
+
+<h2>Exercise 5. Translation.</h2>
+<p class="note">Dịch sang tiếng Anh, chú ý lùi thì, đại từ, trạng từ thời gian và trật tự từ.</p>
+{{T1|1. Cô ấy nói rằng cô ấy sẽ đi phỏng vấn xin việc vào ngày hôm sau.|She said…}}
+{{T2|2. Họ bảo tôi rằng họ đã hoàn thành dự án đó vào tuần trước.|They told me…}}
+{{T3|3. Bác sĩ khuyên tôi không nên uống cà phê sau 2 giờ chiều.|The doctor…}}
+{{T4|4. Người phỏng vấn hỏi tôi liệu tôi có kinh nghiệm làm việc nhóm không.|The interviewer…}}
+{{T5|5. Cảnh sát hỏi người đàn ông xem ông ta đang đi đâu.|The police officer…}}
+{{T6|6. Bạn có biết chuyến bay tiếp theo khởi hành lúc mấy giờ không?|Do you know…}}
+{{T7|7. Tôi tự hỏi liệu tiền boa đã được tính vào trong hóa đơn chưa.|I wonder…}}
+{{T8|8. Tôi không biết phải để lại bao nhiêu tiền boa cho người phục vụ.|I don't know…}}
+{{T9|9. Anh ấy hỏi tôi tại sao tôi lại đến muộn trong cuộc họp sáng nay.|He asked me…}}
+{{T10|10. Giáo viên của chúng tôi nói rằng Trái Đất quay quanh Mặt Trời.|Our teacher…}}
+`;
+
+/* ---------- chuẩn hoá & so khớp ---------- */
+function norm(s){
+  return String(s).toLowerCase()
+    .replace(/[\u2018\u2019\u201C\u201D]/g,"'")
+    .replace(/['".,!?;]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function expand(pat){
+  let out=[pat.replace(/\[([^\]]*)\]/g,(m,g)=>'{'+g+'|}')];
+  let go=true;
+  while(go){
+    go=false;const next=[];
+    for(const s of out){
+      const m=s.match(/\{([^{}]*)\}/);
+      if(m){go=true;m[1].split('|').forEach(o=>next.push(s.slice(0,m.index)+o+s.slice(m.index+m[0].length)));}
+      else next.push(s);
+    }
+    out=next;
+  }
+  return out.map(norm);
+}
+const ACC={};
+for(const id in Q){ if(Q[id].t==='tx') ACC[id]=Q[id].a.flatMap(expand); }
+
+/* ---------- dựng giao diện ---------- */
+let html = HTML;
+// câu tự luận: {{id|đề bài|placeholder}}
+html = html.replace(/\{\{([A-Z]\d+)\|([\s\S]*?)\|([\s\S]*?)\}\}/g,(m,id,prompt,ph)=>{
+  const q=Q[id];
+  const words = q.n ? ` <span class="hint">(${q.n} từ)</span>` : '';
+  return `<div class="item" data-q="${id}">
+    <div class="prompt">${prompt}${words}</div>
+    <input type="text" data-id="${id}" placeholder="${ph.replace(/"/g,'&quot;')}">
+    <div class="fb"></div>
+  </div>`;
+});
+// câu trắc nghiệm: {{n}}
+html = html.replace(/\{\{(\d+)\}\}/g,(m,id)=>{
+  const q=Q[id];
+  const opts=q.o.map(o=>
+    `<label class="opt"><input type="radio" name="q${id}" value="${o}">${o}</label>`).join('');
+  return `<span class="item" data-q="${id}" style="display:inline"><span class="num">(${id})</span>${opts}<span class="fb"></span></span>`;
+});
+document.getElementById('app').innerHTML = html;
+
+const ids = Object.keys(Q);
+const TOTAL = ids.length;
+const progressEl=document.getElementById('progress');
+const submitEl=document.getElementById('submit');
+let graded=false;
+
+function answered(id){
+  const q=Q[id];
+  if(q.t==='mc'){const c=document.querySelector(`input[name="q${id}"]:checked`);return c?c.value:null;}
+  const el=document.querySelector(`input[data-id="${id}"]`);
+  return el.value.trim()?el.value.trim():null;
+}
+function updateProgress(){
+  const n=ids.filter(i=>answered(i)!==null).length;
+  progressEl.textContent=`Đã làm ${n}/${TOTAL}`;
+  submitEl.disabled = graded || n<TOTAL;
+}
+document.addEventListener('input',e=>{ if(!graded) updateProgress(); });
+document.addEventListener('change',e=>{
+  if(e.target.type==='radio'){
+    document.querySelectorAll(`input[name="${e.target.name}"]`).forEach(r=>r.closest('label').classList.toggle('sel',r.checked));
+  }
+  if(!graded) updateProgress();
+});
+
+submitEl.addEventListener('click',()=>{
+  let correct=0;
+  ids.forEach(id=>{
+    const q=Q[id], user=answered(id)||'';
+    const ok = q.t==='mc' ? user===q.a : ACC[id].includes(norm(user));
+    if(ok) correct++;
+    const wrap=document.querySelector(`[data-q="${id}"]`);
+    wrap.classList.add('graded');
+    const fb=wrap.querySelector('.fb');
+    fb.className='fb '+(ok?'ok':'no');
+    const key = q.t==='mc' ? q.a : q.k;
+    fb.innerHTML = (ok?'✔ Đúng. ':'✘ Sai. ')+'<span class="key">Đáp án: '+key+'</span><span class="exp">'+q.e+'</span>';
+    // khoá bài
+    if(q.t==='mc') document.querySelectorAll(`input[name="q${id}"]`).forEach(r=>r.disabled=true);
+    else document.querySelector(`input[data-id="${id}"]`).disabled=true;
+  });
+  graded=true;submitEl.disabled=true;
+  const score=(correct/TOTAL*10);
+  document.getElementById('score').textContent=score.toFixed(1)+' / 10';
+  document.getElementById('detail').textContent=`Đúng ${correct}/${TOTAL} câu.`;
+  document.getElementById('result').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+document.getElementById('reset').addEventListener('click',()=>location.reload());
+updateProgress();
+</script>
+</body>
+</html>
