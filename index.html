@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Đọc Hiểu Tiếng Anh</title>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --correct: #28a745;
+            --incorrect: #dc3545;
+            --border: #dee2e6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            padding-top: 60px; /* For fixed header */
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .progress {
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--primary);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        h2 { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-top: 40px;}
+        h3 { color: #444; margin-top: 30px; }
+        .passage { background: #fdfdfd; padding: 15px; border-left: 4px solid #ccc; margin-bottom: 20px; font-size: 15px; }
+        .vocab-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        .vocab-table th, .vocab-table td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+        .vocab-table th { background: #f1f3f5; }
+        .question { margin-bottom: 15px; padding: 10px; border-radius: 5px; background: #fafafa; border: 1px solid #eee; }
+        .question p { margin: 0 0 10px 0; font-weight: 500; }
+        select, input[type="text"] {
+            padding: 8px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .options-list { list-style: none; padding: 0; margin: 0; }
+        .options-list li { margin-bottom: 8px; }
+        .options-list label { cursor: pointer; display: flex; align-items: flex-start; gap: 8px;}
+        .options-list input { margin-top: 4px; }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 40px auto;
+            padding: 15px 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-submit:not(:disabled):hover { background: #004494; }
+        .btn-retry {
+            display: none;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto 40px;
+            padding: 15px 20px;
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-retry:hover { background: #5a6268; }
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-size: 14px;
+        }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .result-board {
+            display: none;
+            text-align: center;
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .result-board h1 { margin: 0; color: var(--primary); font-size: 36px; }
+        .result-board p { margin: 5px 0 0 0; font-size: 18px; }
+        .word-bank { background: #eef2f5; padding: 10px; border-radius: 4px; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        
+        @media (max-width: 600px) {
+            .header { flex-direction: column; text-align: center; gap: 5px; padding: 8px; }
+            body { padding-top: 80px; }
+            .container { padding: 15px; margin-bottom: 20px; }
+            h2 { font-size: 20px; }
+            .btn-submit, .btn-retry { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div><strong>BÀI TẬP ĐỌC HIỂU</strong></div>
+        <div class="progress" id="progress-text">Đã làm 0/70 câu</div>
+    </div>
+
+    <div class="container">
+        <div class="result-board" id="result-board">
+            <h1 id="score-text">10.0</h1>
+            <p id="correct-count-text">Đúng 70/70 câu</p>
+        </div>
+
+        <!-- READING 1 -->
+        <h2>READING 1 - When the Storm Comes</h2>
+        <div class="passage">
+            <p>Vietnam has a long coast of more than 3,000 kilometres. This is beautiful, but it also brings danger. Every year, many storms come from the East Sea and hit the country. The storm season usually starts in June and ends in November. Central Vietnam gets the most storms.</p>
+            <p>Before a storm arrives, the weather changes quickly. The air becomes hot and humid. The sky turns grey. Then the wind gets stronger and heavy rain falls for many hours. The temperature often drops fast.</p>
+            <p>Today, people can get a weather forecast on television, on the radio, or on their phones. Scientists watch the storm and tell people where it will go. They also warn people about the wind speed. This information is very useful. Fifty years ago, many fishermen did not know about a storm until it was too late.</p>
+            <p>When a big storm comes, the water level rises and rivers cannot hold all the rain. Then a flood covers roads, fields and houses. In the mountains, heavy rain can also cause a landslide. Soil and rocks fall down the hill and block the road. Both floods and landslides can damage homes, schools and crops. In some years, the damage costs the country billions of dong.</p>
+            <p>People do many things to prepare. Farmers harvest their rice early. Families buy rice, instant noodles, water, candles and batteries. Fishermen bring their boats back to the harbour. Some families put sandbags around the door, and others move their furniture to a higher floor. If the storm is very strong, local officers ask people to leave their homes and go to a shelter. A shelter is usually a school or a big public building on high ground.</p>
+            <p>During the storm, the safest place is inside the house. People should stay away from windows, and they should not go outside to look at the water. Many accidents happen when people try to cross a flooded road. The water can be deeper and faster than it looks.</p>
+            <p>After a storm, a rescue team comes with boats. Soldiers, doctors and volunteers help people who cannot escape from their houses. They bring food, clean water and medicine. Volunteers from other cities often send money and warm clothes, too.</p>
+            <p>Vietnam cannot stop storms, but it can reduce the damage. Better forecasts, stronger houses and good plans save many lives every year. Teachers also talk about natural disasters in class, so children know what to do. Local officers often repeat one simple message: a family that prepares early is a family that stays safe.</p>
+        </div>
+
+        <!-- R1 EX 1 -->
+        <h3>✏️ Exercise 1 - True / False / Not Given</h3>
+        <p><em>Instructions: Do the following statements agree with the information in the Reading Passage?</em></p>
+        <div id="r1_ex1"></div>
+
+        <!-- R1 EX 2 -->
+        <h3>✏️ Exercise 2 - Multiple Choice</h3>
+        <p><em>Instructions: Choose the correct letter, A, B, C or D.</em></p>
+        <div id="r1_ex2"></div>
+
+        <!-- R1 EX 3 -->
+        <h3>✏️ Exercise 3 - Summary Completion</h3>
+        <p><em>Instructions: Complete the summary below. Choose ONE WORD ONLY from the word bank for each answer.</em></p>
+        <div class="word-bank">forecast · humid · warn · flood · shelter · rescue · prepare · damage · landslide · escape · harbour · season</div>
+        <div class="passage" style="line-height: 2.2;">
+            Storms are a serious problem in Vietnam, especially from June to November. Before a storm arrives, the air often becomes hot and (1) <input type="text" class="inline-input" data-qid="r1_s_1" style="width:120px;">. Scientists study the weather and give a (2) <input type="text" class="inline-input" data-qid="r1_s_2" style="width:120px;"> on television, on the radio and on phones. They also (3) <input type="text" class="inline-input" data-qid="r1_s_3" style="width:120px;"> people about the speed of the wind.<br>
+            Families (4) <input type="text" class="inline-input" data-qid="r1_s_4" style="width:120px;"> for bad weather by buying food, water and batteries, and fishermen bring their boats back to the (5) <input type="text" class="inline-input" data-qid="r1_s_5" style="width:120px;">. When rivers become too full, a (6) <input type="text" class="inline-input" data-qid="r1_s_6" style="width:120px;"> covers roads and fields. In the mountains, soil and rocks can fall down the hill in a (7) <input type="text" class="inline-input" data-qid="r1_s_7" style="width:120px;">.<br>
+            If the wind is very strong, people move to a (8) <input type="text" class="inline-input" data-qid="r1_s_8" style="width:120px;"> on high ground. After the storm, a (9) <input type="text" class="inline-input" data-qid="r1_s_9" style="width:120px;"> team arrives with boats to help people who cannot (10) <input type="text" class="inline-input" data-qid="r1_s_10" style="width:120px;"> from their houses.
+        </div>
+        <div id="r1_ex3_feedback"></div>
+
+        <!-- READING 2 -->
+        <h2>READING 2 - The River That Turned Salty</h2>
+        <div class="passage">
+            <p><strong>A.</strong> The Mekong Delta covers about 40,000 square kilometres in southern Vietnam and produces more than half of the country's rice. For centuries the river has supported farmers here by carrying fresh water and rich sediment from upstream, spreading it across the fields during the flood season. The delta also supplies a large share of Vietnam's fruit and seafood exports. When something goes wrong in this small corner of the map, the effect is felt in markets across the whole country.</p>
+            <p><strong>B.</strong> In recent years, however, the dry season has become longer and harder. Scientists point to two main reasons. The first is climate change: rainfall patterns have become less predictable, and periods of very hot weather now last longer. The second is human activity. Dozens of dams have been built upstream on the Mekong and its branches, and they hold back water in order to produce electricity. When less water flows down to the delta, the river becomes weak, and severe drought follows.</p>
+            <p><strong>C.</strong> A weak river cannot push back the sea. This is when saltwater intrusion begins. Seawater moves slowly up the river channels, sometimes travelling sixty or seventy kilometres inland. In the worst years, salt has been measured almost ninety kilometres from the coast. Farmers cannot always see the problem at first, because salty water looks exactly like fresh water. Many of them discover it only when their plants begin to turn yellow.</p>
+            <p><strong>D.</strong> The results for farming families are serious. Salt stays in the soil and damages young rice plants, so an entire crop can be lost within a few weeks. Fruit trees such as durian and mango, which take years to grow, may die completely. At the same time, households face a shortage of clean water for cooking and drinking, and some must buy it from trucks at high prices. Every year, a number of families give up farming and migrate to Ho Chi Minh City to look for factory work.</p>
+            <p><strong>E.</strong> Yet the delta is learning to adapt. Agricultural institutes have developed rice varieties that are tolerant of salt and can survive in mildly salty fields. In coastal districts, many farmers have changed from growing rice to raising shrimp, which actually need brackish water. Local governments have built sluice gates to keep the sea out of the canals, together with small reservoirs that store fresh water for the dry months. Farmers now receive salinity warnings by text message, so they know when it is safe to open their gates.</p>
+            <p><strong>F.</strong> Experts agree, though, that no single measure is enough. The Mekong flows through six countries before it reaches Vietnam, so decisions made far away change daily life in the delta. Regional cooperation on how much water each country takes is therefore essential. Researchers also stress the value of education: when young people understand why the water around them is changing, they are better prepared to protect the place where they live.</p>
+        </div>
+
+        <!-- R2 EX 1 -->
+        <h3>✏️ Exercise 1 - Matching Headings</h3>
+        <div class="word-bank" style="font-weight: normal; text-align: left;">
+            <strong>List of Headings:</strong><br>
+            i. A history of dam building in China<br>
+            ii. Reasons for the falling water levels<br>
+            iii. How the sea reaches deep inland<br>
+            iv. Choosing rice varieties for export<br>
+            v. Solutions that cross national borders<br>
+            vi. The delta's value to the whole country<br>
+            vii. Practical steps to fight back<br>
+            viii. Why young people prefer city life<br>
+            ix. The price paid by farming families
+        </div>
+        <div id="r2_ex1"></div>
+
+        <!-- R2 EX 2 -->
+        <h3>✏️ Exercise 2 - Note Completion</h3>
+        <p><em>Instructions: Choose NO MORE THAN TWO WORDS from the passage.</em></p>
+        <div id="r2_ex2"></div>
+
+        <!-- R2 EX 3 -->
+        <h3>✏️ Exercise 3 - Short-answer Questions</h3>
+        <p><em>Instructions: Answer using NO MORE THAN THREE WORDS AND/OR A NUMBER.</em></p>
+        <div id="r2_ex3"></div>
+
+
+        <!-- READING 3 -->
+        <h2>READING 3 - Cities Under Water</h2>
+        <div class="passage">
+            <p><strong>A.</strong> When floodwater rises through the streets of a modern Asian city, the immediate explanation is usually meteorological: an unusually heavy downpour, a slow-moving storm, an exceptional tide. Yet researchers who study urban flooding increasingly argue that the weather is only half the story. Over the past three decades, rapid urbanisation has transformed the ground on which these cities stand, and in doing so has made them far more vulnerable to water that earlier generations would have absorbed without difficulty. The flood, in other words, is partly manufactured.</p>
+            <p><strong>B.</strong> The basic mechanism is straightforward. Natural ground - soil, grass, forest - behaves like a sponge, allowing rain to soak slowly downwards. Concrete and asphalt do not: they are impermeable, so almost every drop that falls becomes surface runoff, arriving in the drains within minutes rather than hours. A city that doubles its built-up area can therefore face a sharp rise in peak water volume even when total rainfall has not changed at all. Making matters worse, much of the drainage infrastructure in South-East Asian cities was designed in the 1970s and 1980s, using rainfall records that no longer describe the present climate. Pipes sized for a storm expected once a decade may now be tested several times a year.</p>
+            <p><strong>C.</strong> A second, quieter process is at work beneath the pavement. As populations grow, households, factories and hotels pump groundwater from below the city faster than nature can replace it. The layers of clay and sand underneath then compact, and the land itself begins to sink - a phenomenon known as subsidence. Dr Lan Vo of the Coastal Systems Research Centre estimates that parts of Ho Chi Minh City have dropped by as much as four centimetres a year, several times faster than the sea is rising. Sea-level rise, she observes, attracts most of the headlines, yet in many delta cities the ground is falling more quickly than the ocean is climbing. Because the two processes combine, subsidence can exacerbate even a moderate high tide.</p>
+            <p><strong>D.</strong> Not everyone accepts that the solution lies in nature. Hendrik Bosch, a flood-defence engineer with thirty years' experience in delta cities, argues that dykes, pumps and storm barriers remain indispensable, and that the real weakness of most systems is neglect rather than design. Canals silt up, pumping stations are not serviced, and maintenance budgets are almost always the first item to be cut when money is short. In his view, cities should retrofit and properly maintain the defences they already possess before investing in fashionable alternatives.</p>
+            <p><strong>E.</strong> Those alternatives have nevertheless gained ground. Professor Adrian Kessler of the Institute for Urban Water Studies promotes the so-called "sponge city" approach, in which parks, porous pavements and rooftop gardens are used to slow water down and allow the soil to absorb it. Restoring wetlands at the upper edge of a catchment, he argues, is frequently cheaper than enlarging underground drains, and delivers additional benefits - cooler streets, cleaner air, open space for recreation - that concrete can never provide. His team calculates that a single hectare of restored marsh can hold back as much water as several kilometres of new pipe.</p>
+            <p><strong>F.</strong> Yet engineering of any kind addresses only part of the problem. Dr Miriam Osei of the Global Disaster Risk Network points out that the households worst affected by urban floods are rarely those standing in the deepest water; they are those with the fewest resources - informal settlements built on low ground, families without savings, workers who cannot afford to lose a day's wages by leaving early during an evacuation. Warning systems, she insists, should be judged not by their technical accuracy but by whether the most vulnerable residents are actually able to act on them. Building genuine resilience, therefore, means combining sharper forecasts with insurance, housing policy and secure incomes. Cities cannot mitigate every flood, but they can determine who suffers most when the water arrives - and that outcome, far more than the weather itself, lies within human control.</p>
+        </div>
+
+        <!-- R3 EX 1 -->
+        <h3>✏️ Exercise 1 - Matching Information</h3>
+        <p><em>Which paragraph contains the following information? Write A-F.</em></p>
+        <div id="r3_ex1"></div>
+
+        <!-- R3 EX 2 -->
+        <h3>✏️ Exercise 2 - Matching Features</h3>
+        <div class="word-bank" style="font-weight: normal; text-align: left;">
+            <strong>List of Experts:</strong><br>
+            A. Dr Lan Vo<br>
+            B. Hendrik Bosch<br>
+            C. Professor Adrian Kessler<br>
+            D. Dr Miriam Osei
+        </div>
+        <div id="r3_ex2"></div>
+
+        <!-- R3 EX 3 -->
+        <h3>✏️ Exercise 3 - Yes / No / Not Given</h3>
+        <div id="r3_ex3"></div>
+
+        <button class="btn-submit" id="btn-submit" disabled>Nộp bài</button>
+        <button class="btn-retry" id="btn-retry">Làm lại</button>
+
+    </div>
+
+    <script>
+        const db = [
+            // R1 EX1
+            { id: 'r1_t1', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '1. The coast of Vietnam is longer than 3,000 kilometres.', ans: ['TRUE'], expl: 'Dẫn chứng: "Vietnam has a long coast of more than 3,000 kilometres."', container: 'r1_ex1' },
+            { id: 'r1_t2', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '2. The storm season in Vietnam begins in June.', ans: ['TRUE'], expl: 'Dẫn chứng: "The storm season usually starts in June and ends in November."', container: 'r1_ex1' },
+            { id: 'r1_t3', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '3. Northern Vietnam has more storms than Central Vietnam.', ans: ['FALSE'], expl: 'Dẫn chứng: "Central Vietnam gets the most storms." → mâu thuẫn với "Northern Vietnam has more".', container: 'r1_ex1' },
+            { id: 'r1_t4', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '4. Before a storm arrives, the air becomes cold and dry.', ans: ['FALSE'], expl: 'Dẫn chứng: "The air becomes hot and humid." → trái ngược với "cold and dry".', container: 'r1_ex1' },
+            { id: 'r1_t5', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '5. More people in Vietnam check the forecast on their phones than on television.', ans: ['NOT GIVEN'], expl: 'Bài chỉ liệt kê TV, radio, điện thoại - không so sánh số người dùng.', container: 'r1_ex1' },
+            { id: 'r1_t6', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '6. Heavy rain in the mountains can cause a landslide.', ans: ['TRUE'], expl: 'Dẫn chứng: "In the mountains, heavy rain can also cause a landslide."', container: 'r1_ex1' },
+            { id: 'r1_t7', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '7. A shelter is usually located on high ground.', ans: ['TRUE'], expl: 'Dẫn chứng: "A shelter is usually a school or a big public building on high ground."', container: 'r1_ex1' },
+            { id: 'r1_t8', type: 'select', opts: ['TRUE','FALSE','NOT GIVEN'], q: '8. Most Vietnamese farmers grow rice instead of corn.', ans: ['NOT GIVEN'], expl: 'Bài có nhắc "harvest their rice early" nhưng không nói gì về ngô hay so sánh cây trồng.', container: 'r1_ex1' },
+
+            // R1 EX2
+            { id: 'r1_m1', type: 'radio', opts: ['A. the mountains', 'B. the East Sea', 'C. the south-west', 'D. Laos'], q: '1. Storms usually reach Vietnam from', ans: ['B. the East Sea'], expl: 'Dẫn chứng: "many storms come from the East Sea and hit the country."', container: 'r1_ex2' },
+            { id: 'r1_m2', type: 'radio', opts: ['A. stays the same', 'B. rises slowly', 'C. drops fast', 'D. becomes very hot'], q: '2. Just before a storm, the temperature usually', ans: ['C. drops fast'], expl: 'Dẫn chứng: "The temperature often drops fast."', container: 'r1_ex2' },
+            { id: 'r1_m3', type: 'radio', opts: ['A. listened to the radio every day', 'B. did not know a storm was coming', 'C. stayed in the harbour all year', 'D. worked with scientists'], q: '3. Fifty years ago, many fishermen', ans: ['B. did not know a storm was coming'], expl: 'Dẫn chứng: "many fishermen did not know about a storm until it was too late."', container: 'r1_ex2' },
+            { id: 'r1_m4', type: 'radio', opts: ['A. candles', 'B. batteries', 'C. instant noodles', 'D. umbrellas'], q: '4. Which item is NOT mentioned as something families buy before a storm?', ans: ['D. umbrellas'], expl: 'Bài liệt kê: rice, instant noodles, water, candles, batteries → không có umbrellas.', container: 'r1_ex2' },
+            { id: 'r1_m5', type: 'radio', opts: ['A. near a window', 'B. inside the house', 'C. on a flooded road', 'D. in a boat'], q: '5. According to the passage, during a storm the safest place is', ans: ['B. inside the house'], expl: 'Dẫn chứng: "the safest place is inside the house."', container: 'r1_ex2' },
+            { id: 'r1_m6', type: 'radio', opts: ['A. money and clothes', 'B. boats and sandbags', 'C. food, clean water and medicine', 'D. books for school'], q: '6. After a storm, rescue teams bring people', ans: ['C. food, clean water and medicine'], expl: 'Dẫn chứng: "They bring food, clean water and medicine." (A là quà từ tình nguyện viên các thành phố khác, không phải rescue team)', container: 'r1_ex2' },
+            { id: 'r1_m7', type: 'radio', opts: ['A. Vietnam can stop storms completely.', 'B. Storms are becoming stronger.', 'C. Good preparation reduces the damage.', 'D. Children should not go to school in the storm season.'], q: '7. What is the main idea of the last paragraph?', ans: ['C. Good preparation reduces the damage.'], expl: 'Dẫn chứng: "Vietnam cannot stop storms, but it can reduce the damage… a family that prepares early is a family that stays safe."', container: 'r1_ex2' },
+
+            // R1 EX3 (Inline handled differently for UI, but logic is same)
+            { id: 'r1_s_1', type: 'inline', ans: ['humid'], expl: 'Dẫn chứng đoạn 2' },
+            { id: 'r1_s_2', type: 'inline', ans: ['forecast'], expl: 'Dẫn chứng đoạn 3' },
+            { id: 'r1_s_3', type: 'inline', ans: ['warn'], expl: 'Dẫn chứng đoạn 3' },
+            { id: 'r1_s_4', type: 'inline', ans: ['prepare'], expl: 'Dẫn chứng đoạn 5' },
+            { id: 'r1_s_5', type: 'inline', ans: ['harbour'], expl: 'Dẫn chứng đoạn 5' },
+            { id: 'r1_s_6', type: 'inline', ans: ['flood'], expl: 'Dẫn chứng đoạn 4' },
+            { id: 'r1_s_7', type: 'inline', ans: ['landslide'], expl: 'Dẫn chứng đoạn 4' },
+            { id: 'r1_s_8', type: 'inline', ans: ['shelter'], expl: 'Dẫn chứng đoạn 5' },
+            { id: 'r1_s_9', type: 'inline', ans: ['rescue'], expl: 'Dẫn chứng đoạn 7' },
+            { id: 'r1_s_10', type: 'inline', ans: ['escape'], expl: 'Dẫn chứng đoạn 7' },
+
+            // R2 EX1
+            { id: 'r2_h1', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '1. Paragraph A', ans: ['vi'], expl: 'Dẫn chứng: "produces more than half of the country's rice"… "the effect is felt in markets across the whole country."', container: 'r2_ex1' },
+            { id: 'r2_h2', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '2. Paragraph B', ans: ['ii'], expl: 'Dẫn chứng: "Scientists point to two main reasons": climate change + dams giữ nước.', container: 'r2_ex1' },
+            { id: 'r2_h3', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '3. Paragraph C', ans: ['iii'], expl: 'Dẫn chứng: "Seawater moves slowly up the river channels, sometimes travelling sixty or seventy kilometres inland."', container: 'r2_ex1' },
+            { id: 'r2_h4', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '4. Paragraph D', ans: ['ix'], expl: 'Dẫn chứng: "The results for farming families are serious": mất mùa, thiếu nước, phải bỏ quê.', container: 'r2_ex1' },
+            { id: 'r2_h5', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '5. Paragraph E', ans: ['vii'], expl: 'Dẫn chứng: Giống lúa chịu mặn, nuôi tôm, cống ngăn mặn, hồ chứa, tin nhắn cảnh báo.', container: 'r2_ex1' },
+            { id: 'r2_h6', type: 'select', opts: ['i','ii','iii','iv','v','vi','vii','viii','ix'], q: '6. Paragraph F', ans: ['v'], expl: 'Dẫn chứng: "The Mekong flows through six countries… Regional cooperation… is therefore essential."', container: 'r2_ex1' },
+
+            // R2 EX2
+            { id: 'r2_n1', type: 'text', q: '1. Because of climate change, rainfall has become less...', ans: ['predictable'], expl: 'Dẫn chứng: "rainfall patterns have become less predictable"', container: 'r2_ex2' },
+            { id: 'r2_n2', type: 'text', q: '2. Dams built ______ hold back water in order to make electricity.', ans: ['upstream'], expl: 'Dẫn chứng: "Dozens of dams have been built upstream on the Mekong"', container: 'r2_ex2' },
+            { id: 'r2_n3', type: 'text', q: '3. With less water in the river, a severe ______ follows.', ans: ['drought'], expl: 'Dẫn chứng: "severe drought follows"', container: 'r2_ex2' },
+            { id: 'r2_n4', type: 'text', q: '4. Farmers do not notice the danger at once, because salty water looks the same as ______ water.', ans: ['fresh'], expl: 'Dẫn chứng: "salty water looks exactly like fresh water"', container: 'r2_ex2' },
+            { id: 'r2_n5', type: 'text', q: '5. The first sign is usually that plants begin to turn ______.', ans: ['yellow'], expl: 'Dẫn chứng: "their plants begin to turn yellow"', container: 'r2_ex2' },
+            { id: 'r2_n6', type: 'text', q: '6. Salt remains in the ______ and harms young rice plants.', ans: ['soil'], expl: 'Dẫn chứng: "Salt stays in the soil"', container: 'r2_ex2' },
+            { id: 'r2_n7', type: 'text', q: '7. Families with no clean water sometimes buy it from ______.', ans: ['trucks', 'truck'], expl: 'Dẫn chứng: "some must buy it from trucks at high prices"', container: 'r2_ex2' },
+            { id: 'r2_n8', type: 'text', q: '8. Some households leave farming and ______ to Ho Chi Minh City.', ans: ['migrate'], expl: 'Dẫn chứng: "give up farming and migrate to Ho Chi Minh City"', container: 'r2_ex2' },
+            { id: 'r2_n9', type: 'text', q: '9. Scientists have created new rice that is ______ of salt.', ans: ['tolerant'], expl: 'Dẫn chứng: "rice varieties that are tolerant of salt"', container: 'r2_ex2' },
+            { id: 'r2_n10', type: 'text', q: '10. Near the coast, a number of farmers now raise ______ instead of rice.', ans: ['shrimp', 'shrimps'], expl: 'Dẫn chứng: "changed from growing rice to raising shrimp"', container: 'r2_ex2' },
+
+            // R2 EX3
+            { id: 'r2_sa1', type: 'text', q: '1. Approximately how large is the Mekong Delta?', ans: ['40000 square kilometres', '40,000 square kilometres', '40000', '40,000', '40000 sq km', '40,000 sq km', '40000 square kilometers', '40,000 square kilometers'], expl: 'Dẫn chứng: "covers about 40,000 square kilometres"', container: 'r2_ex3' },
+            { id: 'r2_sa2', type: 'text', q: '2. Besides fresh water, what does the river bring down from upstream?', ans: ['rich sediment', 'sediment'], expl: 'Dẫn chứng: "carrying fresh water and rich sediment from upstream"', container: 'r2_ex3' },
+            { id: 'r2_sa3', type: 'text', q: '3. What do the upstream dams hold back water to produce?', ans: ['electricity'], expl: 'Dẫn chứng: "they hold back water in order to produce electricity"', container: 'r2_ex3' },
+            { id: 'r2_sa4', type: 'text', q: '4. Which two kinds of fruit tree are mentioned as being at risk?', ans: ['durian and mango', 'mango and durian', 'durian, mango', 'mango, durian'], expl: 'Dẫn chứng: "Fruit trees such as durian and mango"', container: 'r2_ex3' },
+            { id: 'r2_sa5', type: 'text', q: '5. What type of water do shrimp need in order to grow?', ans: ['brackish water', 'brackish'], expl: 'Dẫn chứng: "raising shrimp, which actually need brackish water"', container: 'r2_ex3' },
+            { id: 'r2_sa6', type: 'text', q: '6. What do the small reservoirs store for the dry months?', ans: ['fresh water', 'freshwater'], expl: 'Dẫn chứng: "small reservoirs that store fresh water for the dry months"', container: 'r2_ex3' },
+            { id: 'r2_sa7', type: 'text', q: '7. How many countries does the Mekong pass through before reaching Vietnam?', ans: ['six', '6', 'six countries', '6 countries'], expl: 'Dẫn chứng: "The Mekong flows through six countries"', container: 'r2_ex3' },
+
+            // R3 EX1
+            { id: 'r3_i1', type: 'select', opts: ['A','B','C','D','E','F'], q: '1. a comparison between the speed of sinking land and the speed of rising seas', ans: ['C'], expl: 'Dẫn chứng: Dr Lan Vo ước tính TP.HCM lún tới 4 cm/năm - "several times faster than the sea is rising".', container: 'r3_ex1' },
+            { id: 'r3_i2', type: 'select', opts: ['A','B','C','D','E','F'], q: '2. a claim that the main weakness of flood defences is poor upkeep rather than poor design', ans: ['D'], expl: 'Dẫn chứng: Bosch: "the real weakness of most systems is neglect rather than design".', container: 'r3_ex1' },
+            { id: 'r3_i3', type: 'select', opts: ['A','B','C','D','E','F'], q: '3. an explanation of why hard surfaces cause water to reach the drains far more quickly', ans: ['B'], expl: 'Dẫn chứng: "Concrete and asphalt… are impermeable, so almost every drop… arrives in the drains within minutes rather than hours."', container: 'r3_ex1' },
+            { id: 'r3_i4', type: 'select', opts: ['A','B','C','D','E','F'], q: '4. the argument that a flood is not an entirely natural event', ans: ['A'], expl: 'Dẫn chứng: "The weather is only half the story"… "The flood, in other words, is partly manufactured."', container: 'r3_ex1' },
+            { id: 'r3_i5', type: 'select', opts: ['A','B','C','D','E','F'], q: '5. reference to drainage systems built according to out-of-date climate records', ans: ['B'], expl: 'Dẫn chứng: "designed in the 1970s and 1980s, using rainfall records that no longer describe the present climate".', container: 'r3_ex1' },
+            { id: 'r3_i6', type: 'select', opts: ['A','B','C','D','E','F'], q: '6. financial reasons why some residents delay leaving their homes', ans: ['F'], expl: 'Dẫn chứng: "workers who cannot afford to lose a day's wages by leaving early during an evacuation".', container: 'r3_ex1' },
+            { id: 'r3_i7', type: 'select', opts: ['A','B','C','D','E','F'], q: '7. a calculation comparing the storage capacity of a natural area with that of built drainage', ans: ['E'], expl: 'Dẫn chứng: "a single hectare of restored marsh can hold back as much water as several kilometres of new pipe".', container: 'r3_ex1' },
+
+            // R3 EX2
+            { id: 'r3_f1', type: 'select', opts: ['A','B','C','D'], q: '1. Existing flood defences should be repaired and upgraded before new methods are adopted.', ans: ['B'], expl: 'Dẫn chứng: "cities should retrofit and properly maintain the defences they already possess before investing in fashionable alternatives." (Hendrik Bosch)', container: 'r3_ex2' },
+            { id: 'r3_f2', type: 'select', opts: ['A','B','C','D'], q: '2. A warning system should be measured by whether ordinary people can respond to it.', ans: ['D'], expl: 'Dẫn chứng: "should be judged… by whether the most vulnerable residents are actually able to act on them." (Dr Miriam Osei)', container: 'r3_ex2' },
+            { id: 'r3_f3', type: 'select', opts: ['A','B','C','D'], q: '3. In certain delta cities the land is dropping faster than the sea level is rising.', ans: ['A'], expl: 'Dẫn chứng: "in many delta cities the ground is falling more quickly than the ocean is climbing." (Dr Lan Vo)', container: 'r3_ex2' },
+            { id: 'r3_f4', type: 'select', opts: ['A','B','C','D'], q: '4. Restoring natural areas can cost less than making underground drains larger.', ans: ['C'], expl: 'Dẫn chứng: "Restoring wetlands… is frequently cheaper than enlarging underground drains." (Prof. Adrian Kessler)', container: 'r3_ex2' },
+            { id: 'r3_f5', type: 'select', opts: ['A','B','C','D'], q: '5. Money set aside for maintenance is usually the first thing to be reduced.', ans: ['B'], expl: 'Dẫn chứng: "maintenance budgets are almost always the first item to be cut." (Hendrik Bosch)', container: 'r3_ex2' },
+            { id: 'r3_f6', type: 'select', opts: ['A','B','C','D'], q: '6. Green surfaces and open spaces bring advantages beyond flood control.', ans: ['C'], expl: 'Dẫn chứng: "delivers additional benefits - cooler streets, cleaner air, open space for recreation." (Prof. Adrian Kessler)', container: 'r3_ex2' },
+            { id: 'r3_f7', type: 'select', opts: ['A','B','C','D'], q: '7. The households that suffer most are the poorest, not necessarily those in the deepest water.', ans: ['D'], expl: 'Dẫn chứng: "are rarely those standing in the deepest water; they are those with the fewest resources." (Dr Miriam Osei)', container: 'r3_ex2' },
+
+            // R3 EX3
+            { id: 'r3_y1', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '1. The writer believes that heavy rainfall is the only significant cause of urban flooding.', ans: ['NO'], expl: 'Dẫn chứng: Tác giả viết "the weather is only half the story" → mâu thuẫn với "the only significant cause".', container: 'r3_ex3' },
+            { id: 'r3_y2', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '2. The writer accepts that changes to the surface of cities have increased the risk of flooding.', ans: ['YES'], expl: 'Dẫn chứng: "rapid urbanisation has transformed the ground… has made them far more vulnerable to water".', container: 'r3_ex3' },
+            { id: 'r3_y3', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '3. The writer considers drainage systems built several decades ago to be inadequate for present conditions.', ans: ['YES'], expl: 'Dẫn chứng: "Pipes sized for a storm expected once a decade may now be tested several times a year."', container: 'r3_ex3' },
+            { id: 'r3_y4', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '4. The writer states clearly that Bosch's approach is more convincing than Kessler's.', ans: ['NOT GIVEN'], expl: 'Dẫn chứng: Tác giả trình bày quan điểm của Bosch (đoạn D) và Kessler (đoạn E) một cách trung lập, không hề nói bên nào thuyết phục hơn.', container: 'r3_ex3' },
+            { id: 'r3_y5', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '5. The writer argues that social and economic factors help determine who suffers most in a flood.', ans: ['YES'], expl: 'Dẫn chứng: "Building genuine resilience… means combining sharper forecasts with insurance, housing policy and secure incomes."', container: 'r3_ex3' },
+            { id: 'r3_y6', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '6. The writer expects that cities will eventually be able to prevent flooding completely.', ans: ['NO'], expl: 'Dẫn chứng: "Cities cannot mitigate every flood" → trái với "prevent flooding completely".', container: 'r3_ex3' },
+            { id: 'r3_y7', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '7. The writer thinks South-East Asian governments spend too little money on flood research.', ans: ['NOT GIVEN'], expl: 'Dẫn chứng: Bài có nói ngân sách bảo trì bị cắt, nhưng không đề cập chi tiêu cho nghiên cứu, cũng không nêu quan điểm của tác giả về việc đó.', container: 'r3_ex3' },
+            { id: 'r3_y8', type: 'select', opts: ['YES','NO','NOT GIVEN'], q: '8. The writer believes that the level of harm caused by a flood is beyond human influence.', ans: ['NO'], expl: 'Dẫn chứng: "that outcome… lies within human control" → trái ngược hoàn toàn.', container: 'r3_ex3' }
+        ];
+
+        const totalQuestions = 70;
+        let answeredQuestions = new Set();
+
+        function renderQuestions() {
+            db.forEach(item => {
+                if (item.type === 'inline') return; // rendered statically
+                
+                const cont = document.getElementById(item.container);
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question';
+                qDiv.innerHTML = `<p>${item.q}</p>`;
+
+                if (item.type === 'select') {
+                    const sel = document.createElement('select');
+                    sel.setAttribute('data-qid', item.id);
+                    sel.innerHTML = `<option value="">-- Chọn --</option>` + item.opts.map(o => `<option value="${o}">${o}</option>`).join('');
+                    qDiv.appendChild(sel);
+                } else if (item.type === 'radio') {
+                    const ul = document.createElement('ul');
+                    ul.className = 'options-list';
+                    item.opts.forEach(opt => {
+                        ul.innerHTML += `<li><label><input type="radio" name="${item.id}" value="${opt}" data-qid="${item.id}"> ${opt}</label></li>`;
+                    });
+                    qDiv.appendChild(ul);
+                } else if (item.type === 'text') {
+                    qDiv.innerHTML += `<input type="text" data-qid="${item.id}" placeholder="Nhập câu trả lời...">`;
+                }
+
+                qDiv.innerHTML += `<div class="feedback" id="fb_${item.id}"></div>`;
+                cont.appendChild(qDiv);
+            });
+        }
+
+        function normalize(str) {
+            if (!str) return "";
+            return str.toLowerCase().replace(/[.,!?;:]/g, "").replace(/\s+/g, " ").trim();
+        }
+
+        function handleInput(e) {
+            const target = e.target;
+            if (target.hasAttribute('data-qid')) {
+                const qid = target.getAttribute('data-qid');
+                let val = target.value.trim();
+                
+                if (val !== "") {
+                    answeredQuestions.add(qid);
+                } else {
+                    answeredQuestions.delete(qid);
+                }
+                
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const count = answeredQuestions.size;
+            document.getElementById('progress-text').innerText = `Đã làm ${count}/${totalQuestions} câu`;
+            document.getElementById('btn-submit').disabled = count < totalQuestions;
+        }
+
+        function grade() {
+            let correctCount = 0;
+
+            db.forEach(item => {
+                let userAns = "";
+                let inputs = document.querySelectorAll(`[data-qid="${item.id}"]`);
+                
+                if (item.type === 'radio') {
+                    inputs.forEach(r => { if (r.checked) userAns = r.value; r.disabled = true; });
+                } else {
+                    userAns = inputs[0].value;
+                    inputs[0].disabled = true;
+                }
+
+                let isCorrect = false;
+                let userNorm = normalize(userAns);
+                
+                if (item.type === 'radio' || item.type === 'select') {
+                    isCorrect = item.ans.includes(userAns);
+                } else {
+                    isCorrect = item.ans.map(a => normalize(a)).includes(userNorm);
+                }
+
+                if (isCorrect) correctCount++;
+
+                // Inline elements feedback
+                if (item.type === 'inline') {
+                    let fb = document.getElementById('r1_ex3_feedback');
+                    fb.style.display = 'block';
+                    let status = isCorrect ? '<span style="color:green">Đúng</span>' : '<span style="color:red">Sai</span>';
+                    fb.innerHTML += `<div><strong>Câu ${item.id.replace('r1_s_','')}:</strong> ${status} | Đáp án: <b>${item.ans[0]}</b></div>`;
+                } else {
+                    let fb = document.getElementById(`fb_${item.id}`);
+                    fb.style.display = 'block';
+                    if (isCorrect) {
+                        fb.className = 'feedback correct';
+                        fb.innerHTML = `<strong>Đúng!</strong><br>${item.expl}`;
+                    } else {
+                        fb.className = 'feedback incorrect';
+                        fb.innerHTML = `<strong>Sai. Đáp án đúng: ${item.ans[0]}</strong><br>${item.expl}`;
+                    }
+                }
+            });
+
+            const score = (correctCount / totalQuestions) * 10;
+            document.getElementById('score-text').innerText = `${score.toFixed(1)} / 10`;
+            document.getElementById('correct-count-text').innerText = `Đúng ${correctCount}/${totalQuestions} câu`;
+            document.getElementById('result-board').style.display = 'block';
+            
+            document.getElementById('btn-submit').style.display = 'none';
+            document.getElementById('btn-retry').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function retry() {
+            answeredQuestions.clear();
+            document.getElementById('r1_ex3_feedback').innerHTML = '';
+            document.getElementById('r1_ex3_feedback').style.display = 'none';
+            
+            document.querySelectorAll('[data-qid]').forEach(el => {
+                el.disabled = false;
+                if (el.type === 'radio') el.checked = false;
+                else el.value = '';
+            });
+
+            document.querySelectorAll('.feedback').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+
+            document.getElementById('result-board').style.display = 'none';
+            document.getElementById('btn-submit').style.display = 'block';
+            document.getElementById('btn-retry').style.display = 'none';
+            
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = () => {
+            renderQuestions();
+            document.body.addEventListener('change', handleInput);
+            document.body.addEventListener('input', handleInput);
+            document.getElementById('btn-submit').addEventListener('click', grade);
+            document.getElementById('btn-retry').addEventListener('click', retry);
+        };
+    </script>
+</body>
+</html>
