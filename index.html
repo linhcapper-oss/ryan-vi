@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 22 – Bài tập Đọc hiểu</title>
+<style>
+  :root{
+    --fg:#1b1b1b; --muted:#5a5a5a; --line:#d9d9d9; --bg:#ffffff;
+    --card:#fafafa; --accent:#1c6b3c; --accent-w:#e6f2ea;
+    --right:#137a2e; --right-bg:#e7f6ec; --wrong:#b3261e; --wrong-bg:#fbeceb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    color:var(--fg); background:var(--bg); line-height:1.55;
+    font-size:17px; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:16px 16px 48px;}
+  header h1{font-size:1.35rem; margin:.2em 0 .1em;}
+  header p{color:var(--muted); margin:.2em 0; font-size:.95rem;}
+
+  /* Thanh tiến độ dính trên cùng, gọn để không che nội dung khi gõ */
+  .progress{
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:10px 0; margin-bottom:8px;
+  }
+  .progress .bar-track{height:8px; background:#ececec; border-radius:6px; overflow:hidden;}
+  .progress .bar-fill{height:100%; width:0; background:var(--accent); transition:width .2s;}
+  .progress .ptext{font-size:.95rem; color:var(--muted); margin-top:6px;}
+
+  section.reading{margin-top:26px;}
+  .reading > h2{
+    font-size:1.15rem; border-bottom:2px solid var(--accent);
+    padding-bottom:6px; margin-bottom:10px;
+  }
+  details.passage{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:6px 14px; margin-bottom:16px;
+  }
+  details.passage summary{cursor:pointer; font-weight:600; padding:6px 0; outline:none;}
+  details.passage p{margin:.6em 0;}
+
+  .exercise{margin:18px 0 6px;}
+  .exercise h3{font-size:1.03rem; margin:.2em 0;}
+  .exercise .instruction{color:var(--muted); font-size:.93rem; margin:.2em 0 12px;}
+  .wordbank{
+    background:var(--accent-w); border:1px solid #cfe3d6; border-radius:8px;
+    padding:8px 12px; font-size:.95rem; margin-bottom:12px;
+  }
+  .wordbank b{color:var(--accent);}
+
+  .q{
+    border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+    margin:10px 0; background:#fff;
+  }
+  .q .qtext{margin:0 0 10px; display:flex; gap:8px;}
+  .q .qnum{font-weight:700; color:var(--accent); flex:0 0 auto;}
+  .q .qbody{flex:1 1 auto;}
+  .q .qbody .blank{
+    display:inline-block; min-width:64px; border-bottom:2px solid var(--muted);
+    text-align:center; padding:0 6px; font-weight:600;
+  }
+
+  /* Nút chọn (T/F/NG, Multiple choice ...) */
+  .opts{display:flex; flex-wrap:wrap; gap:8px;}
+  .opts.stack{flex-direction:column;}
+  .opt{
+    appearance:none; border:1.5px solid var(--line); background:#fff; color:var(--fg);
+    border-radius:9px; padding:11px 14px; font-size:1rem; cursor:pointer;
+    text-align:left; min-height:46px; line-height:1.35;
+  }
+  .opts:not(.stack) .opt{flex:1 1 auto;}
+  .opt:hover{border-color:var(--accent);}
+  .opt.sel{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;}
+  .opt:disabled{cursor:default; opacity:1;}
+
+  /* Dropdown */
+  select.dd{
+    width:100%; max-width:100%; font-size:1rem; padding:11px 12px;
+    border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--fg);
+    min-height:46px;
+  }
+  select.dd:focus{border-color:var(--accent); outline:none;}
+
+  /* Ô viết tự do */
+  input.freetext{
+    width:100%; font-size:1rem; padding:11px 12px; border:1.5px solid var(--line);
+    border-radius:9px; background:#fff; color:var(--fg); min-height:46px;
+  }
+  input.freetext:focus{border-color:var(--accent); outline:none;}
+  input.freetext:disabled{background:#f3f3f3;}
+
+  /* Kết quả sau khi nộp */
+  .q.correct{border-color:var(--right); background:var(--right-bg);}
+  .q.incorrect{border-color:var(--wrong); background:var(--wrong-bg);}
+  .verdict{font-weight:700; margin:10px 0 4px; display:flex; align-items:center; gap:6px;}
+  .verdict.ok{color:var(--right);} .verdict.no{color:var(--wrong);}
+  .ansline{margin:4px 0; font-size:.96rem;}
+  .ansline .lbl{font-weight:600;}
+  .explain{margin:4px 0 0; font-size:.95rem; color:#333;}
+
+  .q.correct .opt.sel{background:var(--right); border-color:var(--right); color:#fff;}
+  .q.incorrect .opt.sel{background:var(--wrong); border-color:var(--wrong); color:#fff;}
+  .opt.showans{border-color:var(--right); background:var(--right-bg); color:var(--right); font-weight:600;}
+
+  /* Khu nộp bài — đặt tĩnh ở cuối trang, không che nội dung khi bàn phím ảo bật */
+  .actions{margin-top:26px; display:flex; flex-direction:column; gap:12px;}
+  .btn{
+    font-size:1.06rem; font-weight:600; padding:15px 18px; border-radius:11px;
+    border:none; cursor:pointer; min-height:52px;
+  }
+  .btn-submit{background:var(--accent); color:#fff;}
+  .btn-submit:disabled{background:#bcbcbc; cursor:not-allowed;}
+  .btn-reset{background:#fff; color:var(--fg); border:1.5px solid var(--line);}
+
+  .scorebox{
+    display:none; border:2px solid var(--accent); background:var(--accent-w);
+    border-radius:12px; padding:16px; text-align:center; margin-top:8px;
+  }
+  .scorebox .score{font-size:2rem; font-weight:800; color:var(--accent);}
+  .scorebox .sub{color:#333; margin-top:4px;}
+
+  .hint{font-size:.9rem; color:var(--muted); text-align:center;}
+
+  @media (max-width:480px){
+    body{font-size:16px;}
+    .wrap{padding:12px 12px 40px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Unit 22 – Bài tập Đọc hiểu</h1>
+    <p>Học sinh làm đủ tất cả các câu, sau đó bấm <b>Nộp bài</b> để xem điểm và giải thích.</p>
+  </header>
+
+  <div class="progress">
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    <div class="ptext" id="progressText">Đã làm 0/57 câu</div>
+  </div>
+
+  <main id="quiz"></main>
+
+  <div class="actions">
+    <div class="scorebox" id="scorebox">
+      <div class="score" id="scoreNum">–</div>
+      <div class="sub" id="scoreSub"></div>
+    </div>
+    <button class="btn btn-submit" id="submitBtn" disabled>Nộp bài</button>
+    <button class="btn btn-reset" id="resetBtn" style="display:none;">Làm lại</button>
+    <div class="hint" id="hint">Học sinh cần làm hết tất cả các câu thì mới nộp bài được.</div>
+  </div>
+</div>
+
+<script>
+/* ====================== DỮ LIỆU ======================
+   Đề tiếng Anh và giải thích tiếng Việt giữ nguyên theo file gốc.
+   Loại câu:
+     - "buttons": chọn 1 trong vài lựa chọn (nút bấm)
+     - "select" : chọn từ danh sách (dropdown) — dùng cho matching & điền từ word bank
+     - "text"   : viết tự do (chấm bỏ qua hoa/thường & dấu câu, chấp nhận nhiều biến thể)
+*/
+
+const HEADINGS = [
+  ["i","i. A natural barrier against storms"],
+  ["ii","ii. How to cook local seafood"],
+  ["iii","iii. Trees that store carbon"],
+  ["iv","iv. A home for sea creatures"],
+  ["v","v. The high price of forests"],
+  ["vi","vi. Bringing the forests back"],
+  ["vii","vii. Why the forests disappeared"],
+  ["viii","viii. Trees that grow in salt water"],
+  ["ix","ix. The world's tallest trees"]
+];
+
+const ENDINGS = [
+  ["A","A. because nature performs much of the work without cost."],
+  ["B","B. so that tourists could photograph the wolves more easily."],
+  ["C","C. because they fear for their livestock and their way of life."],
+  ["D","D. because no landscape has a single original state to copy."],
+  ["E","E. which caused young trees and woodland to recover."],
+  ["F","F. so predators can roam freely without any conflict."],
+  ["G","G. because it balances ecological aims with human needs."],
+  ["H","H. which made the rivers flow faster than before."]
+];
+
+const PARAS_AF = [["A","A"],["B","B"],["C","C"],["D","D"],["E","E"],["F","F"]];
+
+const wb1 = ["recycle","rain","protect","oxygen","deforestation","roots"];
+const wb2 = ["shelter","erosion","absorb","community","restore","fish","climate","pollution"];
+
+const DATA = [
+  {
+    reading: "READING 1 – Why Forests Matter",
+    passage: [
+      "Forests are very important for our planet. A <b>forest</b> is a large area with many trees. Trees give us clean air. They take in <b>carbon dioxide</b> and give out <b>oxygen</b>. People and animals need oxygen to live, so trees help every living thing on Earth.",
+      "Many animals live in forests. Birds build a <b>nest</b> in the branches. A small <b>insect</b> can live under the leaves or inside the bark. Some large animals, like bears and deer, also find food in the forest. In this way, a forest is a home for thousands of living things.",
+      "Trees also help the <b>soil</b>. Their <b>roots</b> hold the ground together. When it rains, the roots stop the soil from washing away. This is very useful on hills and mountains. Without trees, heavy rain can cause a <b>flood</b> and destroy farms and houses.",
+      "Forests are important for water too. Trees take water from the ground and release it into the air. This water later falls as rain. In this way, forests help to keep the weather balanced and healthy.",
+      "People use forests in many ways. We get wood, fruit, and medicine from trees. Many families around the world <b>depend on</b> forests for their daily life. Forests also give us beautiful, quiet places to walk and relax.",
+      "Sadly, forests are in danger. Every year, people cut down millions of trees. They clear the land for farms, roads, and new houses. This is called <b>deforestation</b>. When trees disappear, animals lose their homes. The air becomes dirtier, and the weather can change.",
+      "<b>Climate change</b> is another big problem. When there are fewer trees, more carbon dioxide stays in the air. This makes the Earth warmer. Scientists say that protecting forests is one good way to slow down climate change.",
+      "The good news is that people can help. Some countries plant new trees every year. Governments make laws to <b>protect</b> old forests. A <b>volunteer</b> can join a group to clean and care for green areas. Even children can plant a small tree in their garden or at school.",
+      "We can also be careful with paper and wood. When we <b>recycle</b> paper, we save trees. When we buy wood from good, safe sources, we protect the forest. Small actions can make a big difference.",
+      "Forests took hundreds of years to grow. We must keep them safe for the future. If we take care of forests today, they will take care of us tomorrow."
+    ],
+    exercises: [
+      {
+        title:"Exercise 1 – True / False / Not Given",
+        instruction:"Read the passage. Write TRUE if the sentence agrees with the text, FALSE if it does not agree, and NOT GIVEN if there is no information.",
+        type:"buttons", options:["TRUE","FALSE","NOT GIVEN"],
+        questions:[
+          {p:"A forest is a large area with many trees.", a:"TRUE", e:"Bài đọc: \"A forest is a large area with many trees.\""},
+          {p:"Trees take in oxygen and give out carbon dioxide.", a:"FALSE", e:"Bài viết ngược lại: cây <i>take in carbon dioxide</i> và <i>give out oxygen</i>."},
+          {p:"More birds live in forests than insects.", a:"NOT GIVEN", e:"Bài có nhắc birds và insects nhưng <b>không so sánh số lượng</b> con nào nhiều hơn."},
+          {p:"Tree roots can help to stop floods.", a:"TRUE", e:"Rễ giữ đất, chống đất trôi → \"Without trees, heavy rain can cause a flood.\""},
+          {p:"Forests do not affect the weather.", a:"FALSE", e:"Bài đọc: forests \"help to keep the weather balanced and healthy.\""},
+          {p:"Deforestation happens when people plant more trees.", a:"FALSE", e:"Deforestation là khi người ta <b>cut down</b> (chặt) cây, không phải trồng thêm."},
+          {p:"Some governments make laws to protect forests.", a:"TRUE", e:"Bài đọc: \"Governments make laws to protect old forests.\""},
+          {p:"Recycling paper is more important than planting trees.", a:"NOT GIVEN", e:"Bài nhắc cả recycle và trồng cây, nhưng <b>không nói cái nào quan trọng hơn</b>."}
+        ]
+      },
+      {
+        title:"Exercise 2 – Sentence Completion",
+        instruction:"Complete each sentence with ONE word from the word bank.",
+        wordbank:wb1, type:"select", options:wb1.map(w=>[w,w]),
+        questions:[
+          {p:"People and animals need <span class='blank'></span> to live.", a:"oxygen"},
+          {p:"The <span class='blank'></span> of trees hold the ground together.", a:"roots"},
+          {p:"Water from trees later falls as <span class='blank'></span>.", a:"rain"},
+          {p:"Cutting down many trees for farms and roads is called <span class='blank'></span>.", a:"deforestation"},
+          {p:"When we <span class='blank'></span> paper, we save trees.", a:"recycle"},
+          {p:"Governments make laws to <span class='blank'></span> old forests.", a:"protect"}
+        ]
+      },
+      {
+        title:"Exercise 3 – Multiple Choice",
+        instruction:"Choose the correct letter, A, B, C or D.",
+        type:"buttons", stack:true,
+        questions:[
+          {p:"What do trees take in from the air?",
+           options:[["A","A. oxygen"],["B","B. carbon dioxide"],["C","C. water"],["D","D. soil"]],
+           a:"B", e:"\"They take in carbon dioxide...\""},
+          {p:"Why are tree roots useful on hills and mountains?",
+           options:[["A","A. They give fruit."],["B","B. They stop the soil from washing away."],["C","C. They build nests for birds."],["D","D. They make the weather colder."]],
+           a:"B", e:"Rễ \"stop the soil from washing away\" - hữu ích trên đồi núi."},
+          {p:"What is one cause of deforestation in the passage?",
+           options:[["A","A. clearing land for farms and roads"],["B","B. planting new trees"],["C","C. cleaning rivers"],["D","D. recycling paper"]],
+           a:"A", e:"\"They clear the land for farms, roads, and new houses.\""},
+          {p:"According to the passage, what makes the Earth warmer?",
+           options:[["A","A. more trees"],["B","B. more oxygen"],["C","C. more carbon dioxide in the air"],["D","D. more rain"]],
+           a:"C", e:"\"more carbon dioxide stays in the air. This makes the Earth warmer.\""},
+          {p:"What can children do to help forests?",
+           options:[["A","A. cut down old trees"],["B","B. build new roads"],["C","C. plant a small tree"],["D","D. make new laws"]],
+           a:"C", e:"\"Even children can plant a small tree in their garden or at school.\""}
+        ]
+      }
+    ]
+  },
+
+  {
+    reading: "READING 2 – The Return of the Mangroves",
+    passage: [
+      "<b>A.</b> Along many tropical <b>coastlines</b>, strange trees grow with their roots standing in salty water. These are <b>mangroves</b>. For a long time, people saw them as useless swamps and cut them down. Today, however, scientists and local communities understand that mangroves are one of nature's most valuable gifts. In countries such as Vietnam, Indonesia, and the Philippines, large projects are now working to bring these forests back.",
+      "<b>B.</b> Mangroves provide a rich <b>habitat</b> for hundreds of <b>species</b>. Their tangled roots create a safe <b>shelter</b> where young fish, crabs, and <b>shrimp</b> can hide from bigger animals. Many fishing families <b>depend on</b> these waters for their income. When the mangroves disappear, the number of fish often falls, and the whole coastal <b>community</b> suffers. In this way, protecting the trees also protects people's jobs.",
+      "<b>C.</b> Mangroves also defend the land. Their strong roots hold the soil in place and reduce <b>erosion</b> caused by waves and <b>tides</b>. During a big storm, a healthy mangrove forest can slow down a dangerous <b>storm surge</b> before it reaches homes and farms. Studies suggest that coastal villages with mangroves suffer far less damage than villages without them. For low-lying areas, these trees act like a natural wall.",
+      "<b>D.</b> Another benefit is less visible but very important. Mangroves <b>absorb</b> large amounts of carbon dioxide and store it in the mud around their roots. Scientists say that, area for area, mangroves can hold much more carbon than ordinary forests on land. Because of this, restoring them is now seen as a useful tool in the fight against <b>climate change</b>.",
+      "<b>E.</b> Sadly, the <b>decline</b> of mangroves has been rapid. Over the past fifty years, the world has lost a huge part of its mangrove forests. Much of this loss came from shrimp farming, building work, and pollution. When these forests are cleared, the coast becomes weaker, and it is difficult and expensive to repair the damage.",
+      "<b>F.</b> The good news is that action is possible. Many governments now work with villages to <b>restore</b> lost forests by planting young trees along the shore. Local people are trained to care for the seedlings, and some earn money as guides for visitors who come to see the wildlife. Experts agree that such <b>sustainable</b> projects work best when the local community leads them. Slowly, along quiet coasts, the mangroves are coming back."
+    ],
+    exercises: [
+      {
+        title:"Exercise 1 – Matching Headings",
+        instruction:"The passage has six paragraphs, A–F. Choose the correct heading for each paragraph from the list of headings below.",
+        listHeadings:true, type:"select", options:HEADINGS,
+        questions:[
+          {p:"Paragraph A", a:"viii", e:"\"strange trees grow with their roots standing in salty water\" - cây mọc trong nước mặn."},
+          {p:"Paragraph B", a:"iv", e:"Rễ tạo shelter cho fish, crabs, shrimp → nhà của sinh vật biển."},
+          {p:"Paragraph C", a:"i", e:"Rễ giảm erosion, làm chậm storm surge → hàng rào tự nhiên chống bão."},
+          {p:"Paragraph D", a:"iii", e:"\"absorb large amounts of carbon dioxide and store it\" → cây trữ carbon."},
+          {p:"Paragraph E", a:"vii", e:"\"the decline of mangroves has been rapid... loss came from shrimp farming\" → vì sao rừng biến mất."},
+          {p:"Paragraph F", a:"vi", e:"\"restore lost forests by planting young trees... coming back\" → mang rừng trở lại."}
+        ]
+      },
+      {
+        title:"Exercise 2 – Summary Completion",
+        instruction:"Complete the summary below using words from the word bank.",
+        wordbank:wb2, type:"select", options:wb2.map(w=>[w,w]),
+        questions:[
+          {p:"(1) Their roots give a safe <span class='blank'></span> to young fish, crabs, and shrimp, so many fishing families rely on them.", a:"shelter", e:"\"create a safe shelter where young fish, crabs, and shrimp can hide.\""},
+          {p:"(2) The roots also hold the soil and reduce <span class='blank'></span> from waves.", a:"erosion", e:"\"reduce erosion caused by waves and tides.\""},
+          {p:"(3) During a storm, the forest protects the coastal <span class='blank'></span> from damage.", a:"community", e:"\"the whole coastal community suffers.\""},
+          {p:"(4) Mangroves can <span class='blank'></span> carbon dioxide and store it in the mud,", a:"absorb", e:"\"Mangroves absorb large amounts of carbon dioxide.\""},
+          {p:"(5) which helps in the fight against <span class='blank'></span> change.", a:"climate", e:"\"the fight against climate change.\""},
+          {p:"(6) Today, many governments work with villages to <span class='blank'></span> lost forests by planting new trees.", a:"restore", e:"\"work with villages to restore lost forests.\""}
+        ]
+      },
+      {
+        title:"Exercise 3 – Short-answer Questions",
+        instruction:"Answer the questions below. Choose NO MORE THAN THREE WORDS from the passage for each answer.",
+        type:"text",
+        questions:[
+          {p:"In the past, what did people think mangrove swamps were?",
+           a:"useless swamps", accepted:["useless swamps","useless swamp"],
+           e:"\"people saw them as useless swamps and cut them down.\""},
+          {p:"What can hide among the tangled roots besides fish and crabs?",
+           a:"shrimp", accepted:["shrimp","shrimps"],
+           e:"\"young fish, crabs, and shrimp can hide\" - ngoài fish và crabs còn có shrimp."},
+          {p:"What natural event can a healthy mangrove forest slow down?",
+           a:"(a) storm surge", accepted:["storm surge","a storm surge","storm surges"],
+           e:"\"can slow down a dangerous storm surge.\""},
+          {p:"Where do mangroves store the carbon they take in?",
+           a:"in the mud", accepted:["in the mud","the mud","mud"],
+           e:"\"store it in the mud around their roots.\""},
+          {p:"Which type of farming caused much of the loss of mangroves?",
+           a:"shrimp farming", accepted:["shrimp farming","shrimp farms"],
+           e:"\"Much of this loss came from shrimp farming.\""},
+          {p:"Who should lead the best sustainable projects, according to experts?",
+           a:"the local community", accepted:["the local community","local community","community"],
+           e:"\"projects work best when the local community leads them.\""}
+        ]
+      }
+    ]
+  },
+
+  {
+    reading: "READING 3 – Letting the Wild Return",
+    passage: [
+      "<b>A.</b> For most of the last century, conservation meant drawing a line around a fragile landscape and keeping people out. In recent years, however, a bolder and more controversial idea has gained ground: <b>rewilding</b>. Rather than simply freezing an ecosystem in its current state, rewilding attempts to restore the natural processes that once shaped it – the grazing, the flooding, the predators and their prey – and then, as far as possible, to step back and let nature take charge. The approach has provoked both excitement and unease among scientists, farmers, and rural communities alike.",
+      "<b>B.</b> The most celebrated example comes from Yellowstone National Park in the United States. When grey wolves were reintroduced in 1995 after an absence of seventy years, the consequences rippled far beyond the animals themselves. With <b>predators</b> once again hunting the deer, the deer avoided open valleys, allowing young trees to recover. Birds returned to the new woodland, beavers built dams, and the behaviour of the rivers themselves reportedly changed. This chain reaction, in which a single species influences an entire <b>food chain</b>, is known as a <b>trophic cascade</b>, and it captured the public imagination worldwide.",
+      "<b>C.</b> Advocates argue that rewilding offers a rare form of hope. A degraded habitat, they claim, can regain its lost <b>biodiversity</b> at relatively low cost, because nature does much of the work for free. Wetlands restored in this way can store carbon and reduce the risk of flooding downstream; forests that regenerate on abandoned farmland can shelter <b>endangered</b> wildlife. For supporters, the philosophy represents a shift from managing nature towards <b>trusting</b> it – a humbler relationship between humans and the living world.",
+      "<b>D.</b> Yet the idea is far from universally welcomed. Critics point out that the land in question is rarely empty. Farmers who have worked the same fields for generations may see rewilding as a threat to their <b>livelihood</b> and their heritage. The reintroduction of large predators, in particular, raises fears about livestock and, occasionally, human safety. There is also a scientific objection: nobody can be entirely certain how a complex ecosystem will respond once it is released from human control. An <b>intervention</b> intended to help one species may unintentionally harm another.",
+      "<b>E.</b> These tensions are especially sharp in densely populated regions where truly wild land is scarce. In much of Europe and Asia, there are few areas large enough to support free-roaming predators without conflict. As a result, many projects adopt a compromise. Fences remain, some species are managed rather than left entirely alone, and the goal is a <b>semi-wild</b> landscape that balances ecological ambition with human needs. Purists complain that this is not real rewilding at all, but its defenders reply that a workable solution is better than an ideal one that never happens.",
+      "<b>F.</b> Perhaps the deepest question rewilding raises is philosophical. What, exactly, are we trying to restore? Landscapes have been shaped by human hands for thousands of years, so there is no single \"natural\" state to return to. Choosing a target – the forest of a century ago, or the wilderness of ten thousand years ago – is ultimately a human decision, dressed in the language of science. For all its uncertainties, though, rewilding has done something valuable: it has forced us to imagine a future in which nature is not merely <b>preserved</b> behind fences, but genuinely allowed to flourish."
+    ],
+    exercises: [
+      {
+        title:"Exercise 1 – Yes / No / Not Given",
+        instruction:"Do the following statements agree with the claims of the writer? Write YES if the statement agrees with the writer's views, NO if it contradicts them, and NOT GIVEN if it is impossible to say what the writer thinks.",
+        type:"buttons", options:["YES","NO","NOT GIVEN"],
+        questions:[
+          {p:"Rewilding is a more daring approach than traditional conservation.", a:"YES", e:"\"a bolder and more controversial idea has gained ground: rewilding\" - táo bạo hơn cách bảo tồn truyền thống."},
+          {p:"The reintroduction of wolves in Yellowstone affected only the wolf population itself.", a:"NO", e:"Trái ngược: \"the consequences rippled far beyond the animals themselves.\""},
+          {p:"Rewilding can be a relatively cheap way to restore a damaged habitat.", a:"YES", e:"\"can regain its lost biodiversity at relatively low cost, because nature does much of the work for free.\""},
+          {p:"Farmers are generally more enthusiastic about rewilding than scientists are.", a:"NOT GIVEN", e:"Bài nêu lo ngại của farmers, nhưng <b>không so sánh mức nhiệt tình</b> giữa farmers và scientists."},
+          {p:"Scientists can predict exactly how an ecosystem will react once human control is removed.", a:"NO", e:"Trái ngược: \"nobody can be entirely certain how a complex ecosystem will respond.\""},
+          {p:"Compromise projects with fences are a reasonable response in crowded regions.", a:"YES", e:"\"its defenders reply that a workable solution is better than an ideal one that never happens.\""},
+          {p:"There is one clearly \"natural\" state that every landscape should be returned to.", a:"NO", e:"Trái ngược: \"there is no single 'natural' state to return to.\""},
+          {p:"Despite its problems, rewilding has usefully changed how people imagine nature's future.", a:"YES", e:"\"it has forced us to imagine a future in which nature is... genuinely allowed to flourish.\""}
+        ]
+      },
+      {
+        title:"Exercise 2 – Matching Sentence Endings",
+        instruction:"Complete each sentence by choosing the correct ending (A–H) from the box below.",
+        listEndings:true, type:"select", options:ENDINGS,
+        questions:[
+          {p:"When wolves returned, deer avoided open valleys,", a:"E", e:"\"the deer avoided open valleys, allowing young trees to recover.\""},
+          {p:"Supporters say a degraded habitat can recover cheaply", a:"A", e:"\"at relatively low cost, because nature does much of the work for free.\""},
+          {p:"Many farmers oppose rewilding", a:"C", e:"\"a threat to their livelihood... fears about livestock.\""},
+          {p:"In crowded regions, projects often accept a semi-wild landscape", a:"G", e:"\"a semi-wild landscape that balances ecological ambition with human needs.\""},
+          {p:"Deciding what to restore is ultimately a human choice", a:"D", e:"\"there is no single 'natural' state to return to... a human decision.\""}
+        ]
+      },
+      {
+        title:"Exercise 3 – Matching Information",
+        instruction:"The passage has six paragraphs, A–F. Which paragraph contains the following information?",
+        type:"select", options:PARAS_AF,
+        questions:[
+          {p:"a definition of a well-known ecological chain reaction", a:"B", e:"\"This chain reaction... is known as a trophic cascade.\""},
+          {p:"the idea that there is no single natural state to return to", a:"F", e:"\"there is no single 'natural' state to return to.\""},
+          {p:"a description of how conservation was traditionally practised", a:"A", e:"\"conservation meant drawing a line around a fragile landscape and keeping people out.\""},
+          {p:"concerns about the safety of farm animals and people", a:"D", e:"\"raises fears about livestock and, occasionally, human safety.\""},
+          {p:"examples of the environmental benefits of restored wetlands and forests", a:"C", e:"\"Wetlands... store carbon and reduce the risk of flooding... forests... shelter endangered wildlife.\""},
+          {p:"an explanation of why large predators are hard to reintroduce in some regions", a:"E", e:"\"few areas large enough to support free-roaming predators without conflict.\""},
+          {p:"the date when a key species was brought back", a:"B", e:"\"grey wolves were reintroduced in 1995.\""}
+        ]
+      }
+    ]
+  }
+];
+
+/* ====================== DỰNG GIAO DIỆN ====================== */
+const quizEl = document.getElementById("quiz");
+let ALL = [];          // danh sách phẳng mọi câu hỏi
+let submitted = false;
+
+function esc(s){return s;} // đề đã là chuỗi an toàn do mình tự nhập
+
+DATA.forEach((rd, ri)=>{
+  const sec = document.createElement("section");
+  sec.className = "reading";
+
+  const h2 = document.createElement("h2");
+  h2.textContent = rd.reading;
+  sec.appendChild(h2);
+
+  // Passage (có thể thu gọn)
+  const det = document.createElement("details");
+  det.className = "passage";
+  det.open = true;
+  const sum = document.createElement("summary");
+  sum.textContent = "📖 Bài đọc (bấm để mở/đóng)";
+  det.appendChild(sum);
+  rd.passage.forEach(par=>{
+    const p = document.createElement("p");
+    p.innerHTML = par;
+    det.appendChild(p);
+  });
+  sec.appendChild(det);
+
+  rd.exercises.forEach((ex, ei)=>{
+    const exDiv = document.createElement("div");
+    exDiv.className = "exercise";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = "✏️ " + ex.title;
+    exDiv.appendChild(h3);
+
+    const ins = document.createElement("div");
+    ins.className = "instruction";
+    ins.textContent = ex.instruction;
+    exDiv.appendChild(ins);
+
+    if(ex.wordbank){
+      const wbDiv = document.createElement("div");
+      wbDiv.className = "wordbank";
+      wbDiv.innerHTML = "<b>Word bank:</b> " + ex.wordbank.join(" · ");
+      exDiv.appendChild(wbDiv);
+    }
+    if(ex.listHeadings){
+      const box = document.createElement("div");
+      box.className = "wordbank";
+      box.innerHTML = "<b>List of Headings:</b><br>" + HEADINGS.map(h=>h[1]).join("<br>");
+      exDiv.appendChild(box);
+    }
+    if(ex.listEndings){
+      const box = document.createElement("div");
+      box.className = "wordbank";
+      box.innerHTML = "<b>Sentence endings:</b><br>" + ENDINGS.map(h=>h[1]).join("<br>");
+      exDiv.appendChild(box);
+    }
+
+    ex.questions.forEach((q, qi)=>{
+      const qid = "r"+ri+"e"+ei+"q"+qi;
+      const rec = {
+        id:qid, type:ex.type, answer:q.a,
+        accepted:q.accepted||null, explain:q.e||null,
+        value:null, el:null
+      };
+
+      const qDiv = document.createElement("div");
+      qDiv.className = "q";
+      qDiv.id = qid;
+
+      const qtext = document.createElement("div");
+      qtext.className = "qtext";
+      qtext.innerHTML = "<span class='qnum'>"+(qi+1)+".</span><span class='qbody'>"+q.p+"</span>";
+      qDiv.appendChild(qtext);
+
+      if(ex.type === "buttons"){
+        const opts = q.options ? q.options : ex.options.map(o=>[o,o]);
+        const wrap = document.createElement("div");
+        wrap.className = "opts" + (ex.stack||q.options ? " stack" : "");
+        opts.forEach(o=>{
+          const val = Array.isArray(o)?o[0]:o;
+          const lab = Array.isArray(o)?o[1]:o;
+          const b = document.createElement("button");
+          b.className = "opt"; b.type="button";
+          b.textContent = lab; b.dataset.val = val;
+          b.addEventListener("click", ()=>{
+            if(submitted) return;
+            wrap.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+            b.classList.add("sel");
+            rec.value = val;
+            updateProgress();
+          });
+          wrap.appendChild(b);
+        });
+        qDiv.appendChild(wrap);
+        rec.optWrap = wrap;
+      }
+      else if(ex.type === "select"){
+        const sel = document.createElement("select");
+        sel.className = "dd";
+        const ph = document.createElement("option");
+        ph.value=""; ph.textContent="— chọn —"; ph.disabled=false; ph.selected=true;
+        sel.appendChild(ph);
+        ex.options.forEach(o=>{
+          const op = document.createElement("option");
+          op.value=o[0]; op.textContent=o[1];
+          sel.appendChild(op);
+        });
+        sel.addEventListener("change", ()=>{
+          if(submitted) return;
+          rec.value = sel.value || null;
+          updateProgress();
+        });
+        qDiv.appendChild(sel);
+        rec.selEl = sel;
+      }
+      else if(ex.type === "text"){
+        const inp = document.createElement("input");
+        inp.className="freetext"; inp.type="text";
+        inp.setAttribute("autocomplete","off");
+        inp.setAttribute("autocapitalize","off");
+        inp.setAttribute("autocorrect","off");
+        inp.placeholder="Nhập câu trả lời...";
+        inp.addEventListener("input", ()=>{
+          if(submitted) return;
+          rec.value = inp.value.trim()!=="" ? inp.value : null;
+          updateProgress();
+        });
+        qDiv.appendChild(inp);
+        rec.inpEl = inp;
+      }
+
+      rec.el = qDiv;
+      ALL.push(rec);
+      exDiv.appendChild(qDiv);
+    });
+
+    sec.appendChild(exDiv);
+  });
+
+  quizEl.appendChild(sec);
+});
+
+const TOTAL = ALL.length;
+
+/* ====================== TIẾN ĐỘ ====================== */
+const barFill = document.getElementById("barFill");
+const progressText = document.getElementById("progressText");
+const submitBtn = document.getElementById("submitBtn");
+const resetBtn = document.getElementById("resetBtn");
+const hint = document.getElementById("hint");
+
+function countDone(){
+  return ALL.filter(r=>r.value!==null && r.value!=="").length;
+}
+function updateProgress(){
+  const done = countDone();
+  progressText.textContent = "Đã làm " + done + "/" + TOTAL + " câu";
+  barFill.style.width = (done/TOTAL*100) + "%";
+  if(!submitted){
+    submitBtn.disabled = (done < TOTAL);
+    hint.style.display = (done < TOTAL) ? "block" : "none";
+  }
+}
+
+/* ====================== CHẤM BÀI ====================== */
+function normalize(s){
+  return (s||"")
+    .toLowerCase()
+    .replace(/[.,!?;:'"“”‘’\-–—()\/]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function isTextCorrect(rec){
+  const given = normalize(rec.value);
+  const list = (rec.accepted && rec.accepted.length) ? rec.accepted : [rec.answer];
+  return list.some(a=>normalize(a)===given);
+}
+
+const scorebox = document.getElementById("scorebox");
+const scoreNum = document.getElementById("scoreNum");
+const scoreSub = document.getElementById("scoreSub");
+
+function submit(){
+  if(submitted) return;
+  submitted = true;
+  let correct = 0;
+
+  ALL.forEach(rec=>{
+    let ok;
+    if(rec.type==="text") ok = isTextCorrect(rec);
+    else ok = (rec.value === rec.answer);
+    if(ok) correct++;
+
+    rec.el.classList.add(ok ? "correct" : "incorrect");
+
+    // Khoá ô nhập
+    if(rec.optWrap){
+      rec.optWrap.querySelectorAll(".opt").forEach(b=>{
+        b.disabled = true;
+        if(b.dataset.val === rec.answer) b.classList.add("showans");
+      });
+    }
+    if(rec.selEl) rec.selEl.disabled = true;
+    if(rec.inpEl) rec.inpEl.disabled = true;
+
+    // Dòng kết quả
+    const v = document.createElement("div");
+    v.className = "verdict " + (ok?"ok":"no");
+    v.innerHTML = ok ? "✓ Đúng" : "✗ Sai";
+    rec.el.appendChild(v);
+
+    if(!ok){
+      const ans = document.createElement("div");
+      ans.className = "ansline";
+      ans.innerHTML = "<span class='lbl'>Đáp án đúng:</span> " + rec.answer;
+      rec.el.appendChild(ans);
+    }
+    if(rec.explain){
+      const ex = document.createElement("div");
+      ex.className = "explain";
+      ex.innerHTML = "<span class='lbl'>Giải thích:</span> " + rec.explain;
+      rec.el.appendChild(ex);
+    }
+  });
+
+  const score10 = Math.round((correct/TOTAL)*10*10)/10;
+  scoreNum.textContent = score10.toFixed(1).replace(".",",") + " / 10";
+  scoreSub.textContent = "Học sinh trả lời đúng " + correct + "/" + TOTAL + " câu.";
+  scorebox.style.display = "block";
+
+  submitBtn.style.display = "none";
+  resetBtn.style.display = "block";
+  hint.style.display = "none";
+
+  scorebox.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function reset(){
+  submitted = false;
+  ALL.forEach(rec=>{
+    rec.value = null;
+    rec.el.classList.remove("correct","incorrect");
+    // xoá dòng kết quả đã thêm
+    rec.el.querySelectorAll(".verdict, .ansline, .explain").forEach(n=>n.remove());
+    if(rec.optWrap){
+      rec.optWrap.querySelectorAll(".opt").forEach(b=>{
+        b.disabled=false; b.classList.remove("sel","showans");
+      });
+    }
+    if(rec.selEl){ rec.selEl.disabled=false; rec.selEl.value=""; }
+    if(rec.inpEl){ rec.inpEl.disabled=false; rec.inpEl.value=""; }
+  });
+  scorebox.style.display="none";
+  submitBtn.style.display="block";
+  resetBtn.style.display="none";
+  updateProgress();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+submitBtn.addEventListener("click", submit);
+resetBtn.addEventListener("click", reset);
+updateProgress();
+</script>
+</body>
+</html>
