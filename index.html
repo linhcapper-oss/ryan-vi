@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 24 - Vocabulary &amp; Reading Practice</title>
+<style>
+  :root{
+    --line:#d5d5d5;
+    --ink:#1a1a1a;
+    --muted:#5a5a5a;
+    --ok:#1a7f37;
+    --no:#b42318;
+    --okbg:#eef7f0;
+    --nobg:#fdf0ef;
+    --bg:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",Arial,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px 64px;}
+
+  /* Thanh trạng thái đặt ở TRÊN cùng: bàn phím ảo không bao giờ che */
+  .bar{
+    position:sticky;top:0;z-index:20;
+    background:#fff;border-bottom:1px solid var(--line);
+    padding:8px 16px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .bar .prog{font-weight:600;font-size:15px;flex:1 1 auto;}
+  .bar .prog small{display:block;font-weight:400;color:var(--muted);font-size:13px;}
+
+  h1{font-size:22px;margin:20px 0 4px;}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 20px;}
+  h2{font-size:20px;margin:34px 0 8px;padding-top:14px;border-top:2px solid var(--ink);}
+  h3{font-size:17px;margin:26px 0 6px;}
+  .rubric{color:var(--muted);font-size:15px;margin:0 0 14px;}
+
+  details.passage{border:1px solid var(--line);padding:10px 14px;margin:12px 0 18px;}
+  details.passage summary{cursor:pointer;font-weight:600;}
+  details.passage p{margin:12px 0;}
+  .ptitle{font-weight:600;margin:14px 0 6px;}
+
+  table.bank{border-collapse:collapse;width:100%;margin:10px 0 16px;font-size:15px;}
+  table.bank td,table.bank th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top;}
+  .wordbank{border:1px solid var(--line);padding:10px 12px;margin:10px 0 16px;font-size:15px;}
+  table.vocab td.ipa{white-space:nowrap;color:var(--muted);}
+  table.vocab td:nth-child(3){white-space:nowrap;}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  @media (max-width:520px){
+    table.vocab{font-size:14px;}
+    table.vocab td,table.vocab th{padding:5px 6px;}
+    table.vocab td.ipa{white-space:normal;}
+  }
+
+  .q{border-top:1px solid var(--line);padding:14px 0;}
+  .q:first-of-type{border-top:none;}
+  .qtext{margin:0 0 10px;}
+  .qnum{font-weight:700;margin-right:6px;}
+  .blank{font-weight:700;letter-spacing:1px;}
+
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opts.row{flex-direction:row;flex-wrap:wrap;}
+  .opt{display:flex;align-items:flex-start;gap:8px;
+    border:1px solid var(--line);padding:11px 12px;min-height:46px;cursor:pointer;background:#fff;}
+  .opt input{margin:4px 0 0;width:18px;height:18px;flex:0 0 auto;}
+  .opts.row .opt{flex:1 1 auto;min-width:120px;justify-content:center;align-items:center;}
+  .opt.sel{border-color:var(--ink);border-width:2px;padding:10px 11px;}
+
+  input[type=text],select{
+    width:100%;max-width:420px;font-size:16px;font-family:inherit;
+    padding:11px 10px;min-height:46px;border:1px solid var(--line);background:#fff;color:var(--ink);
+  }
+  select{max-width:100%;}
+
+  button{
+    font-family:inherit;font-size:16px;font-weight:600;
+    padding:11px 18px;min-height:46px;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;
+  }
+  button.ghost{background:#fff;color:var(--ink);}
+  button:disabled{background:#e4e4e4;border-color:#c9c9c9;color:#8a8a8a;cursor:not-allowed;}
+  .bar button{padding:8px 14px;min-height:40px;font-size:15px;}
+
+  .actions{margin:34px 0 0;padding-top:18px;border-top:2px solid var(--ink);
+    display:flex;gap:12px;flex-wrap:wrap;}
+  .actions button{flex:1 1 220px;}
+
+  .fb{margin-top:10px;padding:10px 12px;font-size:15px;border-left:4px solid;}
+  .fb.ok{border-color:var(--ok);background:var(--okbg);}
+  .fb.no{border-color:var(--no);background:var(--nobg);}
+  .fb .verdict{font-weight:700;}
+  .fb.ok .verdict{color:var(--ok);}
+  .fb.no .verdict{color:var(--no);}
+  .fb div{margin-top:4px;}
+
+  #result{display:none;border:2px solid var(--ink);padding:16px;margin:24px 0 0;}
+  #result h2{border:none;margin:0 0 8px;padding:0;font-size:20px;}
+  #result .score{font-size:34px;font-weight:700;line-height:1.2;}
+  #result .detail{color:var(--muted);}
+  .hint{color:var(--muted);font-size:14px;margin-top:6px;}
+
+  @media (max-width:520px){
+    body{font-size:16px;}
+    .wrap{padding:0 12px 72px;}
+    .actions button{flex:1 1 100%;}
+    .opts.row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="prog"><span id="progText">Đã làm 0/63 câu</span><small id="progHint">Học sinh cần làm hết tất cả các câu thì mới nộp bài được.</small></div>
+  <button id="submitTop" disabled>Nộp bài</button>
+</div>
+
+<div class="wrap">
+  <h1>Unit 24 - Vocabulary &amp; Reading Practice</h1>
+  <p class="sub">Bài tập tương tác gồm <strong>63 câu</strong> (Reading 1: 23 câu · Reading 2: 19 câu · Reading 3: 21 câu). Học sinh làm hết các câu rồi bấm <strong>Nộp bài</strong>.</p>
+
+  <div id="quiz"></div>
+
+  <div id="result">
+    <h2>Kết quả</h2>
+    <div class="score" id="scoreLine"></div>
+    <div class="detail" id="detailLine"></div>
+  </div>
+
+  <div class="actions">
+    <button id="submitBottom" disabled>Nộp bài</button>
+    <button id="resetBtn" class="ghost">Làm lại</button>
+  </div>
+</div>
+
+<script>
+/* ====================== DỮ LIỆU ====================== */
+
+var TF = ["TRUE","FALSE","NOT GIVEN"];
+var YN = ["YES","NO","NOT GIVEN"];
+
+var HEADINGS = [
+  ["i","i - From state studios to private business"],
+  ["ii","ii - Why cinema tickets have become so expensive"],
+  ["iii","iii - Evidence of a fast-growing industry"],
+  ["iv","iv - Training the people behind the camera"],
+  ["v","v - Foreign films disappear from Vietnamese screens"],
+  ["vi","vi - What Vietnamese audiences choose to watch"],
+  ["vii","vii - Problems that still worry the industry"],
+  ["viii","viii - The gap between reviewers and the public"],
+  ["ix","ix - How to book seats online"]
+];
+
+var ENDINGS = [
+  ["A","A - are made with far smaller budgets."],
+  ["B","B - reached only a small number of cinemas."],
+  ["C","C - can decide whether a film stays in cinemas."],
+  ["D","D - stay away from difficult subjects."],
+  ["E","E - trust their friends more than professional critics."],
+  ["F","F - are designed to train new film-makers."],
+  ["G","G - are always remakes of Thai comedies."],
+  ["H","H - have stopped illegal copies appearing online."],
+  ["I","I - are shown mainly on streaming services."]
+];
+
+var RESEARCHERS = [
+  ["A","A - Elena Marchetti"],
+  ["B","B - Tan Wei-Lin"],
+  ["C","C - Hoang Minh Duc"],
+  ["D","D - Rebecca Nolan"]
+];
+
+var BANK = ["audience","cartoons","directors","episodes","profit","reviews","screen","series","streaming services","subtitles","viewers"];
+var BANKOPTS = BANK.map(function(w){return [w,w];});
+
+var DATA = [
+{
+  reading:"READING 1 - From Big Screens to Small Screens",
+  passageTitle:"How we watch films and TV today",
+  passage:[
+    "Fifty years ago, going to the cinema was a special event. Families put on nice clothes, bought tickets, and sat together in a big dark room. Today, people can watch films almost anywhere. They use phones on the bus, laptops in cafés, and large televisions at home. The way we watch has changed, but our love of stories has not.",
+    "Streaming services are the main reason for this change. A streaming service is a website or an app that lets you watch films and TV programmes online. You pay a small amount every month, and then you can choose from thousands of titles. In Vietnam, young people often watch Korean dramas, Hollywood action films and local comedies on their phones. Many of them read subtitles while they watch, and this also helps them learn English.",
+    "Television has changed too. In the past, a family had to wait until eight o'clock on Saturday evening to see a popular programme. Now a whole series can appear on the same day, and viewers watch five or six episodes one after another. This habit has a name: \u201Cbinge-watching\u201D. Doctors say that it is fun but not always healthy, because people sit for many hours and sleep less.",
+    "Some types of programmes are still very popular. Documentaries teach us about animals, history and science. Reality shows follow real people in competitions, for example cooking or singing. Cartoons are made for children, but many adults enjoy them too. And of course there are soap operas - long stories about families and their problems, shown every evening on television.",
+    "However, cinemas have not disappeared. Many people still love the big screen, the loud sound and the smell of popcorn. Directors make special films for cinemas, with beautiful scenes and exciting action. A cinema ticket also gives young people a cheap and easy way to spend time with friends at the weekend.",
+    "Money is another part of the story. A big Hollywood film can cost more than 200 million dollars to produce. The audience must be huge, or the studio cannot make a profit. Small films are made with much less money, and some of them become famous because the reviews are good and people talk about them online.",
+    "What about the future? Some experts believe that films will become shorter, because young viewers do not like waiting. Other experts think that people will always want long, deep stories. Perhaps both ideas are correct. One thing is certain: films and TV programmes are now part of daily life for millions of people, and they will continue to entertain, teach and surprise us for a very long time."
+  ],
+  vocab:[
+    {group:"Group 1 - Watching & Technology", words:[
+      ["streaming service","/\u02C8stri\u02D0m\u026A\u014B \u02CCs\u025C\u02D0v\u026As/","n.phr.","dịch vụ xem trực tuyến"],
+      ["subtitles","/\u02C8s\u028Cbta\u026Atlz/","n.","phụ đề"],
+      ["series","/\u02C8s\u026A\u0259ri\u02D0z/","n.","loạt phim, phim nhiều tập"],
+      ["episode","/\u02C8ep\u026As\u0259\u028Ad/","n.","tập phim"],
+      ["binge-watch","/\u02C8b\u026And\u0292 w\u0252t\u0283/","v.","xem liên tục nhiều tập"],
+      ["viewer","/\u02C8vju\u02D0\u0259(r)/","n.","người xem (truyền hình)"],
+      ["screen","/skri\u02D0n/","n.","màn hình"],
+      ["audience","/\u02C8\u0254\u02D0di\u0259ns/","n.","khán giả"]
+    ]},
+    {group:"Group 2 - Programmes & The Film Business", words:[
+      ["documentary","/\u02CCd\u0252kju\u02C8mentri/","n.","phim tài liệu"],
+      ["reality show","/ri\u02C8\u00E6l\u0259ti \u0283\u0259\u028A/","n.phr.","chương trình truyền hình thực tế"],
+      ["soap opera","/\u02C8s\u0259\u028Ap \u02CC\u0252pr\u0259/","n.phr.","phim truyền hình dài tập (về gia đình)"],
+      ["cartoon","/k\u0251\u02D0\u02C8tu\u02D0n/","n.","phim hoạt hình"],
+      ["director","/d\u0259\u02C8rekt\u0259(r)/","n.","đạo diễn"],
+      ["produce","/pr\u0259\u02C8dju\u02D0s/","v.","sản xuất (phim)"],
+      ["review","/r\u026A\u02C8vju\u02D0/","n.","bài đánh giá, nhận xét"],
+      ["profit","/\u02C8pr\u0252f\u026At/","n.","lợi nhuận"]
+    ]}
+  ],
+  exercises:[
+    {
+      title:"Exercise 1 - True / False / Not Given",
+      rubric:"Do the following statements agree with the information in the passage? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      questions:[
+        {n:"1", type:"choice", row:true, opts:TF, text:"Fifty years ago, going to the cinema was a normal, everyday activity.", ans:"FALSE", exp:"\u201Cgoing to the cinema was a special event\u201D \u2192 không phải hoạt động thường ngày"},
+        {n:"2", type:"choice", row:true, opts:TF, text:"A streaming service gives users a choice of thousands of titles.", ans:"TRUE", exp:"\u201Cyou can choose from thousands of titles\u201D"},
+        {n:"3", type:"choice", row:true, opts:TF, text:"Korean dramas are more popular than Hollywood films among young Vietnamese people.", ans:"NOT GIVEN", exp:"Bài chỉ liệt kê Korean dramas, Hollywood action films, local comedies - không so sánh cái nào phổ biến hơn"},
+        {n:"4", type:"choice", row:true, opts:TF, text:"Watching many episodes without stopping can affect people's sleep.", ans:"TRUE", exp:"\u201Cpeople sit for many hours and sleep less\u201D"},
+        {n:"5", type:"choice", row:true, opts:TF, text:"Cinemas have closed because of streaming services.", ans:"FALSE", exp:"\u201CHowever, cinemas have not disappeared\u201D"},
+        {n:"6", type:"choice", row:true, opts:TF, text:"Documentaries give information about subjects such as history and science.", ans:"TRUE", exp:"\u201CDocumentaries teach us about animals, history and science\u201D"},
+        {n:"7", type:"choice", row:true, opts:TF, text:"Every big Hollywood film makes a profit.", ans:"FALSE", exp:"\u201CThe audience must be huge, or the studio cannot make a profit\u201D \u2192 không phải phim nào cũng có lãi"},
+        {n:"8", type:"choice", row:true, opts:TF, text:"Some small films become well known because people write good reviews.", ans:"TRUE", exp:"\u201Csome of them become famous because the reviews are good\u201D"}
+      ]
+    },
+    {
+      title:"Exercise 2 - Multiple Choice",
+      rubric:"Choose the correct letter, A, B or C.",
+      questions:[
+        {n:"9", type:"choice", opts:[["A","A. the places where people watch films"],["B","B. people's love of stories"],["C","C. the clothes people wear to the cinema"]], text:"What has NOT changed, according to the first paragraph?", ans:"B", exp:"\u201CThe way we watch has changed, but our love of stories has not.\u201D"},
+        {n:"10", type:"choice", opts:[["A","A. They make the film cheaper."],["B","B. They help them practise English."],["C","C. They make the story shorter."]], text:"Why do subtitles help young Vietnamese viewers?", ans:"B", exp:"\u201Cread subtitles while they watch, and this helps them learn English\u201D"},
+        {n:"11", type:"choice", opts:[["A","A. wait for a special time in the week."],["B","B. pay money every month."],["C","C. watch six episodes together."]], text:"In the past, viewers of a popular TV programme had to", ans:"A", exp:"\u201Chad to wait until eight o'clock on Saturday evening\u201D"},
+        {n:"12", type:"choice", opts:[["A","A. Only children like them."],["B","B. They are shown every evening."],["C","C. Adults can enjoy them as well."]], text:"What does the writer say about cartoons?", ans:"C", exp:"\u201CCartoons are made for children, but many adults enjoy them too\u201D"},
+        {n:"13", type:"choice", opts:[["A","A. Because the film is very long."],["B","B. Because the film costs a lot to produce."],["C","C. Because the reviews are usually bad."]], text:"Why do studios need a very big audience for an expensive film?", ans:"B", exp:"\u201Ccan cost more than 200 million dollars to produce. The audience must be huge\u201D"},
+        {n:"14", type:"choice", opts:[["A","A. They have different opinions."],["B","B. They all agree that films will be shorter."],["C","C. They believe people will stop watching films."]], text:"What do experts think about the future of films?", ans:"A", exp:"\u201CSome experts believe... Other experts think...\u201D \u2192 hai luồng ý kiến khác nhau"}
+      ]
+    },
+    {
+      title:"Exercise 3 - Summary Completion (with a word bank)",
+      rubric:"Complete the summary below. Choose ONE WORD OR PHRASE from the box for each answer. There are more words than gaps.",
+      bank:"Word bank: audience · cartoons · directors · episodes · profit · reviews · screen · series · streaming services · subtitles · viewers",
+      questions:[
+        {n:"15", type:"select", opts:BANKOPTS, text:"Modern <b>(15)</b> ______ do not always go to the cinema.", ans:"viewers", exp:""},
+        {n:"16", type:"select", opts:BANKOPTS, text:"Thanks to <b>(16)</b> ______, they can watch films on a phone, on a laptop, or on a big screen at home.", ans:"streaming services", exp:""},
+        {n:"17", type:"select", opts:BANKOPTS, text:"... they can watch films on a phone, on a laptop, or on a big <b>(17)</b> ______ at home.", ans:"screen", exp:""},
+        {n:"18", type:"select", opts:BANKOPTS, text:"In Vietnam, many young people read <b>(18)</b> ______ while they watch a foreign film.", ans:"subtitles", exp:""},
+        {n:"19", type:"select", opts:BANKOPTS, text:"Television is different now, too: a complete <b>(19)</b> ______ can appear on one day, ...", ans:"series", exp:""},
+        {n:"20", type:"select", opts:BANKOPTS, text:"... so people often watch several <b>(20)</b> ______ one after another.", ans:"episodes", exp:""},
+        {n:"21", type:"select", opts:BANKOPTS, text:"Cinemas are still open because <b>(21)</b> ______ make special films with beautiful scenes for the big screen.", ans:"directors", exp:""},
+        {n:"22", type:"select", opts:BANKOPTS, text:"For an expensive film, a studio needs a huge <b>(22)</b> ______, ...", ans:"audience", exp:""},
+        {n:"23", type:"select", opts:BANKOPTS, text:"... but a cheap film can also become famous if the <b>(23)</b> ______ are good.", ans:"reviews", exp:""}
+      ]
+    }
+  ]
+},
+{
+  reading:"READING 2 - Vietnam's Cinema Boom",
+  passageTitle:"Inside the fast-growing world of Vietnamese film",
+  passage:[
+    "<b>A.</b> It is seven o'clock on a Friday evening, and the queue outside a cinema on the fourth floor of a Ho Chi Minh City shopping centre reaches all the way past the coffee shops. Fifteen years ago, a scene like this was unusual. Vietnam had fewer than one hundred modern screens, and most of the tickets sold were for foreign films. Today the country has well over a thousand, and the national box office has grown in almost every year since. During the Tet holiday, a successful Vietnamese comedy can now take more money in two weeks than a Hollywood blockbuster released on the same day.",
+    "<b>B.</b> This is a recent development. For most of the twentieth century, films in Vietnam were made by state-owned studios. Their feature films were often serious works about history and war, made on a very small budget and distributed to a limited number of cinemas. Economic reform changed the picture. From the late 1990s, private production companies began to appear, foreign investors built multiplexes in the big cities, and young film-makers who had studied overseas came home with new ideas.",
+    "<b>C.</b> What do audiences actually want? Ticket data suggests that comedy and horror are the two strongest genres, followed by family drama. Films released at Tet almost always appeal to family groups, so directors avoid difficult subjects at that time of year. Producers also like safe choices: a remake of a successful Korean or Thai film, or a sequel to a story that viewers already know. Critics complain that the plot is often predictable, but the box office keeps rewarding this approach.",
+    "<b>D.</b> Indeed, the distance between critics and ordinary viewers is one of the most interesting features of the industry. A film may receive a poor rating from professional reviewers and still sell hundreds of thousands of tickets, because audiences trust their friends more than they trust newspapers. Social media has made this even clearer: within hours of the first screening, short reviews appear on Facebook and TikTok, and these often decide whether a film survives into its second weekend.",
+    "<b>E.</b> Behind the camera, however, there is a different problem: people. Cameras and editing software can be bought, but experience cannot. Directors frequently say that a good screenwriter is the hardest person to find, and that too many scripts are written in a hurry. Universities in Hanoi and Ho Chi Minh City have opened new courses, and film festivals now include workshops for beginners, but training a whole generation takes time.",
+    "<b>F.</b> Other worries remain. Piracy is the oldest of them: illegal copies of new films still appear online only days after release. Streaming has also changed viewing habits, and some viewers now prefer to wait a few weeks and watch comfortably at home. Budgets are tiny by international standards, too - a large Vietnamese production may cost less than one per cent of a Hollywood blockbuster. Even so, most people in the industry remain optimistic. The audience is young, curious and growing, and, as one producer recently put it, a good story does not need an expensive camera."
+  ],
+  vocab:[
+    {group:"Group 1 - Making & Selling Films", words:[
+      ["box office","/\u02C8b\u0252ks \u02CC\u0252f\u026As/","n.phr.","doanh thu phòng vé"],
+      ["blockbuster","/\u02C8bl\u0252kb\u028Cst\u0259(r)/","n.","phim bom tấn"],
+      ["budget","/\u02C8b\u028Cd\u0292\u026At/","n.","kinh phí, ngân sách"],
+      ["production company","/pr\u0259\u02C8d\u028Ak\u0283n \u02CCk\u028Cmp\u0259ni/","n.phr.","công ty sản xuất phim"],
+      ["release","/r\u026A\u02C8li\u02D0s/","v.","phát hành, công chiếu"],
+      ["distribute","/d\u026A\u02C8str\u026Abju\u02D0t/","v.","phân phối (phim đến rạp)"],
+      ["feature film","/\u02C8fi\u02D0t\u0283\u0259 f\u026Alm/","n.phr.","phim điện ảnh (dài)"],
+      ["screenwriter","/\u02C8skri\u02D0nra\u026At\u0259(r)/","n.","biên kịch"]
+    ]},
+    {group:"Group 2 - Content, Critics & Trends", words:[
+      ["genre","/\u02C8\u0292\u0252nr\u0259/","n.","thể loại phim"],
+      ["plot","/pl\u0252t/","n.","cốt truyện"],
+      ["remake","/\u02C8ri\u02D0me\u026Ak/","n.","phim làm lại"],
+      ["sequel","/\u02C8si\u02D0kw\u0259l/","n.","phần tiếp theo"],
+      ["critic","/\u02C8kr\u026At\u026Ak/","n.","nhà phê bình"],
+      ["rating","/\u02C8re\u026At\u026A\u014B/","n.","điểm đánh giá"],
+      ["appeal to","/\u0259\u02C8pi\u02D0l tu\u02D0/","phr.v.","hấp dẫn, thu hút (ai)"],
+      ["piracy","/\u02C8pa\u026Ar\u0259si/","n.","nạn vi phạm bản quyền"]
+    ]}
+  ],
+  exercises:[
+    {
+      title:"Exercise 1 - Matching Headings",
+      rubric:"The passage has six paragraphs, A-F. Choose the correct heading for each paragraph from the list of headings below. Write the correct number, i-ix, next to each paragraph. There are more headings than paragraphs.",
+      listTitle:"List of Headings",
+      list:HEADINGS,
+      questions:[
+        {n:"1", type:"select", opts:HEADINGS, text:"Paragraph <b>A</b>", ans:"iii", exp:"\u201Cfewer than one hundred modern screens... today well over a thousand\u201D; \u201Cthe national box office has grown in almost every year\u201D"},
+        {n:"2", type:"select", opts:HEADINGS, text:"Paragraph <b>B</b>", ans:"i", exp:"\u201Cfilms were made by state-owned studios\u201D \u2192 \u201Cprivate production companies began to appear\u201D"},
+        {n:"3", type:"select", opts:HEADINGS, text:"Paragraph <b>C</b>", ans:"vi", exp:"\u201CTicket data suggests that comedy and horror are the two strongest genres\u201D"},
+        {n:"4", type:"select", opts:HEADINGS, text:"Paragraph <b>D</b>", ans:"viii", exp:"\u201Cthe distance between critics and ordinary viewers\u201D"},
+        {n:"5", type:"select", opts:HEADINGS, text:"Paragraph <b>E</b>", ans:"iv", exp:"\u201CUniversities... have opened new courses... workshops for beginners\u201D"},
+        {n:"6", type:"select", opts:HEADINGS, text:"Paragraph <b>F</b>", ans:"vii", exp:"\u201COther worries remain\u201D: piracy, streaming, small budgets"}
+      ]
+    },
+    {
+      title:"Exercise 2 - Sentence Completion",
+      rubric:"Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      questions:[
+        {n:"7", type:"text", text:"Fifteen years ago, most cinema tickets sold in Vietnam were for ______.", ans:"foreign films", alt:["foreign film"], exp:"\u201Cmost of the tickets sold were for foreign films\u201D (đoạn A)"},
+        {n:"8", type:"text", text:"Films made by state-owned studios were often about history and ______.", ans:"war", alt:[], exp:"\u201Cserious works about history and war\u201D (đoạn B)"},
+        {n:"9", type:"text", text:"From the late 1990s, foreign investors built ______ in the largest cities.", ans:"multiplexes", alt:["multiplex"], exp:"\u201Cforeign investors built multiplexes in the big cities\u201D (đoạn B)"},
+        {n:"10", type:"text", text:"According to ticket data, the two strongest genres are comedy and ______.", ans:"horror", alt:["horror films","horror movies"], exp:"\u201Ccomedy and horror are the two strongest genres\u201D (đoạn C)"},
+        {n:"11", type:"text", text:"To make a safe choice, producers may film a ______ of a Korean or Thai success.", ans:"remake", alt:[], exp:"\u201Ca remake of a successful Korean or Thai film\u201D (đoạn C)"},
+        {n:"12", type:"text", text:"Directors say the hardest person to find for a project is a good ______.", ans:"screenwriter", alt:["screen writer","screenwriters"], exp:"\u201Ca good screenwriter is the hardest person to find\u201D (đoạn E)"},
+        {n:"13", type:"text", text:"The industry's oldest problem is ______, because illegal copies appear very quickly.", ans:"piracy", alt:[], exp:"\u201CPiracy is the oldest of them\u201D (đoạn F)"}
+      ]
+    },
+    {
+      title:"Exercise 3 - Matching Sentence Endings",
+      rubric:"Complete each sentence with the correct ending, A-I, below. Write the correct letter in each space.",
+      listTitle:"Endings",
+      list:ENDINGS,
+      questions:[
+        {n:"14", type:"select", opts:ENDINGS, text:"When they make films for the Tet holiday, directors ______", ans:"D", exp:"\u201Cdirectors avoid difficult subjects at that time of year\u201D \u2192 stay away from difficult subjects"},
+        {n:"15", type:"select", opts:ENDINGS, text:"The feature films of the old state studios ______", ans:"B", exp:"\u201Cdistributed to a limited number of cinemas\u201D \u2192 reached only a small number of cinemas"},
+        {n:"16", type:"select", opts:ENDINGS, text:"Ordinary Vietnamese viewers often ______", ans:"E", exp:"\u201Caudiences trust their friends more than they trust newspapers\u201D"},
+        {n:"17", type:"select", opts:ENDINGS, text:"Short reviews posted on social media ______", ans:"C", exp:"\u201Cthese often decide whether a film survives into its second weekend\u201D"},
+        {n:"18", type:"select", opts:ENDINGS, text:"New university courses and festival workshops ______", ans:"F", exp:"\u201Cnew courses... workshops for beginners\u201D \u2192 train new film-makers"},
+        {n:"19", type:"select", opts:ENDINGS, text:"In comparison with Hollywood films, Vietnamese productions ______", ans:"A", exp:"\u201CBudgets are tiny by international standards... less than one per cent\u201D"}
+      ]
+    }
+  ]
+},
+{
+  reading:"READING 3 - The Science of the Never-Ending Episode",
+  passageTitle:"What researchers are learning about streaming, attention and the modern viewer",
+  passage:[
+    "<b>A.</b> For most of television's history, the medium imposed its own rhythm on the audience. A programme was broadcast at a fixed hour, viewers arranged their evening around it, and when the episode ended they had no choice but to wait a week for the next one. The arrival of on-demand platforms dismantled that structure almost overnight. Entire seasons are now uploaded at once, the next episode begins automatically after a countdown of a few seconds, and the decision to stop watching has been quietly transferred from the broadcaster to the individual. This shift has attracted a great deal of academic attention, and a small but rapidly expanding body of research now examines what continuous viewing does to attention, sleep and social behaviour.",
+    "<b>B.</b> One of the most cited explanations comes from Dr Elena Marchetti, a media psychologist based in Milan. Her work centres on <i>narrative transportation</i> - the sensation of being so absorbed in a story that awareness of the surrounding environment fades. In a series of laboratory studies, Marchetti found that participants who reported high levels of immersion consistently underestimated how long they had been watching, sometimes by more than an hour. She argues that binge-watching is therefore not primarily a failure of willpower but a predictable consequence of well-constructed storytelling: the more skilfully a plot withholds resolution, the harder it becomes for a viewer to disengage. Cliffhangers, in her phrase, are not a marketing trick added to a drama but part of its architecture.",
+    "<b>C.</b> A rather different emphasis appears in the work of Professor Tan Wei-Lin at a university in Singapore. Tan is less interested in the content itself than in the systems that deliver it. Recommendation algorithms, he points out, are optimised for a single measurable outcome - time spent on the platform - and they achieve this by learning which titles a particular subscriber is unlikely to refuse. Tan's concern is that the resulting catalogue feels personal while steadily narrowing what a viewer encounters. In a large survey of subscribers across four countries, he reported that most participants believed they were choosing freely, yet a majority of the programmes they actually watched had been suggested to them. He describes this gap between perceived and actual autonomy as the central puzzle of contemporary viewing.",
+    "<b>D.</b> Research conducted in Vietnam has taken a more practical direction. Dr Hoang Minh Duc, who surveyed over two thousand university students in Hanoi and Da Nang, documented both benefits and costs. On the positive side, the overwhelming majority of respondents watched foreign programmes with English subtitles, and those who did so daily performed measurably better on vocabulary tests than classmates who watched dubbed versions. On the negative side, nearly a third of the sample regularly continued watching past one in the morning, and this group reported significantly lower concentration in morning lectures. Hoang is careful to frame these as findings rather than warnings; his recommendation is not that students should watch less, but that they should decide in advance when to stop.",
+    "<b>E.</b> Not everyone is persuaded that the phenomenon is new or dangerous. Professor Rebecca Nolan, a sociologist at a Scottish university, has been an outspoken critic of what she calls a moral panic dressed as science. Much of the existing evidence, she notes, is drawn from self-reported questionnaires completed by volunteers who already consider their own viewing excessive - a design almost guaranteed to produce alarming numbers. Nolan also questions the direction of the relationship: it is entirely plausible, she suggests, that people who are lonely or anxious watch more television, rather than television making them lonely or anxious. Until longitudinal studies follow the same individuals over several years, she maintains, any claim about cause must remain provisional.",
+    "<b>F.</b> These positions are less contradictory than they first appear. Marchetti explains why stopping is difficult, Tan explains why the next title is always waiting, Hoang measures the everyday consequences, and Nolan reminds the field how little has been proved. What unites them is a shift in the underlying question. Researchers no longer ask whether television is good or bad for us; they ask under what conditions an activity that most people enjoy becomes one they cannot easily control - and that is a considerably harder question to answer."
+  ],
+  vocab:[
+    {group:"Group 1 - Research & Argument", words:[
+      ["longitudinal","/\u02CCl\u0252\u014B\u0261\u026A\u02C8tju\u02D0d\u026Anl/","adj.","(nghiên cứu) theo chiều dài thời gian"],
+      ["self-reported","/\u02CCself r\u026A\u02C8p\u0254\u02D0t\u026Ad/","adj.","do người tham gia tự khai báo"],
+      ["respondent","/r\u026A\u02C8sp\u0252nd\u0259nt/","n.","người trả lời khảo sát"],
+      ["provisional","/pr\u0259\u02C8v\u026A\u0292\u0259nl/","adj.","tạm thời, chưa chắc chắn"],
+      ["plausible","/\u02C8pl\u0254\u02D0z\u0259bl/","adj.","hợp lý, có thể tin được"],
+      ["document","/\u02C8d\u0252kjument/","v.","ghi nhận, chứng minh bằng dữ liệu"],
+      ["framework","/\u02C8fre\u026Amw\u025C\u02D0k/","n.","khung lý thuyết"],
+      ["disengage","/\u02CCd\u026As\u026An\u02C8\u0261e\u026Ad\u0292/","v.","rời ra, thoát khỏi (sự cuốn hút)"]
+    ]},
+    {group:"Group 2 - Streaming & Viewing Behaviour", words:[
+      ["on-demand","/\u02CC\u0252n d\u026A\u02C8m\u0251\u02D0nd/","adj.","theo yêu cầu, xem lúc nào cũng được"],
+      ["algorithm","/\u02C8\u00E6l\u0261\u0259r\u026A\u00F0\u0259m/","n.","thuật toán"],
+      ["subscriber","/s\u0259b\u02C8skra\u026Ab\u0259(r)/","n.","người đăng ký thuê bao"],
+      ["catalogue","/\u02C8k\u00E6t\u0259l\u0252\u0261/","n.","kho nội dung, danh mục phim"],
+      ["immersion","/\u026A\u02C8m\u025C\u02D0\u0283n/","n.","sự đắm chìm (vào câu chuyện)"],
+      ["cliffhanger","/\u02C8kl\u026Afh\u00E6\u014B\u0259(r)/","n.","kết mở gây hồi hộp cuối tập"],
+      ["dubbed","/d\u028Cbd/","adj.","được lồng tiếng"],
+      ["autonomy","/\u0254\u02D0\u02C8t\u0252n\u0259mi/","n.","quyền tự quyết"]
+    ]}
+  ],
+  exercises:[
+    {
+      title:"Exercise 1 - Matching Features (Researchers)",
+      rubric:"Look at the following statements (Questions 1-7) and the list of researchers below. Match each statement with the correct researcher, A-D. NB You may use any letter more than once.",
+      listTitle:"List of Researchers",
+      list:RESEARCHERS,
+      questions:[
+        {n:"1", type:"select", opts:RESEARCHERS, text:"Viewers frequently misjudge the amount of time they have spent watching.", ans:"A", exp:"\u201Cparticipants... underestimated how long they had been watching, sometimes by more than an hour\u201D (B)"},
+        {n:"2", type:"select", opts:RESEARCHERS, text:"The people who take part in these studies are not representative of ordinary viewers.", ans:"D", exp:"\u201Cself-reported questionnaires completed by volunteers who already consider their own viewing excessive\u201D (E)"},
+        {n:"3", type:"select", opts:RESEARCHERS, text:"A platform's suggestions may reduce the variety of programmes a person sees.", ans:"B", exp:"\u201Cthe resulting catalogue feels personal while steadily narrowing what a viewer encounters\u201D (C)"},
+        {n:"4", type:"select", opts:RESEARCHERS, text:"Watching with subtitles is linked to stronger language performance.", ans:"C", exp:"\u201Cthose who did so daily performed measurably better on vocabulary tests\u201D (D)"},
+        {n:"5", type:"select", opts:RESEARCHERS, text:"The cause and the effect may in fact operate in the opposite direction.", ans:"D", exp:"\u201Cpeople who are lonely or anxious watch more television, rather than television making them lonely\u201D (E)"},
+        {n:"6", type:"select", opts:RESEARCHERS, text:"Difficulty in stopping is built into the way stories are written.", ans:"A", exp:"\u201CCliffhangers... are part of its architecture\u201D / \u201Ca predictable consequence of well-constructed storytelling\u201D (B)"},
+        {n:"7", type:"select", opts:RESEARCHERS, text:"Viewers should set a limit before they begin watching.", ans:"C", exp:"\u201Cthey should decide in advance when to stop\u201D (D)"}
+      ]
+    },
+    {
+      title:"Exercise 2 - Yes / No / Not Given",
+      rubric:"Do the following statements agree with the claims of the writer in the passage? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, or NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      questions:[
+        {n:"8", type:"choice", row:true, opts:YN, text:"Traditional broadcast television gave viewers little control over when they watched a programme.", ans:"YES", exp:"\u201Cbroadcast at a fixed hour... they had no choice but to wait a week\u201D (A)"},
+        {n:"9", type:"choice", row:true, opts:YN, text:"Academic interest in continuous viewing has grown quickly in recent years.", ans:"YES", exp:"\u201Ca small but rapidly expanding body of research\u201D (A)"},
+        {n:"10", type:"choice", row:true, opts:YN, text:"Marchetti believes that binge-watching is mainly caused by weak self-control.", ans:"NO", exp:"\u201Cnot primarily a failure of willpower but a predictable consequence of... storytelling\u201D (B)"},
+        {n:"11", type:"choice", row:true, opts:YN, text:"Tan's survey participants were generally aware of how strongly recommendations shaped their choices.", ans:"NO", exp:"\u201Cmost participants believed they were choosing freely, yet a majority... had been suggested to them\u201D (C)"},
+        {n:"12", type:"choice", row:true, opts:YN, text:"Hoang presents his results as a warning to students about the dangers of streaming.", ans:"NO", exp:"\u201CHoang is careful to frame these as findings rather than warnings\u201D (D)"},
+        {n:"13", type:"choice", row:true, opts:YN, text:"Streaming platforms in Vietnam are cheaper than those in Singapore.", ans:"NOT GIVEN", exp:"Bài không đề cập giá dịch vụ ở bất kỳ quốc gia nào"},
+        {n:"14", type:"choice", row:true, opts:YN, text:"The four researchers' positions are more compatible than they initially seem.", ans:"YES", exp:"\u201CThese positions are less contradictory than they first appear\u201D (F)"}
+      ]
+    },
+    {
+      title:"Exercise 3 - Short-answer Questions",
+      rubric:"Answer the questions below. Choose NO MORE THAN THREE WORDS from the passage for each answer.",
+      questions:[
+        {n:"15", type:"text", text:"What term does Marchetti use for the feeling of being completely absorbed in a story?", ans:"narrative transportation", alt:[], exp:""},
+        {n:"16", type:"text", text:"According to Tan, what single outcome are recommendation algorithms designed to maximise?", ans:"time spent", alt:["time spent on the platform","time on the platform","time spent on platform"], exp:"Đáp án chấp nhận thêm: time spent (on the platform)"},
+        {n:"17", type:"text", text:"How does Tan describe the difference between the freedom viewers feel and the freedom they have?", ans:"(the) central puzzle", alt:["central puzzle","the central puzzle"], exp:""},
+        {n:"18", type:"text", text:"In Hoang's study, which students scored higher on vocabulary tests than those watching dubbed programmes?", ans:"(with) English subtitles", alt:["english subtitles","with english subtitles","those watching subtitles","students with english subtitles"], exp:"Đáp án chấp nhận thêm: those watching subtitles"},
+        {n:"19", type:"text", text:"What did roughly one third of Hoang's respondents report about their concentration in the morning?", ans:"(significantly) lower concentration", alt:["lower concentration","significantly lower concentration"], exp:"Đáp án chấp nhận thêm: lower concentration"},
+        {n:"20", type:"text", text:"What phrase does Nolan use to describe the current concern about binge-watching?", ans:"(a) moral panic", alt:["moral panic","a moral panic"], exp:""},
+        {n:"21", type:"text", text:"What kind of research does Nolan say is needed before causes can be established?", ans:"longitudinal studies", alt:["longitudinal research","longitudinal study","longitudinal studies research"], exp:"Đáp án chấp nhận thêm: longitudinal research"}
+      ]
+    }
+  ]
+}
+];
+
+/* ====================== DỰNG GIAO DIỆN ====================== */
+
+var ALL = [];
+DATA.forEach(function(sec, si){
+  sec.exercises.forEach(function(ex, ei){
+    ex.questions.forEach(function(q, qi){
+      q.key = "s"+si+"e"+ei+"q"+qi;
+      ALL.push(q);
+    });
+  });
+});
+var TOTAL = ALL.length;
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function buildList(title, rows){
+  var c1 = (rows===HEADINGS) ? "No." : "Letter";
+  var c2 = (rows===HEADINGS) ? "Heading" : (rows===ENDINGS ? "Ending" : "Researcher");
+  var h = '<table class="bank"><tr><th style="width:70px">'+c1+'</th><th>'+c2+'</th></tr>';
+  rows.forEach(function(r){
+    var label = r[1].indexOf(" - ")>-1 ? r[1].slice(r[1].indexOf(" - ")+3) : r[1];
+    h += "<tr><td><b>"+esc(r[0])+"</b></td><td>"+esc(label)+"</td></tr>";
+  });
+  return "<div class='ptitle'>"+esc(title)+"</div>"+h+"</table>";
+}
+
+var html = "";
+DATA.forEach(function(sec){
+  html += "<h2>"+esc(sec.reading)+"</h2>";
+  html += "<details class='passage' open><summary>📖 Reading Passage - "+esc(sec.passageTitle)+"</summary>";
+  sec.passage.forEach(function(p){ html += "<p>"+p+"</p>"; });
+  html += "</details>";
+
+  if(sec.vocab){
+    html += "<details class='passage'><summary>📚 Key Vocabulary ("+sec.vocab.reduce(function(a,g){return a+g.words.length;},0)+" từ)</summary>";
+    sec.vocab.forEach(function(g){
+      html += "<div class='ptitle'>"+esc(g.group)+"</div>";
+      html += "<table class='bank vocab'><tr><th>Word</th><th>IPA</th><th>Type</th><th>Vietnamese</th></tr>";
+      g.words.forEach(function(w){
+        html += "<tr><td><b>"+esc(w[0])+"</b></td><td class='ipa'>"+esc(w[1])+"</td><td>"+esc(w[2])+"</td><td>"+esc(w[3])+"</td></tr>";
+      });
+      html += "</table>";
+    });
+    html += "</details>";
+  }
+
+  sec.exercises.forEach(function(ex){
+    html += "<h3>✏️ "+esc(ex.title)+"</h3>";
+    html += "<p class='rubric'>"+esc(ex.rubric)+"</p>";
+    if(ex.bank){ html += "<div class='wordbank'>"+esc(ex.bank)+"</div>"; }
+    if(ex.list){ html += buildList(ex.listTitle, ex.list); }
+
+    ex.questions.forEach(function(q){
+      html += "<div class='q' id='q_"+q.key+"'>";
+      html += "<p class='qtext'><span class='qnum'>"+esc(q.n)+".</span>"+q.text+"</p>";
+      if(q.type==="choice"){
+        html += "<div class='opts"+(q.row?" row":"")+"'>";
+        q.opts.forEach(function(o,i){
+          var val = (typeof o === "string") ? o : o[0];
+          var lab = (typeof o === "string") ? o : o[1];
+          var id = q.key+"_"+i;
+          html += "<label class='opt' for='"+id+"'><input type='radio' id='"+id+"' name='"+q.key+"' value='"+esc(val)+"'><span>"+esc(lab)+"</span></label>";
+        });
+        html += "</div>";
+      } else if(q.type==="select"){
+        html += "<select name='"+q.key+"'><option value=''>-- Chọn đáp án --</option>";
+        q.opts.forEach(function(o){
+          html += "<option value='"+esc(o[0])+"'>"+esc(o[1])+"</option>";
+        });
+        html += "</select>";
+      } else {
+        html += "<input type='text' name='"+q.key+"' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Học sinh nhập câu trả lời'>";
+      }
+      html += "<div class='fb' style='display:none'></div>";
+      html += "</div>";
+    });
+  });
+});
+document.getElementById("quiz").innerHTML = html;
+
+/* ====================== CHẤM BÀI ====================== */
+
+var CONTR = [
+  ["it's","it is"],["that's","that is"],["there's","there is"],["he's","he is"],["she's","she is"],
+  ["i'm","i am"],["they're","they are"],["we're","we are"],["you're","you are"],
+  ["isn't","is not"],["aren't","are not"],["wasn't","was not"],["weren't","were not"],
+  ["don't","do not"],["doesn't","does not"],["didn't","did not"],
+  ["can't","cannot"],["cannot","can not"],["won't","will not"],
+  ["hasn't","has not"],["haven't","have not"],["hadn't","had not"],
+  ["couldn't","could not"],["wouldn't","would not"],["shouldn't","should not"],
+  ["i've","i have"],["you've","you have"],["they've","they have"],["we've","we have"],
+  ["i'll","i will"],["it'll","it will"],["they'll","they will"]
+];
+
+function canon(s){
+  s = String(s||"").toLowerCase();
+  s = s.replace(/[\u2018\u2019\u02BC\u00B4`]/g,"'").replace(/[\u201C\u201D]/g,'"');
+  CONTR.forEach(function(p){
+    s = s.replace(new RegExp("\\b"+p[0].replace("'","'")+"\\b","g"), p[1]);
+  });
+  s = s.replace(/[.,;:!?"()\[\]{}\u2013\u2014\-\/\\'*]/g," ");
+  s = s.replace(/\s+/g," ").trim();
+  s = s.replace(/\bwhether\b/g,"if");
+  s = s.replace(/^that\s+/,"");
+  s = s.replace(/^(a|an|the)\s+/,"");
+  s = s.replace(/\s+(a|an|the)\s+/g," ");
+  return s;
+}
+
+function acceptedList(q){
+  var base = String(q.ans);
+  var out = [];
+  // "(the) central puzzle" -> "the central puzzle" + "central puzzle"
+  if(base.indexOf("(")>-1){
+    out.push(base.replace(/[()]/g,""));
+    out.push(base.replace(/\([^)]*\)/g,""));
+  } else {
+    out.push(base);
+  }
+  (q.alt||[]).forEach(function(a){out.push(a);});
+  return out.map(canon).filter(function(v,i,arr){return v && arr.indexOf(v)===i;});
+}
+
+function getVal(q){
+  if(q.type==="choice"){
+    var el = document.querySelector("input[name='"+q.key+"']:checked");
+    return el ? el.value : "";
+  }
+  var node = document.querySelector("[name='"+q.key+"']");
+  return node ? node.value.trim() : "";
+}
+
+function isCorrect(q){
+  var v = getVal(q);
+  if(!v) return false;
+  if(q.type==="text"){
+    var c = canon(v);
+    return acceptedList(q).indexOf(c) > -1;
+  }
+  return v === q.ans;
+}
+
+var submitted = false;
+
+function updateProgress(){
+  var done = 0;
+  ALL.forEach(function(q){ if(getVal(q)) done++; });
+  document.getElementById("progText").textContent = "Đã làm "+done+"/"+TOTAL+" câu";
+  var ready = (done === TOTAL) && !submitted;
+  document.getElementById("submitTop").disabled = !ready;
+  document.getElementById("submitBottom").disabled = !ready;
+  var hint = document.getElementById("progHint");
+  if(submitted){
+    hint.textContent = "Học sinh đã nộp bài. Bấm Làm lại để làm lại từ đầu.";
+  } else if(done === TOTAL){
+    hint.textContent = "Học sinh đã làm đủ tất cả các câu, có thể nộp bài.";
+  } else {
+    hint.textContent = "Học sinh cần làm hết tất cả các câu thì mới nộp bài được. Còn "+(TOTAL-done)+" câu.";
+  }
+}
+
+function onEdit(e){
+  if(submitted) return;
+  if(e.target && e.target.type === "radio"){
+    var box = e.target.closest(".opts");
+    if(box){ box.querySelectorAll(".opt").forEach(function(l){ l.classList.remove("sel"); }); }
+    var opt = e.target.closest(".opt");
+    if(opt) opt.classList.add("sel");
+  }
+  updateProgress();
+}
+document.getElementById("quiz").addEventListener("input", onEdit);
+document.getElementById("quiz").addEventListener("change", onEdit);
+
+function displayAnswer(q){
+  if(q.type==="choice" || q.type==="select"){
+    if(q.opts && typeof q.opts[0] !== "string"){
+      for(var i=0;i<q.opts.length;i++){ if(q.opts[i][0]===q.ans) return q.opts[i][1]; }
+    }
+    return q.ans;
+  }
+  return q.ans;
+}
+
+function grade(){
+  if(submitted) return;
+  submitted = true;
+  var correct = 0;
+
+  ALL.forEach(function(q){
+    var ok = isCorrect(q);
+    if(ok) correct++;
+    var wrap = document.getElementById("q_"+q.key);
+    wrap.querySelectorAll("input, select").forEach(function(el){ el.disabled = true; });
+    var fb = wrap.querySelector(".fb");
+    var h = "<span class='verdict'>"+(ok?"✓ Đúng":"✗ Sai")+"</span>";
+    h += "<div><b>Đáp án:</b> "+esc(displayAnswer(q))+"</div>";
+    if(q.type==="text"){
+      var acc = acceptedList(q);
+      h += "<div><b>Các cách viết được chấp nhận:</b> "+esc(acc.join(" / "))+"</div>";
+    }
+    if(q.exp){ h += "<div><b>Giải thích:</b> "+esc(q.exp)+"</div>"; }
+    fb.className = "fb " + (ok?"ok":"no");
+    fb.innerHTML = h;
+    fb.style.display = "block";
+  });
+
+  var score = Math.round((correct/TOTAL)*10*10)/10;
+  document.getElementById("scoreLine").textContent = score.toFixed(1) + " / 10";
+  document.getElementById("detailLine").textContent = "Học sinh làm đúng " + correct + "/" + TOTAL + " câu.";
+  document.getElementById("result").style.display = "block";
+  updateProgress();
+  document.getElementById("result").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function reset(){
+  submitted = false;
+  ALL.forEach(function(q){
+    var wrap = document.getElementById("q_"+q.key);
+    wrap.querySelectorAll("input, select").forEach(function(el){
+      el.disabled = false;
+      if(el.type==="radio") el.checked = false;
+      else el.value = "";
+    });
+    wrap.querySelectorAll(".opt").forEach(function(l){l.classList.remove("sel");});
+    var fb = wrap.querySelector(".fb");
+    fb.style.display = "none"; fb.innerHTML = ""; fb.className = "fb";
+  });
+  document.getElementById("result").style.display = "none";
+  updateProgress();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.getElementById("submitTop").addEventListener("click", grade);
+document.getElementById("submitBottom").addEventListener("click", grade);
+document.getElementById("resetBtn").addEventListener("click", reset);
+
+updateProgress();
+</script>
+</body>
+</html>
