@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 26 - Vocabulary: Bài tập tương tác</title>
+<style>
+:root{
+  --line:#c9c9c9;
+  --line2:#e4e4e4;
+  --ink:#1a1a1a;
+  --muted:#5a5a5a;
+  --ok:#1a7f37;
+  --no:#b42318;
+  --bg:#ffffff;
+  --soft:#f6f6f6;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+  font-size:17px;
+  line-height:1.6;
+}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 24px;}
+h1{font-size:1.35rem;margin:0 0 6px;}
+h2{font-size:1.15rem;margin:32px 0 8px;padding-top:16px;border-top:2px solid var(--ink);}
+h3{font-size:1.02rem;margin:22px 0 6px;}
+h4{font-size:0.98rem;margin:16px 0 6px;}
+p{margin:0 0 10px;}
+.sub{color:var(--muted);font-size:0.92rem;margin:0 0 14px;}
+.note{background:var(--soft);border:1px solid var(--line2);padding:10px 12px;border-radius:6px;font-size:0.94rem;}
+.passage p{margin:0 0 12px;text-align:left;}
+details{border:1px solid var(--line2);border-radius:6px;padding:8px 12px;margin:10px 0 16px;background:var(--soft);}
+summary{cursor:pointer;font-weight:600;font-size:0.95rem;}
+.voc{width:100%;border-collapse:collapse;font-size:0.92rem;margin:8px 0;}
+.voc th,.voc td{border:1px solid var(--line2);padding:5px 7px;text-align:left;vertical-align:top;}
+.voc th{background:#efefef;}
+.instr{font-size:0.96rem;margin:0 0 10px;}
+.reflist{border:1px solid var(--line2);border-radius:6px;padding:8px 12px;margin:0 0 14px;font-size:0.94rem;background:var(--soft);}
+.reflist div{margin:3px 0;}
+.q{border-top:1px solid var(--line2);padding:12px 0;}
+.q:first-of-type{border-top:0;}
+.qhead{display:flex;gap:8px;align-items:flex-start;}
+.qnum{min-width:26px;font-weight:700;}
+.qtext{flex:1;}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 0 34px;}
+.chip{
+  font:inherit;font-size:0.95rem;
+  min-height:44px;padding:8px 14px;
+  border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);
+  cursor:pointer;
+}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.mcq{display:flex;flex-direction:column;gap:8px;margin:9px 0 0 34px;}
+.mcq .chip{text-align:left;width:100%;}
+.ansline{margin:9px 0 0 34px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+input[type="text"],select{
+  font:inherit;font-size:16px;
+  min-height:44px;padding:8px 10px;
+  border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);
+  max-width:100%;
+}
+input[type="text"]{width:230px;}
+select{width:100%;max-width:460px;}
+input:disabled,select:disabled,.chip:disabled{opacity:1;background:#f0f0f0;color:var(--ink);cursor:default;}
+.chip:disabled[aria-pressed="true"]{background:#555;color:#fff;border-color:#555;}
+.sum{line-height:2.4;}
+.sum input[type="text"]{width:170px;}
+.fb{margin:10px 0 0 34px;border-left:4px solid var(--line);padding:8px 12px;background:var(--soft);font-size:0.94rem;border-radius:0 6px 6px 0;}
+.fb.good{border-left-color:var(--ok);}
+.fb.bad{border-left-color:var(--no);}
+.fb .verdict{font-weight:700;}
+.fb.good .verdict{color:var(--ok);}
+.fb.bad .verdict{color:var(--no);}
+.fb .row{margin-top:4px;}
+.fblist{margin:14px 0 0;}
+.fblist .fb{margin-left:0;}
+.bar{
+  position:sticky;bottom:0;z-index:20;
+  background:#fff;border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+}
+.bar.hidden{display:flex;}
+.progress{font-size:0.95rem;}
+.btns{display:flex;gap:10px;}
+button.main{
+  font:inherit;font-weight:600;font-size:1rem;
+  min-height:48px;padding:10px 20px;border-radius:6px;
+  border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;
+}
+button.main:disabled{background:#d5d5d5;border-color:#c0c0c0;color:#787878;cursor:not-allowed;}
+button.ghost{
+  font:inherit;font-size:1rem;
+  min-height:48px;padding:10px 18px;border-radius:6px;
+  border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;
+}
+#result{border:2px solid var(--ink);border-radius:6px;padding:12px 14px;margin:16px 0;display:none;}
+#result h3{margin:0 0 6px;font-size:1.1rem;}
+#result .score{font-size:1.6rem;font-weight:700;}
+em{font-style:italic;}
+@media (max-width:900px){
+  .bar.hidden{display:none;}
+}
+@media (max-width:560px){
+  body{font-size:16px;}
+  .wrap{padding:12px 12px 20px;}
+  .opts,.mcq,.ansline,.fb{margin-left:0;}
+  input[type="text"]{width:100%;}
+  .sum input[type="text"]{width:140px;}
+  .chip{width:100%;text-align:left;}
+  .opts .chip{width:auto;flex:1 1 30%;text-align:center;}
+  .bar{padding-left:12px;padding-right:12px;}
+  .btns{width:100%;}
+  .btns button{flex:1;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Unit 26 - Vocabulary: City &amp; Countryside</h1>
+  <p class="sub">Bài tập đọc hiểu tương tác - 3 bài đọc, 9 phần bài tập, <strong>tổng cộng <span class="totalCount">64</span> câu</strong>.</p>
+  <p class="note">Học sinh đọc kỹ từng bài đọc rồi trả lời tất cả các câu hỏi bên dưới. Học sinh phải làm hết <span class="totalCount">64</span> câu thì nút <strong>Nộp bài</strong> mới hoạt động. Sau khi nộp, học sinh sẽ thấy điểm, đáp án đúng và giải thích cho từng câu.</p>
+
+  <div id="app"></div>
+
+  <div id="result" aria-live="polite"></div>
+
+  <div class="bar" id="bar">
+    <span class="progress" id="progress">Đã làm 0/64 câu</span>
+    <span class="btns">
+      <button class="ghost" id="resetBtn" type="button">Làm lại</button>
+      <button class="main" id="submitBtn" type="button" disabled>Nộp bài</button>
+    </span>
+  </div>
+</div>
+
+<script>
+const DATA = [
+{
+  title: "READING 1 - City Lights or Village Life?",
+  passage: [
+    `Every year, thousands of young people in Vietnam leave their villages and move to the big cities. Most of them go to Hanoi or Ho Chi Minh City. They want to study at university or to find a good job. But is life in the city really better than life in the countryside? We spoke to two people with very different answers.`,
+    `Minh is 24 years old. He grew up in a small village, but now he works for a computer company in Hanoi. "The city is very <b>convenient</b>," he says. "There are shops, cinemas and hospitals near my house. I can buy food at eleven o'clock at night!" Minh also likes his job. He believes that a big city gives young people more <b>opportunity</b>. However, life in Hanoi is not easy. His <b>apartment</b> is small and <b>expensive</b>, and the streets are always <b>crowded</b>. In the morning, the <b>traffic</b> is terrible and the air is full of <b>pollution</b>. "Sometimes the city is too <b>noisy</b>," he says. "I miss the quiet."`,
+    `Lan is 52. She lives in a small <b>village</b> in Bac Ninh province, about 40 kilometres from Hanoi. Her family has <b>grown</b> rice there for many years. Every morning she walks to the field before the sun is hot. "I love the <b>fresh air</b> here," she says. "In the city, people don't know their <b>neighbours</b>. Here, everybody knows everybody." Life in the village is <b>cheaper</b> too. Lan's family grows vegetables in the garden, so they don't buy much food. But she agrees that the countryside has problems. There is only one small school in her village, and the nearest hospital is far away. After the <b>harvest</b>, there is not much work, so many young people leave.`,
+    `Some things are changing. New roads and the internet are making the countryside closer to the city. Lan's son sells the family's vegetables online. He <b>earns</b> more money than before, and he can stay at home with his parents. In some villages, tourists now come at the weekend to walk in the <b>paddy fields</b> and eat local food.`,
+    `Experts say the future is not "city or countryside", but both. Cities will continue to grow, but the countryside does not have to be poor or empty. "Young people should not have to choose between money and family," one researcher said last month. "They should be able to find a good life in both places."`,
+    `So who is right, Minh or Lan? Perhaps the answer is different for every person. But most people agree on one thing: a good life needs work, clean air, and people around you.`
+  ],
+  vocab: [
+    { group: "Group 1 - Life in the city", items: [
+      ["convenient","/kənˈviːniənt/","adj.","tiện lợi, thuận tiện"],
+      ["opportunity","/ˌɒpəˈtjuːnəti/","n.","cơ hội"],
+      ["apartment","/əˈpɑːtmənt/","n.","căn hộ"],
+      ["expensive","/ɪkˈspensɪv/","adj.","đắt đỏ"],
+      ["crowded","/ˈkraʊdɪd/","adj.","đông đúc, chật chội"],
+      ["traffic","/ˈtræfɪk/","n.","giao thông, xe cộ"],
+      ["pollution","/pəˈluːʃn/","n.","ô nhiễm"],
+      ["noisy","/ˈnɔɪzi/","adj.","ồn ào"]
+    ]},
+    { group: "Group 2 - Life in the countryside", items: [
+      ["village","/ˈvɪlɪdʒ/","n.","làng, thôn"],
+      ["fresh air","/ˌfreʃ ˈeə(r)/","n.phr.","không khí trong lành"],
+      ["paddy field","/ˈpædi fiːld/","n.phr.","ruộng lúa"],
+      ["harvest","/ˈhɑːvɪst/","n.","vụ thu hoạch"],
+      ["neighbour","/ˈneɪbə(r)/","n.","hàng xóm"],
+      ["grow","/ɡrəʊ/","v.","trồng (cây), nuôi trồng"],
+      ["cheap","/tʃiːp/","adj.","rẻ"],
+      ["earn","/ɜːn/","v.","kiếm (tiền)"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 - True / False / Not Given",
+      instr: `<b>Do the following statements agree with the information in the passage?</b> Write <b>TRUE</b> if the statement agrees with the information, <b>FALSE</b> if the statement contradicts the information, <b>NOT GIVEN</b> if there is no information on this.`,
+      type: "chips",
+      options: ["TRUE","FALSE","NOT GIVEN"],
+      questions: [
+        { prompt: `Many young Vietnamese people move to the big cities to study or to work.`, answer: "TRUE",
+          explain: `<b>Đoạn 1.</b> Bài viết: thanh niên rời làng lên thành phố <em>"to study at university or to find a good job"</em> → khớp hoàn toàn với câu hỏi.` },
+        { prompt: `Minh was born and grew up in Hanoi.`, answer: "FALSE",
+          explain: `<b>Đoạn 2.</b> Bài viết: <em>"He grew up in a small village, but now he works... in Hanoi."</em> → Minh lớn lên ở làng, không phải sinh ra và lớn lên ở Hà Nội.` },
+        { prompt: `Minh's apartment in Hanoi is bigger than his family's house in the village.`, answer: "NOT GIVEN",
+          explain: `<b>Đoạn 2.</b> Bài chỉ nói căn hộ ở Hà Nội <b>nhỏ và đắt</b>, hoàn toàn không nhắc đến ngôi nhà của gia đình anh ở quê → không có cơ sở so sánh.` },
+        { prompt: `Minh thinks a big city gives young people more chances.`, answer: "TRUE",
+          explain: `<b>Đoạn 2.</b> <em>"a big city gives young people more opportunity"</em> → "chances" = "opportunity" (paraphrase).` },
+        { prompt: `Lan's village is more than 100 kilometres from Hanoi.`, answer: "FALSE",
+          explain: `<b>Đoạn 3.</b> Bài viết: <em>"about 40 kilometres from Hanoi"</em> → mâu thuẫn với "more than 100 kilometres".` },
+        { prompt: `Lan's son studied business at university.`, answer: "NOT GIVEN",
+          explain: `<b>Đoạn 4.</b> Bài chỉ nói con trai Lan bán rau online và kiếm được nhiều tiền hơn; không nhắc gì đến việc học đại học hay ngành học.` },
+        { prompt: `New roads and the internet are changing life in the countryside.`, answer: "TRUE",
+          explain: `<b>Đoạn 4.</b> <em>"New roads and the internet are making the countryside closer to the city."</em>` }
+      ]
+    },
+    {
+      title: "Exercise 2 - Sentence Completion",
+      instr: `<b>Complete the sentences below.</b> Choose <b>NO MORE THAN TWO WORDS</b> from the passage for each answer.`,
+      type: "text",
+      questions: [
+        { prompt: `Minh works for a computer company in ____________.`, answer: "Hanoi",
+          accept: ["hanoi","in hanoi","ha noi","hanoi city"],
+          explain: `<em>"...now he works for a computer company in Hanoi."</em>` },
+        { prompt: `Minh says the city is very ____________ because shops and hospitals are close to his house.`, answer: "convenient",
+          accept: ["convenient","very convenient"],
+          explain: `<em>"The city is very convenient... There are shops, cinemas and hospitals near my house."</em>` },
+        { prompt: `In the morning, the ____________ in Hanoi is terrible.`, answer: "traffic",
+          accept: ["traffic","the traffic"],
+          explain: `<em>"In the morning, the traffic is terrible..."</em>` },
+        { prompt: `Lan walks to the ____________ every morning before the sun is hot.`, answer: "(the) field",
+          accept: ["field","the field","fields","the fields"],
+          explain: `<em>"Every morning she walks to the field before the sun is hot."</em>` },
+        { prompt: `Lan's family has grown ____________ in the village for many years.`, answer: "rice",
+          accept: ["rice","the rice"],
+          explain: `<em>"Her family has grown rice there for many years."</em>` },
+        { prompt: `Lan's son sells the family's vegetables ____________.`, answer: "online",
+          accept: ["online","on line"],
+          explain: `<em>"Lan's son sells the family's vegetables online."</em>` },
+        { prompt: `At the weekend, ____________ come to some villages to walk in the paddy fields.`, answer: "tourists",
+          accept: ["tourists","tourist","the tourists"],
+          explain: `<em>"...tourists now come at the weekend to walk in the paddy fields..."</em>` }
+      ]
+    },
+    {
+      title: "Exercise 3 - Matching Features (People)",
+      instr: `<b>Look at the following statements and the list of people below.</b> Match each statement with the correct person, <b>A</b> or <b>B</b>.`,
+      reflist: `<b>List of people:</b><div><b>A.</b> Minh</div><div><b>B.</b> Lan</div>`,
+      type: "chips",
+      options: ["A","B"],
+      questions: [
+        { prompt: `This person can buy food very late at night.`, answer: "A", ansLabel: "A (Minh)",
+          explain: `<em>"I can buy food at eleven o'clock at night!"</em>` },
+        { prompt: `This person knows all the people who live nearby.`, answer: "B", ansLabel: "B (Lan)",
+          explain: `<em>"Here, everybody knows everybody."</em> + <em>"In the city, people don't know their neighbours."</em>` },
+        { prompt: `This person pays a lot of money for a home.`, answer: "A", ansLabel: "A (Minh)",
+          explain: `<em>"His apartment is small and expensive."</em>` },
+        { prompt: `This person's family produces its own vegetables.`, answer: "B", ansLabel: "B (Lan)",
+          explain: `<em>"Lan's family grows vegetables in the garden."</em>` },
+        { prompt: `This person talks about dirty air in the streets.`, answer: "A", ansLabel: "A (Minh)",
+          explain: `<em>"...the air is full of pollution."</em>` },
+        { prompt: `This person says there is little work at one time of the year.`, answer: "B", ansLabel: "B (Lan)",
+          explain: `<em>"After the harvest, there is not much work."</em>` },
+        { prompt: `This person misses quiet places.`, answer: "A", ansLabel: "A (Minh)",
+          explain: `<em>"Sometimes the city is too noisy... I miss the quiet."</em>` }
+      ]
+    }
+  ]
+},
+{
+  title: "READING 2 - When the Village Follows the City",
+  passage: [
+    `<b>A.</b> Fifty years ago, the great majority of Vietnamese people lived and worked on the land. Today the picture looks very different. Roughly four out of every ten citizens now live in an urban area, and government planners expect that figure to reach almost half of the <b>population</b> before 2030. This process, known as <b>urbanisation</b>, is happening faster in Vietnam than in most of its neighbours. Nowhere is the change more visible than in Hanoi and Ho Chi Minh City, where new apartment towers appear every month and the city limits push further into what were once quiet <b>rural</b> districts.`,
+    `<b>B.</b> Why do so many people move? The main reason is money. A factory worker in an industrial park near Ho Chi Minh City may earn two or three times the <b>income</b> of a farmer in a <b>remote</b> province. Cities also offer better universities, better hospitals and a wider choice of careers. For young people in particular, the decision is often less about ambition than about necessity: when <b>agriculture</b> alone cannot support a family, <b>migration</b> becomes the only realistic option. Most send part of their salary home each month.`,
+    `<b>C.</b> The benefits, however, come at a price. Hanoi's roads were not designed for millions of vehicles, and many workers <b>commute</b> for more than an hour each way. Housing is <b>overcrowded</b>, and the <b>cost of living</b> rises faster than wages. Public <b>infrastructure</b> - water pipes, drainage, schools, buses - struggles to keep pace with the number of new arrivals. Air quality in both major cities regularly falls below the level recommended by the World Health Organization, and flooding after heavy rain has become a familiar complaint.`,
+    `<b>D.</b> Meanwhile, the countryside faces the opposite problem. In some northern and central provinces, entire villages are inhabited mainly by grandparents and small children, because the working generation has left. Fields are sometimes <b>abandoned</b> because nobody remains to plant them, and traditional crafts <b>decline</b> as young people choose factory work instead. Researchers describe this as a loss not only of labour but of local knowledge, which is difficult to recover once a generation has gone.`,
+    `<b>E.</b> Yet the story is not simply one of decline. Better roads, cheap smartphones and reliable internet have begun to reduce the distance between village and city. Farmers in Bac Ninh and Lam Dong now sell fruit, tea and vegetables directly to urban customers online, cutting out the middlemen who once took most of the profit. Rural tourism has grown quickly, and some families have converted their homes into small guesthouses. A number of young migrants have even returned to their home provinces, bringing skills and savings with them, and arguing that a <b>sustainable</b> rural <b>livelihood</b> is once again possible.`,
+    `<b>F.</b> Most experts now agree that the choice should not be presented as "city or countryside". The real question is whether growth can be spread more evenly. Investment in medium-sized provincial cities such as Can Tho, Da Nang and Hai Phong could relieve pressure on the two largest urban centres while creating jobs closer to home. As one urban planner put it recently, a successful country is not one where everybody moves to the capital, but one where nobody feels forced to.`
+  ],
+  vocab: [
+    { group: "Group 1 - Cities and urban growth", items: [
+      ["urbanisation","/ˌɜːbənaɪˈzeɪʃn/","n.","đô thị hoá"],
+      ["population","/ˌpɒpjuˈleɪʃn/","n.","dân số"],
+      ["migration","/maɪˈɡreɪʃn/","n.","sự di cư"],
+      ["commute","/kəˈmjuːt/","v.","đi lại (giữa nhà và nơi làm việc)"],
+      ["overcrowded","/ˌəʊvəˈkraʊdɪd/","adj.","quá đông đúc, chật chội"],
+      ["cost of living","/ˌkɒst əv ˈlɪvɪŋ/","n.phr.","chi phí sinh hoạt"],
+      ["infrastructure","/ˈɪnfrəstrʌktʃə(r)/","n.","cơ sở hạ tầng"]
+    ]},
+    { group: "Group 2 - The countryside and change", items: [
+      ["rural","/ˈrʊərəl/","adj.","thuộc nông thôn"],
+      ["agriculture","/ˈæɡrɪkʌltʃə(r)/","n.","nông nghiệp"],
+      ["income","/ˈɪnkʌm/","n.","thu nhập"],
+      ["remote","/rɪˈməʊt/","adj.","hẻo lánh, xa xôi"],
+      ["abandon","/əˈbændən/","v.","bỏ hoang, từ bỏ"],
+      ["decline","/dɪˈklaɪn/","v. / n.","suy giảm, mai một"],
+      ["livelihood","/ˈlaɪvlihʊd/","n.","kế sinh nhai"],
+      ["sustainable","/səˈsteɪnəbl/","adj.","bền vững"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 - Matching Headings",
+      instr: `<b>The Reading Passage has six paragraphs, A-F.</b> Choose the correct heading for each paragraph from the list of headings below. Write the correct number, <b>i-ix</b>. <b>NB</b> There are <b>more headings than paragraphs</b>, so you will not use them all.`,
+      reflist: `<b>List of Headings</b><div><b>i</b> - Villages left behind</div><div><b>ii</b> - Why people pack their bags</div><div><b>iii</b> - How farmers learned to cook for tourists</div><div><b>iv</b> - A nation on the move</div><div><b>v</b> - The hidden bill for city life</div><div><b>vi</b> - Government plans to close the borders</div><div><b>vii</b> - Signs of a rural revival</div><div><b>viii</b> - Sharing growth more fairly</div><div><b>ix</b> - The end of traditional farming</div>`,
+      type: "select",
+      options: [
+        ["i","i - Villages left behind"],
+        ["ii","ii - Why people pack their bags"],
+        ["iii","iii - How farmers learned to cook for tourists"],
+        ["iv","iv - A nation on the move"],
+        ["v","v - The hidden bill for city life"],
+        ["vi","vi - Government plans to close the borders"],
+        ["vii","vii - Signs of a rural revival"],
+        ["viii","viii - Sharing growth more fairly"],
+        ["ix","ix - The end of traditional farming"]
+      ],
+      questions: [
+        { prompt: `Paragraph <b>A</b>`, answer: "iv", ansLabel: "iv - A nation on the move",
+          explain: `<b>Ý chính của đoạn:</b> Giới thiệu bức tranh tổng thể: dân số Việt Nam đang dịch chuyển từ nông thôn ra thành thị.<br><b>Từ khoá xác nhận:</b> <em>"Fifty years ago... Today the picture looks very different"</em>; <em>"urbanisation... happening faster in Vietnam"</em>` },
+        { prompt: `Paragraph <b>B</b>`, answer: "ii", ansLabel: "ii - Why people pack their bags",
+          explain: `<b>Ý chính của đoạn:</b> Nêu <b>lý do</b> người dân di cư: tiền, trường học, bệnh viện, cơ hội nghề nghiệp.<br><b>Từ khoá xác nhận:</b> <em>"Why do so many people move? The main reason is money."</em>` },
+        { prompt: `Paragraph <b>C</b>`, answer: "v", ansLabel: "v - The hidden bill for city life",
+          explain: `<b>Ý chính của đoạn:</b> <b>Cái giá</b> phải trả khi sống ở thành phố: tắc đường, nhà chật, hạ tầng quá tải, ô nhiễm, ngập lụt.<br><b>Từ khoá xác nhận:</b> <em>"The benefits, however, come at a price."</em>` },
+        { prompt: `Paragraph <b>D</b>`, answer: "i", ansLabel: "i - Villages left behind",
+          explain: `<b>Ý chính của đoạn:</b> Hệ quả ở nông thôn: làng chỉ còn người già và trẻ nhỏ, ruộng bỏ hoang, nghề truyền thống mai một.<br><b>Từ khoá xác nhận:</b> <em>"the countryside faces the opposite problem"</em>` },
+        { prompt: `Paragraph <b>E</b>`, answer: "vii", ansLabel: "vii - Signs of a rural revival",
+          explain: `<b>Ý chính của đoạn:</b> Dấu hiệu hồi sinh: bán hàng online, du lịch nông thôn, người trẻ quay về.<br><b>Từ khoá xác nhận:</b> <em>"Yet the story is not simply one of decline."</em>` },
+        { prompt: `Paragraph <b>F</b>`, answer: "viii", ansLabel: "viii - Sharing growth more fairly",
+          explain: `<b>Ý chính của đoạn:</b> Giải pháp: phân bổ tăng trưởng đều hơn, đầu tư vào các thành phố tỉnh cỡ vừa.<br><b>Từ khoá xác nhận:</b> <em>"whether growth can be spread more evenly"</em>` }
+      ]
+    },
+    {
+      title: "Exercise 2 - Summary Completion (with a word bank)",
+      instr: `<b>Complete the summary below.</b> Choose <b>ONE WORD ONLY</b> from the word bank for each answer. There are <b>more words than spaces</b>.`,
+      reflist: `<b>Word bank:</b> migration · income · sustainable · abandoned · overcrowded · commute · remote · agriculture · infrastructure · decline · rural`,
+      type: "summary",
+      html: `<p>Vietnam is changing quickly. Many people leave the countryside because <b>(1)</b> {{1}} no longer provides enough money for their families, and a factory job in the south can pay several times the <b>(2)</b> {{2}} of a farmer in a <b>(3)</b> {{3}} province. For most young people, <b>(4)</b> {{4}} is therefore a necessity rather than a free choice.</p><p>Life in the city, however, is not always comfortable. Housing is often <b>(5)</b> {{5}}, workers may <b>(6)</b> {{6}} for over an hour in each direction, and public <b>(7)</b> {{7}} cannot be built quickly enough. Back in the villages, some fields are simply <b>(8)</b> {{8}} because nobody is left to work on them. Even so, the internet and rural tourism have convinced some returning migrants that a <b>(9)</b> {{9}} life in the countryside is still possible.</p>`,
+      questions: [
+        { prompt: `Chỗ trống (1)`, answer: "agriculture", accept: ["agriculture"],
+          explain: `<b>Đoạn B:</b> <em>"when agriculture alone cannot support a family"</em>` },
+        { prompt: `Chỗ trống (2)`, answer: "income", accept: ["income","the income"],
+          explain: `<b>Đoạn B:</b> <em>"may earn two or three times the income of a farmer"</em>` },
+        { prompt: `Chỗ trống (3)`, answer: "remote", accept: ["remote","a remote"],
+          explain: `<b>Đoạn B:</b> <em>"a farmer in a remote province"</em>` },
+        { prompt: `Chỗ trống (4)`, answer: "migration", accept: ["migration"],
+          explain: `<b>Đoạn B:</b> <em>"migration becomes the only realistic option"</em>` },
+        { prompt: `Chỗ trống (5)`, answer: "overcrowded", accept: ["overcrowded","over crowded"],
+          explain: `<b>Đoạn C:</b> <em>"Housing is overcrowded"</em>` },
+        { prompt: `Chỗ trống (6)`, answer: "commute", accept: ["commute","commutes"],
+          explain: `<b>Đoạn C:</b> <em>"many workers commute for more than an hour each way"</em>` },
+        { prompt: `Chỗ trống (7)`, answer: "infrastructure", accept: ["infrastructure"],
+          explain: `<b>Đoạn C:</b> <em>"Public infrastructure... struggles to keep pace"</em>` },
+        { prompt: `Chỗ trống (8)`, answer: "abandoned", accept: ["abandoned","abandon"],
+          explain: `<b>Đoạn D:</b> <em>"Fields are sometimes abandoned because nobody remains to plant them"</em>` },
+        { prompt: `Chỗ trống (9)`, answer: "sustainable", accept: ["sustainable"],
+          explain: `<b>Đoạn E:</b> <em>"a sustainable rural livelihood is once again possible"</em>` }
+      ]
+    },
+    {
+      title: "Exercise 3 - Multiple Choice",
+      instr: `<b>Choose the correct letter, A, B, C or D.</b>`,
+      type: "mcq",
+      questions: [
+        { prompt: `According to Paragraph A, government planners expect that by 2030`,
+          options: [["A","most Vietnamese people will still live in the countryside without change."],["B","close to half of the population will be living in urban areas."],["C","Hanoi will be larger than Ho Chi Minh City."],["D","urbanisation in Vietnam will finally stop."]],
+          answer: "B",
+          explain: `<b>Đoạn A:</b> <em>"planners expect that figure to reach almost half of the population before 2030"</em> → "almost half" = "close to half". <b>A</b> sai (bài nói ngược lại), <b>C</b> không được so sánh, <b>D</b> sai hoàn toàn.` },
+        { prompt: `What does the writer say about young people who move to the city?`,
+          options: [["A","They usually refuse to help their families financially."],["B","They are mainly attracted by city entertainment."],["C","They often move because farming cannot support the family."],["D","They rarely find work when they arrive."]],
+          answer: "C",
+          explain: `<b>Đoạn B:</b> <em>"when agriculture alone cannot support a family, migration becomes the only realistic option"</em> → di cư vì <b>cần thiết</b>. <b>A</b> sai: <em>"Most send part of their salary home each month"</em> (họ CÓ gửi tiền về). <b>B</b> sai: bài nhấn mạnh tiền, trường, bệnh viện - không nói giải trí.` },
+        { prompt: `In Paragraph C, the writer suggests that Hanoi's traffic problems exist because`,
+          options: [["A","drivers in the capital ignore the traffic laws."],["B","the roads were never planned for so many vehicles."],["C","the city has too few private cars."],["D","most workers live in the city centre."]],
+          answer: "B",
+          explain: `<b>Đoạn C:</b> <em>"Hanoi's roads were not designed for millions of vehicles"</em> → hạ tầng đường không được thiết kế cho lượng xe hiện nay. <b>A</b> (ý thức tài xế) không hề được nhắc - đây là bẫy "kiến thức nền của thí sinh".` },
+        { prompt: `Researchers are worried about the countryside mainly because`,
+          options: [["A","grandparents are not able to look after children."],["B","traditional crafts have already disappeared completely."],["C","local knowledge may be lost forever once a generation leaves."],["D","farmers cannot sell their products online."]],
+          answer: "C",
+          explain: `<b>Đoạn D:</b> <em>"a loss not only of labour but of local knowledge, which is difficult to recover once a generation has gone"</em>. <b>B</b> sai vì bài dùng <em>decline</em>, không phải <em>disappeared completely</em>.` },
+        { prompt: `Selling produce on the internet has helped farmers because`,
+          options: [["A","they no longer have to grow their own crops."],["B","the government pays them a higher price."],["C","tourists visit their guesthouses more often."],["D","they keep the profit that middlemen used to take."]],
+          answer: "D",
+          explain: `<b>Đoạn E:</b> <em>"cutting out the middlemen who once took most of the profit"</em> → nông dân giữ được phần lợi nhuận trước đây rơi vào tay thương lái.` },
+        { prompt: `Why does the writer mention Can Tho, Da Nang and Hai Phong?`,
+          options: [["A","To show which cities have the worst air quality."],["B","To give examples of places that could take pressure off the two biggest cities."],["C","To explain where most rural migrants currently go."],["D","To compare their populations with Hanoi's."]],
+          answer: "B",
+          explain: `<b>Đoạn F:</b> <em>"Investment in medium-sized provincial cities... could relieve pressure on the two largest urban centres"</em>. Câu hỏi dạng <b>"Why does the writer mention..."</b> luôn hỏi <b>mục đích</b>, không hỏi thông tin về chính đối tượng đó.` },
+        { prompt: `Which sentence best expresses the urban planner's opinion at the end of the passage?`,
+          options: [["A","People should be discouraged from moving to the capital."],["B","Development succeeds when moving to the capital is a choice, not a necessity."],["C","Large capital cities are always a sign of failure."],["D","The countryside should remain exactly as it is today."]],
+          answer: "B",
+          explain: `<b>Đoạn F:</b> <em>"a successful country is not one where everybody moves to the capital, but one where nobody feels forced to"</em> → thành công = không ai bị <b>buộc</b> phải đi. <b>C</b> quá cực đoan; <b>A</b> hiểu sai (ông không nói phải "ngăn cản" người dân).` }
+      ]
+    }
+  ]
+},
+{
+  title: "READING 3 - Must the Village Empty for the City to Grow?",
+  passage: [
+    `<b>A.</b> For most of the twentieth century, economists treated the movement of people from farms to factories as both inevitable and desirable. Development, in this view, was essentially a story about cities: as a country grew richer, agriculture would shrink, villages would lose their young, and an ever-larger share of the national population would gather in <b>densely populated</b> urban centres. Vietnam's recent history appears, at first glance, to confirm the pattern. Yet the assumption that a rural <b>exodus</b> is simply the price of <b>prosperity</b> deserves closer scrutiny. The evidence of the past decade suggests that this outcome is far less inevitable than an earlier generation of planners believed.`,
+    `<b>B.</b> The economic case for cities is nevertheless a serious one, and it should not be dismissed. Economists use the term <b>agglomeration</b> to describe the advantages that appear when firms and workers cluster in one place: suppliers are close at hand, specialised labour is easy to recruit, and useful ideas travel quickly between competitors who work only streets apart. Studies across East and Southeast Asia consistently find that <b>productivity</b> per worker rises as city size increases, and that wages tend to follow. Cities also concentrate <b>amenities</b> - teaching hospitals, universities, concert halls, specialist clinics - that no individual village could ever afford to maintain. Seen in this light, migration is not a social failure requiring correction. It is a rational response by individuals to a real difference in opportunity.`,
+    `<b>C.</b> The picture becomes considerably less flattering, however, once the costs are entered on the other side of the ledger. Beyond a certain threshold of density, the gains from clustering are increasingly cancelled out by <b>congestion</b>, air pollution and land prices that rise faster than incomes. Commuting times lengthen; housing quality <b>deteriorates</b> for those at the bottom of the market; and the <b>disparity</b> between households that own property and those that rent grows wider with every year of price inflation. Such costs are rarely captured in the headline productivity figures, which is precisely why, in this author's judgement, the net advantage of the very largest cities has been systematically overstated in policy debate.`,
+    `<b>D.</b> More importantly, the technological assumptions behind the old model no longer hold. Rural <b>connectivity</b> in Vietnam has improved dramatically: mobile internet now reaches communes that lacked a paved road twenty years ago. The practical consequences are visible. Growers in Lam Dong and Son La sell directly to urban consumers through online platforms, capturing margins that once went to intermediaries. Small workshops market handicrafts internationally without ever renting a shopfront. A modest but growing number of professionals in software, design and translation have discovered that remote work makes a provincial base entirely <b>viable</b>, and some have returned to their home districts with savings and skills intact.`,
+    `<b>E.</b> It would be naïve, however, to treat broadband as a cure-all. Connectivity raises rural incomes only where other conditions are met: reliable logistics, functioning cold chains, access to credit, and - crucially - a workforce confident enough to use digital tools. Where those conditions are absent, a <b>subsidy</b> for rural internet may achieve very little beyond improved entertainment. Nor is the countryside uniform. Provinces close to Hanoi or Ho Chi Minh City benefit from proximity in ways that remote mountainous districts cannot easily replicate, and honest policy should acknowledge this rather than promise every commune the same future.`,
+    `<b>F.</b> What, then, should governments do? The answer proposed here is not to restrain migration, which would be both impractical and unjust, but to pursue genuine <b>decentralisation</b>: sustained investment in secondary cities and provincial towns so that opportunity is distributed across a wider territory. Such a strategy would <b>mitigate</b> pressure on the two megacities while strengthening the economic <b>resilience</b> of regions that currently depend on remittances from absent workers. Cities will and should continue to grow. The question worth arguing about is no longer whether people move, but whether they move because they are drawn - or because nothing was left behind them.`
+  ],
+  vocab: [
+    { group: "Group 1 - The economics of cities", items: [
+      ["agglomeration","/əˌɡlɒməˈreɪʃn/","n.","sự tập trung (doanh nghiệp, lao động) tại một khu vực"],
+      ["productivity","/ˌprɒdʌkˈtɪvəti/","n.","năng suất"],
+      ["congestion","/kənˈdʒestʃən/","n.","sự tắc nghẽn (giao thông)"],
+      ["amenities","/əˈmenətiz/","n.","tiện ích công cộng"],
+      ["densely populated","/ˌdensli ˈpɒpjuleɪtɪd/","adj.phr.","có mật độ dân cư cao"],
+      ["disparity","/dɪˈspærəti/","n.","sự chênh lệch, bất bình đẳng"],
+      ["prosperity","/prɒˈsperəti/","n.","sự thịnh vượng"]
+    ]},
+    { group: "Group 2 - Rural change and policy", items: [
+      ["exodus","/ˈeksədəs/","n.","cuộc di cư ồ ạt (rời khỏi nơi nào đó)"],
+      ["connectivity","/ˌkɒnekˈtɪvəti/","n.","khả năng kết nối (mạng, hạ tầng)"],
+      ["viable","/ˈvaɪəbl/","adj.","khả thi, có thể duy trì được"],
+      ["deteriorate","/dɪˈtɪəriəreɪt/","v.","xấu đi, sa sút"],
+      ["subsidy","/ˈsʌbsədi/","n.","khoản trợ cấp"],
+      ["mitigate","/ˈmɪtɪɡeɪt/","v.","làm giảm nhẹ, xoa dịu"],
+      ["resilience","/rɪˈzɪliəns/","n.","sức chống chịu, khả năng phục hồi"],
+      ["decentralisation","/ˌdiːsentrəlaɪˈzeɪʃn/","n.","sự phi tập trung hoá"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 - Yes / No / Not Given",
+      instr: `<b>Do the following statements agree with the claims of the writer in the Reading Passage?</b> Write <b>YES</b> if the statement agrees with the views of the writer, <b>NO</b> if the statement contradicts the views of the writer, <b>NOT GIVEN</b> if it is impossible to say what the writer thinks about this.`,
+      type: "chips",
+      options: ["YES","NO","NOT GIVEN"],
+      questions: [
+        { prompt: `Twentieth-century economists were correct to regard the decline of rural populations as unavoidable.`, answer: "NO",
+          explain: `<b>Đoạn A.</b> Tác giả viết: <em>"the assumption that a rural exodus is simply the price of prosperity deserves closer scrutiny"</em> và <em>"this outcome is far less inevitable than an earlier generation of planners believed"</em> → tác giả <b>phản đối</b> quan điểm cho rằng suy giảm dân số nông thôn là không tránh khỏi.` },
+        { prompt: `The productivity advantages of large cities are real and worth taking seriously.`, answer: "YES",
+          explain: `<b>Đoạn B.</b> <em>"The economic case for cities is nevertheless a serious one, and it should not be dismissed"</em>; các nghiên cứu cho thấy năng suất tăng theo quy mô thành phố → tác giả <b>thừa nhận</b> lợi thế này là có thật.` },
+        { prompt: `The true benefits of the largest cities have been exaggerated in policy discussions.`, answer: "YES",
+          explain: `<b>Đoạn C.</b> <em>"in this author's judgement, the net advantage of the very largest cities has been systematically overstated in policy debate"</em> → khớp trực tiếp với "exaggerated in policy discussions".` },
+        { prompt: `Rural internet access will lift incomes wherever it is introduced.`, answer: "NO",
+          explain: `<b>Đoạn E.</b> <em>"Connectivity raises rural incomes only where other conditions are met"</em> → chữ <b>only where</b> phủ định hoàn toàn từ <b>wherever</b> trong câu hỏi.` },
+        { prompt: `Vietnamese universities should open more campuses in mountainous provinces.`, answer: "NOT GIVEN",
+          explain: `Bài có nhắc tới "universities" (đoạn B, như một tiện ích của thành phố) và tới các huyện miền núi xa xôi (đoạn E), nhưng <b>chưa bao giờ</b> đề xuất mở phân hiệu đại học ở đó. Đây là bẫy ghép hai chi tiết rời rạc.` },
+        { prompt: `Governments would be right to introduce measures that prevent people from moving to the cities.`, answer: "NO",
+          explain: `<b>Đoạn F.</b> <em>"The answer proposed here is not to restrain migration, which would be both impractical and unjust"</em> → tác giả <b>bác bỏ</b> việc ngăn cản di cư.` },
+        { prompt: `Provinces located near the two largest cities enjoy advantages that distant districts cannot easily copy.`, answer: "YES",
+          explain: `<b>Đoạn E.</b> <em>"Provinces close to Hanoi or Ho Chi Minh City benefit from proximity in ways that remote mountainous districts cannot easily replicate."</em>` }
+      ]
+    },
+    {
+      title: "Exercise 2 - Matching Information",
+      instr: `<b>The Reading Passage has six paragraphs, A-F.</b> Which paragraph contains the following information? Write the correct letter, <b>A-F</b>. <b>NB</b> You may use any letter <b>more than once</b>.`,
+      type: "chips",
+      options: ["A","B","C","D","E","F"],
+      questions: [
+        { prompt: `A recommendation for investing in smaller cities and provincial towns`, answer: "F",
+          explain: `<em>"sustained investment in secondary cities and provincial towns so that opportunity is distributed across a wider territory"</em>` },
+        { prompt: `Examples of rural producers reaching customers without a physical shop`, answer: "D",
+          explain: `<em>"Small workshops market handicrafts internationally without ever renting a shopfront"</em> + nông dân Lâm Đồng, Sơn La bán trực tiếp qua nền tảng online` },
+        { prompt: `A definition of a technical term used by economists`, answer: "B",
+          explain: `<em>"Economists use the term agglomeration to describe the advantages that appear when firms and workers cluster in one place"</em> - đây là một <b>định nghĩa</b> thuật ngữ` },
+        { prompt: `Conditions that must exist before internet access can raise rural incomes`, answer: "E",
+          explain: `<em>"reliable logistics, functioning cold chains, access to credit, and... a workforce confident enough to use digital tools"</em>` },
+        { prompt: `A reference to costs that do not appear in standard productivity statistics`, answer: "C",
+          explain: `<em>"Such costs are rarely captured in the headline productivity figures"</em>` },
+        { prompt: `The claim that an older model of development may not apply as widely as was once assumed`, answer: "A",
+          explain: `<em>"this outcome is far less inevitable than an earlier generation of planners believed"</em>` },
+        { prompt: `An acknowledgement that rural areas differ significantly from one another`, answer: "E",
+          explain: `<em>"Nor is the countryside uniform... remote mountainous districts cannot easily replicate"</em>` }
+      ]
+    },
+    {
+      title: "Exercise 3 - Matching Sentence Endings",
+      instr: `<b>Complete each sentence with the correct ending, A-I, below.</b> Write the correct letter, <b>A-I</b>. <b>NB</b> There are <b>more endings than sentences</b>, so you will not use them all.`,
+      reflist: `<b>Endings:</b><div><b>A.</b> widen the gap between homeowners and tenants.</div><div><b>B.</b> people leave the countryside by choice or by necessity.</div><div><b>C.</b> be accompanied by a steady decline in rural populations.</div><div><b>D.</b> skilled workers and useful information are close by.</div><div><b>E.</b> migration to the two megacities should be legally restricted.</div><div><b>F.</b> live and work outside the largest urban centres.</div><div><b>G.</b> are gradually cancelled out by congestion and land costs.</div><div><b>H.</b> local transport, credit and digital skills remain inadequate.</div><div><b>I.</b> make every province equally attractive to investors.</div>`,
+      type: "select",
+      options: [
+        ["A","A - widen the gap between homeowners and tenants."],
+        ["B","B - people leave the countryside by choice or by necessity."],
+        ["C","C - be accompanied by a steady decline in rural populations."],
+        ["D","D - skilled workers and useful information are close by."],
+        ["E","E - migration to the two megacities should be legally restricted."],
+        ["F","F - live and work outside the largest urban centres."],
+        ["G","G - are gradually cancelled out by congestion and land costs."],
+        ["H","H - local transport, credit and digital skills remain inadequate."],
+        ["I","I - make every province equally attractive to investors."]
+      ],
+      questions: [
+        { prompt: `According to the traditional development model, economic growth was expected to ____________`, answer: "C", ansLabel: "C - be accompanied by a steady decline in rural populations.",
+          explain: `<b>Đoạn A:</b> <em>"as a country grew richer, agriculture would shrink, villages would lose their young"</em>` },
+        { prompt: `Firms benefit from clustering together because ____________`, answer: "D", ansLabel: "D - skilled workers and useful information are close by.",
+          explain: `<b>Đoạn B:</b> <em>"suppliers are close at hand, specialised labour is easy to recruit, and useful ideas travel quickly"</em>` },
+        { prompt: `Once cities pass a certain level of density, the advantages of size ____________`, answer: "G", ansLabel: "G - are gradually cancelled out by congestion and land costs.",
+          explain: `<b>Đoạn C:</b> <em>"the gains from clustering are increasingly cancelled out by congestion, air pollution and land prices"</em>` },
+        { prompt: `Rising property prices in major cities tend to ____________`, answer: "A", ansLabel: "A - widen the gap between homeowners and tenants.",
+          explain: `<b>Đoạn C:</b> <em>"the disparity between households that own property and those that rent grows wider"</em>` },
+        { prompt: `Improvements in rural internet access have made it possible for some professionals to ____________`, answer: "F", ansLabel: "F - live and work outside the largest urban centres.",
+          explain: `<b>Đoạn D:</b> <em>"remote work makes a provincial base entirely viable, and some have returned to their home districts"</em>` },
+        { prompt: `A government subsidy for rural broadband may accomplish very little if ____________`, answer: "H", ansLabel: "H - local transport, credit and digital skills remain inadequate.",
+          explain: `<b>Đoạn E:</b> <em>"Where those conditions are absent, a subsidy for rural internet may achieve very little"</em>` },
+        { prompt: `In the writer's view, the central question for policy is now whether ____________`, answer: "B", ansLabel: "B - people leave the countryside by choice or by necessity.",
+          explain: `<b>Đoạn F:</b> <em>"whether they move because they are drawn - or because nothing was left behind them"</em>` }
+      ]
+    }
+  ]
+}
+];
+
+/* ---------- Chuẩn hoá đáp án viết tự do ---------- */
+function norm(s){
+  return String(s == null ? "" : s)
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")   // bỏ dấu tiếng Việt
+    .replace(/[\u0110]/g,"D").replace(/[\u0111]/g,"d") // Đ / đ
+    .toLowerCase()
+    .replace(/[’‘`´]/g,"'")
+    .replace(/[.,!?;:"“”()\[\]…]/g,"")                 // bỏ dấu câu
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+/* ---------- Gom toàn bộ câu hỏi ---------- */
+const ALL = [];
+DATA.forEach(function(read, ri){
+  read.exercises.forEach(function(ex, ei){
+    ex.questions.forEach(function(q, qi){
+      q.id = "r" + (ri+1) + "e" + (ei+1) + "q" + (qi+1);
+      q.num = qi + 1;
+      q.type = q.type || ex.type;
+      q.options = q.options || ex.options;
+      ALL.push(q);
+    });
+  });
+});
+const TOTAL = ALL.length;
+
+const state = {};
+let submitted = false;
+
+/* ---------- Dựng giao diện ---------- */
+const app = document.getElementById("app");
+
+function el(tag, cls, html){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(html != null) n.innerHTML = html;
+  return n;
+}
+
+function makeChips(q, holder){
+  const box = el("div", q.type === "mcq" ? "mcq" : "opts");
+  const opts = q.type === "mcq" ? q.options : q.options.map(function(o){ return [o, o]; });
+  opts.forEach(function(pair){
+    const val = pair[0], label = pair[1];
+    const b = el("button","chip", q.type === "mcq" ? ("<b>" + val + ".</b> " + label) : label);
+    b.type = "button";
+    b.setAttribute("aria-pressed","false");
+    b.dataset.val = val;
+    b.addEventListener("click", function(){
+      if(submitted) return;
+      state[q.id] = val;
+      box.querySelectorAll(".chip").forEach(function(c){
+        c.setAttribute("aria-pressed", c.dataset.val === val ? "true" : "false");
+      });
+      updateProgress();
+    });
+    box.appendChild(b);
+  });
+  q._box = box;
+  holder.appendChild(box);
+}
+
+function makeSelect(q, holder){
+  const line = el("div","ansline");
+  const s = document.createElement("select");
+  s.innerHTML = '<option value="">-- chọn --</option>';
+  q.options.forEach(function(pair){
+    const o = document.createElement("option");
+    o.value = pair[0];
+    o.textContent = pair[1];
+    s.appendChild(o);
+  });
+  s.addEventListener("change", function(){
+    if(submitted) return;
+    state[q.id] = s.value;
+    updateProgress();
+  });
+  q._input = s;
+  line.appendChild(s);
+  holder.appendChild(line);
+}
+
+function makeText(q, holder){
+  const line = el("div","ansline");
+  const i = document.createElement("input");
+  i.type = "text";
+  i.autocomplete = "off";
+  i.autocapitalize = "off";
+  i.spellcheck = false;
+  i.placeholder = "Nhập câu trả lời";
+  i.addEventListener("input", function(){
+    if(submitted) return;
+    state[q.id] = i.value;
+    updateProgress();
+  });
+  q._input = i;
+  line.appendChild(i);
+  holder.appendChild(line);
+}
+
+function renderQuestion(q){
+  const wrap = el("div","q");
+  wrap.id = "box-" + q.id;
+  const head = el("div","qhead");
+  head.appendChild(el("span","qnum", q.num + "."));
+  head.appendChild(el("span","qtext", q.prompt));
+  wrap.appendChild(head);
+  if(q.type === "chips" || q.type === "mcq") makeChips(q, wrap);
+  else if(q.type === "select") makeSelect(q, wrap);
+  else makeText(q, wrap);
+  return wrap;
+}
+
+DATA.forEach(function(read){
+  app.appendChild(el("h2", null, read.title));
+
+  const pas = el("div","passage");
+  pas.appendChild(el("h3", null, "📖 Reading Passage"));
+  read.passage.forEach(function(p){ pas.appendChild(el("p", null, p)); });
+  app.appendChild(pas);
+
+  const det = document.createElement("details");
+  det.appendChild(el("summary", null, "📚 Key Vocabulary (bấm để mở)"));
+  read.vocab.forEach(function(g){
+    det.appendChild(el("h4", null, g.group));
+    let rows = "<tr><th>Word</th><th>IPA</th><th>Type</th><th>Vietnamese</th></tr>";
+    g.items.forEach(function(it){
+      rows += "<tr><td><b>" + it[0] + "</b></td><td>" + it[1] + "</td><td>" + it[2] + "</td><td>" + it[3] + "</td></tr>";
+    });
+    det.appendChild(el("table","voc", rows));
+  });
+  app.appendChild(det);
+
+  read.exercises.forEach(function(ex){
+    app.appendChild(el("h3", null, "✏️ " + ex.title));
+    app.appendChild(el("p","instr", ex.instr));
+    if(ex.reflist) app.appendChild(el("div","reflist", ex.reflist));
+
+    if(ex.type === "summary"){
+      const filled = ex.html.replace(/\{\{(\d+)\}\}/g, '<span class="slot" data-n="$1"></span>');
+      const sum = el("div","sum", filled);
+      app.appendChild(sum);
+      ex.questions.forEach(function(q){
+        const i = document.createElement("input");
+        i.type = "text";
+        i.autocomplete = "off";
+        i.autocapitalize = "off";
+        i.spellcheck = false;
+        i.setAttribute("aria-label","Chỗ trống " + q.num);
+        i.addEventListener("input", function(){
+          if(submitted) return;
+          state[q.id] = i.value;
+          updateProgress();
+        });
+        q._input = i;
+        const slot = sum.querySelector('.slot[data-n="' + q.num + '"]');
+        if(slot) slot.appendChild(i);
+      });
+      const fbl = el("div","fblist");
+      fbl.id = "fblist-" + ex.questions[0].id;
+      ex.questions.forEach(function(q){ q._fbHolder = fbl; });
+      app.appendChild(fbl);
+    } else {
+      ex.questions.forEach(function(q){ app.appendChild(renderQuestion(q)); });
+    }
+  });
+});
+
+/* ---------- Tiến độ ---------- */
+const progressEl = document.getElementById("progress");
+const submitBtn = document.getElementById("submitBtn");
+const resetBtn = document.getElementById("resetBtn");
+const resultEl = document.getElementById("result");
+
+function answered(q){
+  const v = state[q.id];
+  return v != null && String(v).trim() !== "";
+}
+function updateProgress(){
+  const n = ALL.filter(answered).length;
+  progressEl.textContent = "Đã làm " + n + "/" + TOTAL + " câu";
+  submitBtn.disabled = submitted || n < TOTAL;
+}
+
+/* ---------- Chấm bài ---------- */
+function isCorrect(q){
+  const v = state[q.id];
+  if(v == null) return false;
+  if(q.type === "text" || q.type === "summary"){
+    const list = (q.accept && q.accept.length ? q.accept : [q.answer]).map(norm);
+    return list.indexOf(norm(v)) !== -1;
+  }
+  return v === q.answer;
+}
+
+function feedbackNode(q, ok, forList){
+  const fb = el("div","fb " + (ok ? "good" : "bad"));
+  const label = forList ? ("Câu " + q.num + ": ") : "";
+  fb.appendChild(el("div","verdict", label + (ok ? "✓ Đúng" : "✗ Sai")));
+  if(!ok){
+    fb.appendChild(el("div","row", "<b>Học sinh đã chọn:</b> " + (String(state[q.id]).trim() || "(bỏ trống)")));
+  }
+  fb.appendChild(el("div","row", "<b>Đáp án:</b> " + (q.ansLabel || q.answer)));
+  fb.appendChild(el("div","row", "<b>Giải thích:</b> " + q.explain));
+  return fb;
+}
+
+function lockAll(){
+  document.querySelectorAll("#app input, #app select, #app .chip").forEach(function(n){ n.disabled = true; });
+}
+
+submitBtn.addEventListener("click", function(){
+  if(submitted) return;
+  const n = ALL.filter(answered).length;
+  if(n < TOTAL) return;
+  submitted = true;
+  lockAll();
+
+  let correct = 0;
+  ALL.forEach(function(q){
+    const ok = isCorrect(q);
+    if(ok) correct++;
+    if(q._fbHolder){
+      q._fbHolder.appendChild(feedbackNode(q, ok, true));
+    } else {
+      const box = document.getElementById("box-" + q.id);
+      box.appendChild(feedbackNode(q, ok, false));
+    }
+  });
+
+  const score = Math.round(correct / TOTAL * 100) / 10;
+  resultEl.innerHTML =
+    "<h3>Kết quả</h3>" +
+    "<div class='score'>" + score.toFixed(1) + " / 10</div>" +
+    "<div>Số câu đúng: <b>" + correct + "/" + TOTAL + "</b> · Số câu sai: <b>" + (TOTAL - correct) + "</b></div>" +
+    "<div style='margin-top:6px'>Học sinh xem đáp án và giải thích ngay dưới từng câu. Bấm <b>Làm lại</b> để làm lại từ đầu.</div>";
+  resultEl.style.display = "block";
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Đã nộp bài";
+  resultEl.scrollIntoView({behavior:"smooth", block:"center"});
+});
+
+resetBtn.addEventListener("click", function(){
+  const hasWork = submitted || ALL.some(answered);
+  if(hasWork && !window.confirm("Làm lại từ đầu? Toàn bộ câu trả lời hiện tại sẽ bị xoá.")) return;
+  window.scrollTo(0,0);
+  window.location.reload();
+});
+
+/* ---------- Bàn phím ảo: ẩn thanh Nộp bài khi đang gõ ---------- */
+const bar = document.getElementById("bar");
+document.addEventListener("focusin", function(e){
+  if(e.target.tagName === "INPUT" && e.target.type === "text") bar.classList.add("hidden");
+});
+document.addEventListener("focusout", function(e){
+  if(e.target.tagName === "INPUT" && e.target.type === "text") bar.classList.remove("hidden");
+});
+
+document.querySelectorAll(".totalCount").forEach(function(n){ n.textContent = TOTAL; });
+updateProgress();
+console.log("Tổng số câu:", TOTAL);
+</script>
+</body>
+</html>
