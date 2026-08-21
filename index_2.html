@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 28 — Reading Practice (Bài tập tương tác)</title>
+<style>
+  :root{
+    --line:#d4d4d4;
+    --line-strong:#9a9a9a;
+    --bg:#ffffff;
+    --fg:#1a1a1a;
+    --muted:#5f5f5f;
+    --ok:#1a7f37;
+    --ok-bg:#eef7f0;
+    --no:#b42318;
+    --no-bg:#fdf0ef;
+    --soft:#f6f6f6;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",Arial,sans-serif;
+    font-size:17px;
+    line-height:1.65;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px 64px}
+
+  /* Thanh tiến độ dính trên đầu, không che nội dung khi bàn phím ảo bật */
+  #progressbar{
+    position:sticky;top:0;z-index:10;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    padding:10px 16px;
+    font-size:15px;
+  }
+  #progressbar .inner{max-width:820px;margin:0 auto;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+  #progressText{font-weight:600}
+  #progressbar .hint{color:var(--muted);font-size:14px}
+
+  h1{font-size:24px;margin:24px 0 4px;line-height:1.35}
+  .subtitle{color:var(--muted);margin:0 0 24px;font-size:15px}
+  h2{font-size:20px;margin:40px 0 8px;padding-top:20px;border-top:2px solid var(--fg)}
+  h3{font-size:17px;margin:28px 0 6px}
+  h4{font-size:16px;margin:18px 0 6px;color:var(--muted);font-weight:600}
+
+  .passage p{margin:0 0 12px;text-align:left}
+  .instruction{background:var(--soft);border-left:3px solid var(--line-strong);padding:10px 12px;margin:8px 0 16px;font-size:15px}
+  .bank{border:1px solid var(--line);padding:10px 12px;margin:0 0 16px;font-size:15px}
+
+  table{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0 16px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:var(--soft);font-weight:600}
+  .tablewrap{overflow-x:auto}
+
+  ol.qlist{list-style:none;margin:0;padding:0;counter-reset:q}
+  li.q{border:1px solid var(--line);padding:12px;margin:0 0 10px}
+  li.q .qnum{font-weight:700;margin-right:6px}
+  .qtext{margin:0 0 8px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
+  .opts.stack{flex-direction:column;gap:6px}
+  label.opt{
+    display:inline-flex;align-items:flex-start;gap:8px;
+    border:1px solid var(--line);padding:9px 12px;cursor:pointer;
+    min-height:44px;font-size:16px;line-height:1.4;
+  }
+  label.opt input{margin:3px 0 0;flex:none;width:18px;height:18px}
+  label.opt:has(input:checked){border-color:var(--fg);background:var(--soft)}
+  label.opt.disabled{cursor:default;opacity:.85}
+
+  input[type=text]{
+    font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line-strong);
+    background:#fff;color:var(--fg);min-width:150px;max-width:100%;
+  }
+  input.inline{min-width:130px;width:170px;padding:4px 8px;margin:0 2px}
+  select{font:inherit;font-size:16px;padding:9px 10px;border:1px solid var(--line-strong);background:#fff;color:var(--fg);min-height:44px;max-width:100%}
+  input:disabled,select:disabled{background:var(--soft);color:var(--fg);opacity:1}
+
+  .fb{margin:10px 0 0;padding:9px 11px;font-size:15px;border:1px solid}
+  .fb.ok{border-color:#bcdcc6;background:var(--ok-bg)}
+  .fb.no{border-color:#f0c4c0;background:var(--no-bg)}
+  .fb .verdict{font-weight:700}
+  .fb.ok .verdict{color:var(--ok)}
+  .fb.no .verdict{color:var(--no)}
+  .fb .row{margin-top:4px}
+  .fb .lbl{color:var(--muted)}
+  .fb q{quotes:none}
+
+  .summary p{margin:0 0 12px}
+  .bnum{font-weight:700}
+
+  #actions{margin:40px 0 0;padding-top:20px;border-top:2px solid var(--fg);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  button{
+    font:inherit;font-size:17px;font-weight:600;padding:13px 24px;min-height:48px;
+    border:1px solid var(--fg);background:var(--fg);color:#fff;cursor:pointer;
+  }
+  button.secondary{background:#fff;color:var(--fg)}
+  button:disabled{background:#e4e4e4;color:#8a8a8a;border-color:var(--line);cursor:not-allowed}
+  #actions .note{color:var(--muted);font-size:15px}
+
+  #result{border:2px solid var(--fg);padding:16px;margin:24px 0 0;display:none}
+  #result h3{margin:0 0 6px;font-size:18px}
+  #score{font-size:32px;font-weight:700;line-height:1.2}
+  #scoreDetail{color:var(--muted);font-size:15px}
+  #breakdown{margin:12px 0 0;font-size:15px}
+  #breakdown table{margin:6px 0 0}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    .wrap{padding:0 12px 56px}
+    h1{font-size:21px}
+    h2{font-size:19px}
+    label.opt{width:100%}
+    input.inline{width:118px;min-width:0;display:inline-block;margin:3px 2px;padding:6px 8px}
+    select{width:100%}
+    #progressbar{padding:8px 12px}
+    #progressbar .hint{display:none}
+    #actions button{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div id="progressbar">
+  <div class="inner">
+    <span id="progressText">Đã làm 0/64 câu</span>
+    <span class="hint">Học sinh phải làm hết tất cả các câu thì mới nộp bài được.</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>Unit 28 — Reading Practice</h1>
+  <p class="subtitle">Bài tập tương tác gồm 3 bài đọc và 9 bài tập. Tổng cộng <strong>64 câu</strong>.</p>
+
+  <div id="content"></div>
+
+  <div id="actions">
+    <button id="submitBtn" disabled>Nộp bài</button>
+    <button id="resetBtn" class="secondary" type="button">Làm lại</button>
+    <span class="note" id="actionNote">Còn 64 câu chưa làm.</span>
+  </div>
+
+  <div id="result">
+    <h3>Kết quả</h3>
+    <div id="score"></div>
+    <div id="scoreDetail"></div>
+    <div id="breakdown"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   DỮ LIỆU
+   Phần đề tiếng Anh và phần giải thích tiếng Việt giữ nguyên theo file gốc.
+   Muốn bổ sung cách viết được chấp nhận: thêm chuỗi vào mảng "accept".
+   ========================================================================= */
+
+const READINGS = [
+/* ------------------------------- READING 1 ------------------------------- */
+{
+  title: "READING 1 — Days We Never Forget",
+  passage: [
+    `Every country has important events. Some are large national festivals. Others are small family celebrations at home. However, all of them do the same thing: they bring people together. Important events also give us happy memories that we keep for many years.`,
+    `In Vietnam, the most important festival is Tet, the Lunar New Year. It usually takes place in late January or February. Before Tet, families clean their houses and prepare special food, such as banh chung. Children look forward to lucky money in red envelopes. This tradition is very old, but it is still popular today. During Tet, many people travel from the big cities back to their home towns to visit their parents.`,
+    `A wedding is another important event. In the past, a Vietnamese wedding was long and lasted several days. Today, most weddings are shorter. Families often prepare for many months. They choose a date, book a restaurant and invite hundreds of guests. At the party, the guests eat, sing and give money to the new couple. Parents feel very proud on this day, and they take hundreds of photographs.`,
+    `Graduation is a special day for young people. After many years of hard work, students receive a certificate and wear a black hat and gown. Most of them feel excited, and some feel a little nervous. Their families come to the school to celebrate with them. For many parents, graduation photos are a favourite memory.`,
+    `Some events happen every year. A birthday is one example, and a wedding anniversary is another. On these days, people usually have dinner with their family or with close friends. They do not invite many guests, but the day is still important to them. Some couples celebrate their anniversary in the same restaurant every year.`,
+    `Not all important events are family events. Every country also remembers its history. In Vietnam, National Day is on 2 September. On this day there are red flags in the streets, and most people have a day off work. Events like this help young people learn about their country.`,
+    `Modern life is busy, so some people say that we have less time for these events than before. Young workers often live far from home, and they cannot always return for a festival. For this reason, many families now use video calls. It is not the same as sitting at the same table, but it helps.`,
+    `In the end, important events are not really about food, music or presents. They are about people. When we celebrate, we say to our family and friends: "You are important to me."`
+  ],
+  vocab: [
+    { name: "Group 1: Events & Celebrations", rows: [
+      ["event","/ɪˈvent/","n.","sự kiện"],
+      ["festival","/ˈfestɪvl/","n.","lễ hội"],
+      ["celebrate","/ˈselɪbreɪt/","v.","ăn mừng, kỷ niệm"],
+      ["wedding","/ˈwedɪŋ/","n.","đám cưới"],
+      ["graduation","/ˌɡrædʒuˈeɪʃn/","n.","lễ tốt nghiệp"],
+      ["anniversary","/ˌænɪˈvɜːsəri/","n.","ngày kỷ niệm"],
+      ["tradition","/trəˈdɪʃn/","n.","truyền thống"],
+      ["take place","/ˌteɪk ˈpleɪs/","phr.","diễn ra"]
+    ]},
+    { name: "Group 2: People & Feelings", rows: [
+      ["important","/ɪmˈpɔːtnt/","adj.","quan trọng"],
+      ["memory","/ˈmeməri/","n.","ký ức, kỷ niệm"],
+      ["proud","/praʊd/","adj.","tự hào"],
+      ["excited","/ɪkˈsaɪtɪd/","adj.","hào hứng, phấn khích"],
+      ["guest","/ɡest/","n.","khách mời"],
+      ["invite","/ɪnˈvaɪt/","v.","mời"],
+      ["prepare","/prɪˈpeə(r)/","v.","chuẩn bị"],
+      ["look forward to","/ˌlʊk ˈfɔːwəd tə/","phr.v.","mong chờ, háo hức đợi"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 — True / False / Not Given",
+      instruction: `Do the following statements agree with the information in the passage? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.`,
+      type: "radio",
+      options: [["TRUE","TRUE"],["FALSE","FALSE"],["NOT GIVEN","NOT GIVEN"]],
+      items: [
+        { q:`Tet is the most important festival in Vietnam.`, a:"TRUE",
+          exp:{p:"Đ2", quote:`"In Vietnam, the most important festival is Tet, the Lunar New Year."`, note:`Trùng khớp hoàn toàn`} },
+        { q:`Tet always takes place in January.`, a:"FALSE",
+          exp:{p:"Đ2", quote:`"It usually takes place in late January or February."`, note:`Đề nói "always in January" → mâu thuẫn ở 2 chỗ: always vs usually, và bỏ mất February`} },
+        { q:`Vietnamese weddings today are usually shorter than in the past.`, a:"TRUE",
+          exp:{p:"Đ3", quote:`"In the past, a Vietnamese wedding was long and lasted several days. Today, most weddings are shorter."`, note:`So sánh quá khứ – hiện tại khớp với đề`} },
+        { q:`Wedding guests give presents instead of money.`, a:"FALSE",
+          exp:{p:"Đ3", quote:`"the guests eat, sing and give money to the new couple"`, note:`Đề nói "presents instead of money" → ngược lại`} },
+        { q:`Students pay for their graduation hats and gowns.`, a:"NOT GIVEN",
+          exp:{p:"Đ4", quote:`"students receive a certificate and wear a black hat and gown"`, note:`Bài có nhắc mũ/áo choàng nhưng không nói ai trả tiền`} },
+        { q:`Vietnam's National Day is in September.`, a:"TRUE",
+          exp:{p:"Đ6", quote:`"In Vietnam, National Day is on 2 September."`, note:`2 September = tháng 9`} },
+        { q:`Video calls are more popular than travelling home at Tet.`, a:"NOT GIVEN",
+          exp:{p:"Đ7", quote:`"many families now use video calls"`, note:`Bài không so sánh video call với việc về quê dịp Tet`} },
+        { q:`Some couples go to the same restaurant for their anniversary every year.`, a:"TRUE",
+          exp:{p:"Đ5", quote:`"Some couples celebrate their anniversary in the same restaurant every year."`, note:`Trùng khớp`} }
+      ]
+    },
+    {
+      title: "Exercise 2 — Sentence Completion (with word bank)",
+      instruction: `Complete each sentence with ONE WORD from the word bank below. There are more words than you need. Write your answers in the spaces.`,
+      bank: `Word bank: anniversary · proud · invite · memory · festival · prepare · guests · excited · tradition · celebrate`,
+      type: "text",
+      items: [
+        { q:`Before Tet, families clean their houses and ____ special food.`, a:"prepare", accept:["prepare"],
+          exp:{p:"Đ2", quote:`"families clean their houses and prepare special food"`} },
+        { q:`Giving lucky money in red envelopes is a very old ____.`, a:"tradition", accept:["tradition"],
+          exp:{p:"Đ2", quote:`"This tradition is very old, but it is still popular today."`} },
+        { q:`For a wedding, the two families ____ hundreds of people.`, a:"invite", accept:["invite"],
+          exp:{p:"Đ3", quote:`"They choose a date, book a restaurant and invite hundreds of guests."`} },
+        { q:`Parents feel very ____ on their child's wedding day.`, a:"proud", accept:["proud"],
+          exp:{p:"Đ3", quote:`"Parents feel very proud on this day"`} },
+        { q:`On graduation day, most students feel ____ and a little nervous.`, a:"excited", accept:["excited"],
+          exp:{p:"Đ4", quote:`"Most of them feel excited, and some feel a little nervous."`} },
+        { q:`For many parents, graduation photos are a favourite ____.`, a:"memory", accept:["memory"],
+          exp:{p:"Đ4", quote:`"graduation photos are a favourite memory"`} },
+        { q:`A wedding ____ happens on the same date every year.`, a:"anniversary", accept:["anniversary"],
+          exp:{p:"Đ5", quote:`"a wedding anniversary is another"`} }
+      ]
+    },
+    {
+      title: "Exercise 3 — Multiple Choice",
+      instruction: `Choose the correct letter, A, B or C. Write your answer in the space.`,
+      type: "radio",
+      stack: true,
+      items: [
+        { q:`According to the writer, what do all important events do?`, a:"B",
+          options:[["A","A. They cost a lot of money."],["B","B. They bring people together."],["C","C. They happen once a year."]],
+          exp:{p:"Đ1", quote:`"all of them do the same thing: they bring people together"`, note:`A/C không được nhắc là điểm chung`} },
+        { q:`What do Vietnamese families do before Tet?`, a:"A",
+          options:[["A","A. They clean their houses."],["B","B. They move to a big city."],["C","C. They book a restaurant."]],
+          exp:{p:"Đ2", quote:`"Before Tet, families clean their houses"`, note:`C (book a restaurant) thuộc đám cưới – bẫy đoạn khác`} },
+        { q:`At a Vietnamese wedding today, the guests usually`, a:"C",
+          options:[["A","A. stay for several days."],["B","B. wear a black hat and gown."],["C","C. give money to the new couple."]],
+          exp:{p:"Đ3", quote:`"the guests… give money to the new couple"`, note:`A là chuyện quá khứ; B thuộc lễ tốt nghiệp`} },
+        { q:`On a birthday or an anniversary, people usually`, a:"B",
+          options:[["A","A. invite hundreds of guests."],["B","B. have dinner with family or close friends."],["C","C. travel back to their home town."]],
+          exp:{p:"Đ5", quote:`"people usually have dinner with their family or with close friends"`, note:`A ngược với "They do not invite many guests"`} },
+        { q:`On National Day in Vietnam, most people`, a:"A",
+          options:[["A","A. have a day off work."],["B","B. go to school."],["C","C. clean their houses."]],
+          exp:{p:"Đ6", quote:`"most people have a day off work"`} },
+        { q:`Why do many families now use video calls?`, a:"B",
+          options:[["A","A. Because video calls are cheaper than food."],["B","B. Because young people often live far from home."],["C","C. Because they do not enjoy festivals any more."]],
+          exp:{p:"Đ7", quote:`"Young workers often live far from home… For this reason, many families now use video calls"`} }
+      ]
+    }
+  ]
+},
+
+/* ------------------------------- READING 2 ------------------------------- */
+{
+  title: "READING 2 — The Price of a Perfect Opening Night",
+  passage: [
+    `<strong>A.</strong> On a warm evening in May 2022, more than 40,000 spectators filled My Dinh Stadium in Hanoi. Music, lights and dancers covered the field as Vietnam opened the 31st SEA Games. The opening ceremony lasted about two hours, but the work behind it had taken more than two years. Every few years, cities and countries around the world compete for the right to host an international event, and a winning bid is usually announced as national news. The obvious question is why so many governments want the job.`,
+    `<strong>B.</strong> The first answer is economic. Large events attract thousands of visitors, and those visitors sleep in hotels, eat in restaurants and travel by taxi. This creates revenue for local businesses, especially small ones. Governments also hope the event will boost tourism for years afterwards. Television plays a part here: when millions of viewers see a city on screen for two weeks, some of them may decide to visit it later. Vietnam welcomed a record 18 million international visitors in 2019, and officials often mention international events as one way to reach numbers like that again.`,
+    `<strong>C.</strong> A second benefit is infrastructure. To welcome athletes and spectators, host cities build new venues, but they also repair roads, extend metro lines and upgrade airports. Barcelona is the example that planners mention most often. Before the 1992 Olympic Games, the Spanish city had almost no usable public beach; the event became the reason to rebuild the entire waterfront. More than thirty years later, residents still use it every summer.`,
+    `<strong>D.</strong> However, the risks are real. Big events almost always cost more than the original budget, sometimes two or three times more. Even worse, some venues are never used again. After the 2004 Olympic Games in Athens, several expensive stadiums were left empty, and journalists began to call them "white elephants" — beautiful, costly and useless. Critics argue that the same money could have been spent on schools or hospitals, and that ordinary taxpayers pay for a party they never attended.`,
+    `<strong>E.</strong> For many host countries, though, the value is not only financial. A successful event improves a country's reputation abroad and gives its citizens a strong sense of pride. Thousands of young volunteers usually work at these events, guiding visitors, checking tickets and translating for foreign teams. Many of them say afterwards that the experience gave them confidence and new language skills that they still use at work today.`,
+    `<strong>F.</strong> Not every important event needs a stadium. Vietnam's Hue Festival and the monthly lantern nights in Hoi An attract both foreign and domestic visitors, but they use the old city itself as a venue. Their costs are far lower, and their legacy is quieter: local craftspeople keep working, hotels stay busy in low season, and traditions stay alive. Experts increasingly argue that this, and not the size of the crowd, is the real test of any event. The question is not how bright the opening ceremony was, but whether the long-term benefits still pay off ten or twenty years later.`
+  ],
+  vocab: [
+    { name: "Group 1: Hosting & Organising", rows: [
+      ["host","/həʊst/","v.","đăng cai, tổ chức"],
+      ["bid","/bɪd/","n.","hồ sơ/nỗ lực xin đăng cai"],
+      ["ceremony","/ˈserəməni/","n.","buổi lễ (khai mạc)"],
+      ["venue","/ˈvenjuː/","n.","địa điểm tổ chức"],
+      ["spectator","/spekˈteɪtə(r)/","n.","khán giả"],
+      ["infrastructure","/ˈɪnfrəstrʌktʃə(r)/","n.","cơ sở hạ tầng"],
+      ["budget","/ˈbʌdʒɪt/","n.","ngân sách"],
+      ["volunteer","/ˌvɒlənˈtɪə(r)/","n.","tình nguyện viên"]
+    ]},
+    { name: "Group 2: Impact & Results", rows: [
+      ["revenue","/ˈrevənjuː/","n.","doanh thu"],
+      ["boost","/buːst/","v.","thúc đẩy, làm tăng"],
+      ["benefit","/ˈbenɪfɪt/","n.","lợi ích"],
+      ["reputation","/ˌrepjuˈteɪʃn/","n.","danh tiếng, uy tín"],
+      ["pride","/praɪd/","n.","niềm tự hào"],
+      ["legacy","/ˈleɡəsi/","n.","di sản để lại"],
+      ["long-term","/ˌlɒŋ ˈtɜːm/","adj.","dài hạn"],
+      ["pay off","/ˌpeɪ ˈɒf/","phr.v.","mang lại kết quả xứng đáng"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 — Matching Headings",
+      instruction: `The passage has six paragraphs, A–F. Choose the correct heading for each paragraph from the list below. Write the correct number, i–ix. There are more headings than paragraphs, so you will not use all of them.`,
+      listTitle: "List of Headings",
+      list: [
+        ["i","A chance to show the country to the world"],
+        ["ii","The cost of getting it wrong"],
+        ["iii","Money from visitors"],
+        ["iv","Building things the city keeps"],
+        ["v","The rules of international sport"],
+        ["vi","A night that took years to prepare"],
+        ["vii","Small events, lasting value"],
+        ["viii","How athletes choose their host city"],
+        ["ix","Problems with television coverage"]
+      ],
+      type: "select",
+      optionsFromList: true,
+      items: [
+        { q:`Paragraph A`, a:"vi",
+          exp:{p:"Đoạn A", quote:`"The opening ceremony lasted about two hours, but the work behind it had taken more than two years."`} },
+        { q:`Paragraph B`, a:"iii",
+          exp:{p:"Đoạn B", quote:`"The first answer is economic… This creates revenue for local businesses."`} },
+        { q:`Paragraph C`, a:"iv",
+          exp:{p:"Đoạn C", quote:`"A second benefit is infrastructure"; "residents still use it every summer"`} },
+        { q:`Paragraph D`, a:"ii",
+          exp:{p:"Đoạn D", quote:`"cost more than the original budget"; "white elephants"`} },
+        { q:`Paragraph E`, a:"i",
+          exp:{p:"Đoạn E", quote:`"improves a country's reputation abroad… a strong sense of pride"`} },
+        { q:`Paragraph F`, a:"vii",
+          exp:{p:"Đoạn F", quote:`"Their costs are far lower, and their legacy is quieter"`} }
+      ]
+    },
+    {
+      title: "Exercise 2 — Summary Completion (with word bank)",
+      instruction: `Complete the summary below using words from the word bank. Write ONE WORD ONLY in each space. There are more words than you need.`,
+      bank: `Word bank: bid · boost · budget · host · infrastructure · legacy · pride · reputation · revenue · spectators`,
+      type: "text",
+      summary: [
+        `Governments that win the right to (1){{1}} a major event usually expect several kinds of return. Visitors bring (2){{2}} to hotels, restaurants and taxi drivers, and officials hope the event will (3){{3}} tourism in the years that follow. Host cities also improve their (4){{4}} , building new venues and upgrading roads and airports at the same time.`,
+        `There are dangers, however. Costs often rise far above the original (5){{5}} , and some stadiums are never used again after the event ends. Supporters reply that a well-organised event improves a country's (6){{6}} abroad and gives ordinary citizens a feeling of (7){{7}} . Smaller local festivals cost much less, but they can still leave a valuable (8){{8}} behind them.`
+      ],
+      items: [
+        { q:`Chỗ trống (1)`, a:"host", accept:["host"],
+          exp:{p:"Đoạn A", quote:`"compete for the right to host an international event" → sau the right to cần V nguyên thể`} },
+        { q:`Chỗ trống (2)`, a:"revenue", accept:["revenue"],
+          exp:{p:"Đoạn B", quote:`"This creates revenue for local businesses" → danh từ không đếm được`} },
+        { q:`Chỗ trống (3)`, a:"boost", accept:["boost"],
+          exp:{p:"Đoạn B", quote:`"hope the event will boost tourism" → sau will là V nguyên thể`} },
+        { q:`Chỗ trống (4)`, a:"infrastructure", accept:["infrastructure"],
+          exp:{p:"Đoạn C", quote:`"A second benefit is infrastructure… build new venues… upgrade airports"`} },
+        { q:`Chỗ trống (5)`, a:"budget", accept:["budget"],
+          exp:{p:"Đoạn D", quote:`"cost more than the original budget"`} },
+        { q:`Chỗ trống (6)`, a:"reputation", accept:["reputation"],
+          exp:{p:"Đoạn E", quote:`"improves a country's reputation abroad"`} },
+        { q:`Chỗ trống (7)`, a:"pride", accept:["pride"],
+          exp:{p:"Đoạn E", quote:`"gives its citizens a strong sense of pride" → sau a feeling of cần danh từ`} },
+        { q:`Chỗ trống (8)`, a:"legacy", accept:["legacy"],
+          exp:{p:"Đoạn F", quote:`"their legacy is quieter"`} }
+      ]
+    },
+    {
+      title: "Exercise 3 — Short-answer Questions",
+      instruction: `Answer the questions below using NO MORE THAN THREE WORDS from the passage for each answer.`,
+      type: "text",
+      items: [
+        { q:`How many spectators were at My Dinh Stadium in May 2022?`, a:"more than 40,000",
+          accept:["more than 40,000","more than 40000","over 40,000","over 40000","40,000","40000","more than forty thousand","forty thousand"],
+          exp:{p:"Đoạn A", quote:`"more than 40,000 spectators filled My Dinh Stadium"`} },
+        { q:`How long did the SEA Games opening ceremony last?`, a:"(about) two hours",
+          accept:["about two hours","two hours","2 hours","about 2 hours","around two hours"],
+          exp:{p:"Đoạn A", quote:`"The opening ceremony lasted about two hours"`} },
+        { q:`Which part of Barcelona was rebuilt for the 1992 Olympic Games?`, a:"the entire waterfront",
+          accept:["the entire waterfront","entire waterfront","the waterfront","waterfront"],
+          exp:{p:"Đoạn C", quote:`"the event became the reason to rebuild the entire waterfront"`} },
+        { q:`What name did journalists give to the empty stadiums in Athens?`, a:"white elephants",
+          accept:["white elephants","white elephant","the white elephants"],
+          exp:{p:"Đoạn D", quote:`"journalists began to call them 'white elephants'"`} },
+        { q:`Apart from schools, what do critics say the money could have paid for?`, a:"hospitals",
+          accept:["hospitals","hospital","on hospitals"],
+          exp:{p:"Đoạn D", quote:`"could have been spent on schools or hospitals"`} },
+        { q:`Besides confidence, what do many volunteers say they gained?`, a:"(new) language skills",
+          accept:["new language skills","language skills","language skill","new language skill"],
+          exp:{p:"Đoạn E", quote:`"gave them confidence and new language skills"`} },
+        { q:`In which Vietnamese city do lantern nights take place every month?`, a:"Hoi An",
+          accept:["hoi an","hội an","hoian","hoi-an"],
+          exp:{p:"Đoạn F", quote:`"the monthly lantern nights in Hoi An"`} }
+      ]
+    }
+  ]
+},
+
+/* ------------------------------- READING 3 ------------------------------- */
+{
+  title: "READING 3 — Who Decides What a Nation Remembers?",
+  passage: [
+    `<strong>A.</strong> Every society sets aside days to commemorate the events it considers foundational: a victory, a liberation, a disaster, a death. Governments fund monuments, schools organise ceremonies, and broadcasters clear their schedules. Over the past three decades, these practices have themselves become the subject of an academic field known as memory studies, which asks two uncomfortable questions: why do communities invest so heavily in remembering, and how reliable is what they remember? The common-sense assumption that a shared past simply exists, waiting to be recalled, has been steadily undermined by research in psychology, sociology and anthropology.`,
+    `<strong>B.</strong> Early work focused on the individual. Psychologists observed that people report unusually vivid recall of the moment they first heard about a national tragedy — where they were standing, who told them, what they were holding. Dr Elena Sokolova, of the Institute for Cognitive Research, has spent fifteen years testing such reports. In a longitudinal study, she asked more than six hundred participants to describe such a moment within one week of the event, and then again after one year and after ten years. Their confidence never fell; most still rated their memories as "completely certain". Yet almost half of the concrete details had changed. Memory, Sokolova concludes, does not store an event so much as rebuild it, and every retelling can quietly distort what is stored.`,
+    `<strong>C.</strong> Professor Martin Reyes approaches the problem from sociology and reaches a broader conclusion: memory is not merely personal but constructed collectively. What a nation remembers is highly selective, filtered through the anxieties and ambitions of the present. Reyes notes that the same historical event is frequently commemorated in two neighbouring countries in ways that are not simply different but incompatible, and that such collective memory therefore remains permanently contested. A monument, in his often-quoted formulation, tells us considerably more about the decade in which it was built than about the period it claims to depict.`,
+    `<strong>D.</strong> Not all commemoration is official, however. Dr Anh Tran, who studies domestic ritual in northern Vietnam, argues that scholars have paid disproportionate attention to state ceremonies, museums and public monuments. In Vietnamese households, the death anniversary, or giỗ, is observed at a family altar on the same date each year. Food is prepared, relatives travel considerable distances, photographs are brought out, and the same stories are told again. Because the ritual demands participation rather than attendance, Tran suggests, a family narrative is transmitted from grandparents to grandchildren without any institution being involved at all. Such informal testimony, she argues, often proves more durable than anything carved in stone.`,
+    `<strong>E.</strong> A more sceptical position is taken by Dr Peter Lund, an economist who studies cultural funding. Lund identifies what he calls "memory inflation": an ever-growing number of anniversaries, memorials and heritage sites competing for a limited amount of public attention and money. When every occasion is described as historic, he argues, the word itself loses force. He is equally uneasy about commercialisation, pointing to sites of mass suffering that are now marketed as weekend destinations. Other scholars, however, reject the assumption on which his case rests — that public attention is a fixed resource that one act of remembering must take from another.`,
+    `<strong>F.</strong> For all their disagreement, researchers in the field converge on a single practical point. Commemoration endures when ordinary people take part in it, and fades when it becomes a performance staged for them. Recorded testimony, digital archives and social media have made participation easier than at any previous moment, though they have not made memory any more accurate. Whether an event is remembered correctly may lie largely beyond our control; whether it is remembered at all does not.`
+  ],
+  vocab: [
+    { name: "Group 1: Memory & Commemoration", rows: [
+      ["commemorate","/kəˈmeməreɪt/","v.","tưởng niệm, kỷ niệm"],
+      ["collective memory","/kəˌlektɪv ˈmeməri/","n.phr.","ký ức tập thể"],
+      ["recall","/rɪˈkɔːl/","n.","sự hồi tưởng, khả năng nhớ lại"],
+      ["vivid","/ˈvɪvɪd/","adj.","sống động, rõ mồn một"],
+      ["monument","/ˈmɒnjumənt/","n.","đài tưởng niệm"],
+      ["ritual","/ˈrɪtʃuəl/","n.","nghi lễ, nghi thức"],
+      ["narrative","/ˈnærətɪv/","n.","câu chuyện được kể lại"],
+      ["testimony","/ˈtestɪməni/","n.","lời kể của người trong cuộc"]
+    ]},
+    { name: "Group 2: Research & Argument", rows: [
+      ["assumption","/əˈsʌmpʃn/","n.","giả định"],
+      ["longitudinal","/ˌlɒŋɡɪˈtjuːdɪnl/","adj.","(nghiên cứu) theo chiều dọc, dài hạn"],
+      ["distort","/dɪˈstɔːt/","v.","bóp méo, làm sai lệch"],
+      ["selective","/sɪˈlektɪv/","adj.","có chọn lọc"],
+      ["contested","/kənˈtestɪd/","adj.","còn tranh cãi, bị tranh chấp"],
+      ["transmit","/trænzˈmɪt/","v.","truyền lại"],
+      ["undermine","/ˌʌndəˈmaɪn/","v.","làm lung lay, bác bỏ dần"],
+      ["converge","/kənˈvɜːdʒ/","v.","hội tụ, gặp nhau ở một điểm"]
+    ]}
+  ],
+  exercises: [
+    {
+      title: "Exercise 1 — Matching Features (Researchers)",
+      instruction: `Look at the following statements and the list of researchers below. Match each statement with the correct researcher, A–D. NB You may use any letter more than once.`,
+      listTitle: "List of Researchers",
+      list: [
+        ["A","Dr Elena Sokolova"],
+        ["B","Professor Martin Reyes"],
+        ["C","Dr Anh Tran"],
+        ["D","Dr Peter Lund"]
+      ],
+      type: "radio",
+      options: [["A","A"],["B","B"],["C","C"],["D","D"]],
+      items: [
+        { q:`People's certainty about a memory is no guarantee of its accuracy.`, a:"A", aLabel:"A (Sokolova)",
+          exp:{p:"Đoạn B", quote:`"Their confidence never fell… Yet almost half of the concrete details had changed."`} },
+        { q:`Academic research has concentrated too heavily on official forms of remembering.`, a:"C", aLabel:"C (Tran)",
+          exp:{p:"Đoạn D", quote:`"scholars have paid disproportionate attention to state ceremonies, museums and public monuments"`} },
+        { q:`Overusing the word "historic" weakens its impact.`, a:"D", aLabel:"D (Lund)",
+          exp:{p:"Đoạn E", quote:`"When every occasion is described as historic… the word itself loses force."`} },
+        { q:`What a society chooses to remember is shaped by its present-day concerns.`, a:"B", aLabel:"B (Reyes)",
+          exp:{p:"Đoạn C", quote:`"What a nation remembers is highly selective, filtered through the anxieties and ambitions of the present."`} },
+        { q:`Repeating a memory can gradually alter its content.`, a:"A", aLabel:"A (Sokolova)",
+          exp:{p:"Đoạn B", quote:`"every retelling can quietly distort what is stored"`} },
+        { q:`Remembering can be passed down within families without institutional support.`, a:"C", aLabel:"C (Tran)",
+          exp:{p:"Đoạn D", quote:`"transmitted from grandparents to grandchildren without any institution being involved at all"`} },
+        { q:`Places associated with suffering are being turned into commercial products.`, a:"D", aLabel:"D (Lund)",
+          exp:{p:"Đoạn E", quote:`"sites of mass suffering that are now marketed as weekend destinations"`} },
+        { q:`A memorial reveals the priorities of the period in which it was created.`, a:"B", aLabel:"B (Reyes)",
+          exp:{p:"Đoạn C", quote:`"A monument… tells us considerably more about the decade in which it was built"`} }
+      ]
+    },
+    {
+      title: "Exercise 2 — Yes / No / Not Given",
+      instruction: `Do the following statements agree with the claims of the writer in the passage? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, or NOT GIVEN if it is impossible to say what the writer thinks about this.`,
+      type: "radio",
+      options: [["YES","YES"],["NO","NO"],["NOT GIVEN","NOT GIVEN"]],
+      items: [
+        { q:`Memory studies became an established academic field relatively recently.`, a:"YES",
+          exp:{p:"Đoạn A", quote:`"Over the past three decades, these practices have themselves become the subject of an academic field" → "relatively recently" khớp`} },
+        { q:`Participants in Sokolova's study became less confident about their memories over time.`, a:"NO",
+          exp:{p:"Đoạn B", quote:`"Their confidence never fell; most still rated their memories as 'completely certain'" → ngược với "became less confident"`} },
+        { q:`Sokolova's study is the largest investigation of its kind ever carried out.`, a:"NOT GIVEN",
+          exp:{p:"Đoạn B", quote:`Bài cho biết quy mô ("more than six hundred participants", "fifteen years") nhưng không hề so sánh với nghiên cứu khác → không thể kết luận "largest ever"`} },
+        { q:`Reyes believes two countries may remember the same event in ways that cannot be reconciled.`, a:"YES",
+          exp:{p:"Đoạn C", quote:`"commemorated in two neighbouring countries in ways that are not simply different but incompatible"`} },
+        { q:`Tran considers family rituals less effective than state ceremonies at preserving memory.`, a:"NO",
+          exp:{p:"Đoạn D", quote:`"Such informal testimony… often proves more durable than anything carved in stone" → Tran cho rằng nghi lễ gia đình hiệu quả hơn, không phải kém hơn`} },
+        { q:`Lund's view of public attention is shared by all researchers in the field.`, a:"NO",
+          exp:{p:"Đoạn E", quote:`"Other scholars, however, reject the assumption on which his case rests" → không phải "shared by all"`} },
+        { q:`Digital archives have been proved to make collective memory more accurate.`, a:"NO",
+          exp:{p:"Đoạn F", quote:`"digital archives and social media have made participation easier… though they have not made memory any more accurate" → mâu thuẫn trực tiếp`} },
+        { q:`The writer concludes that public participation is what allows commemoration to survive.`, a:"YES",
+          exp:{p:"Đoạn F", quote:`"Commemoration endures when ordinary people take part in it"`} }
+      ]
+    },
+    {
+      title: "Exercise 3 — Matching Sentence Endings",
+      instruction: `Complete each sentence with the correct ending, A–I, from the list below. There are more endings than sentences.`,
+      listTitle: "List of Endings",
+      list: [
+        ["A","through repeated activity that requires the family to take part."],
+        ["B","public attention is a fixed resource."],
+        ["C","weakens the meaning of the word itself."],
+        ["D","commemoration survives only when ordinary people are involved."],
+        ["E","small details may change without the speaker noticing."],
+        ["F","reflects the concerns of the time when it was built."],
+        ["G","governments should increase funding for national museums."],
+        ["H","accurate testimony must be recorded within one week."],
+        ["I","tourism causes permanent physical damage to historical sites."]
+      ],
+      type: "select",
+      optionsFromList: true,
+      items: [
+        { q:`According to Sokolova, each time a memory is retold,`, a:"E",
+          exp:{p:"Đoạn B", quote:`"every retelling can quietly distort what is stored" → quietly = "without the speaker noticing"`} },
+        { q:`Reyes argues that a monument built after a major event`, a:"F",
+          exp:{p:"Đoạn C", quote:`"tells us considerably more about the decade in which it was built than about the period it claims to depict"`} },
+        { q:`In the households studied by Tran, memory is passed on`, a:"A",
+          exp:{p:"Đoạn D", quote:`"the ritual demands participation rather than attendance"; "Food is prepared, relatives travel… stories are told again"`} },
+        { q:`Lund believes that calling every occasion historic`, a:"C",
+          exp:{p:"Đoạn E", quote:`"When every occasion is described as historic… the word itself loses force"`} },
+        { q:`Lund's critics reject his idea that`, a:"B",
+          exp:{p:"Đoạn E", quote:`"reject the assumption… that public attention is a fixed resource"`} },
+        { q:`Researchers from different disciplines agree that`, a:"D",
+          exp:{p:"Đoạn F", quote:`"researchers… converge"; "Commemoration endures when ordinary people take part in it"`} }
+      ]
+    }
+  ]
+}
+];
+
+/* =========================================================================
+   DỰNG TRANG
+   ========================================================================= */
+
+const ALL = [];   // danh sách phẳng tất cả các câu
+let submitted = false;
+
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function norm(s){
+  return String(s)
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/[‘’]/g,"'")
+    .replace(/[“”]/g,'"')
+    .replace(/,/g,"")                               // 40,000 -> 40000
+    .replace(/[.…;:!?"'()\[\]–—\-\/]/g," ")  // dấu câu -> khoảng trắng
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function isCorrect(item, raw){
+  if(item.input === "text"){
+    const v = norm(raw);
+    if(!v) return false;
+    const list = (item.accept && item.accept.length ? item.accept : [item.a]);
+    return list.some(x => norm(x) === v);
+  }
+  return raw === item.a;
+}
+
+function buildOptionsHTML(ex, item, gid){
+  const opts = item.options || ex.options || [];
+  const stack = (ex.stack || opts.some(o => o[1].length > 22)) ? " stack" : "";
+  let h = '<div class="opts'+stack+'">';
+  opts.forEach((o, i) => {
+    h += '<label class="opt"><input type="radio" name="'+gid+'" value="'+esc(o[0])+'"><span>'+esc(o[1])+'</span></label>';
+  });
+  return h + "</div>";
+}
+
+function buildSelectHTML(ex, gid){
+  let h = '<select id="'+gid+'"><option value="">— chọn —</option>';
+  ex.list.forEach(o => {
+    h += '<option value="'+esc(o[0])+'">'+esc(o[0])+' — '+esc(o[1])+'</option>';
+  });
+  return h + "</select>";
+}
+
+function render(){
+  const root = document.getElementById("content");
+  let html = "";
+  let n = 0;
+
+  READINGS.forEach((rd, ri) => {
+    html += '<h2>'+esc(rd.title)+'</h2>';
+    html += '<h3>Reading Passage</h3><div class="passage">';
+    rd.passage.forEach(p => { html += '<p>'+p+'</p>'; });
+    html += '</div>';
+
+    html += '<h3>Key Vocabulary</h3>';
+    rd.vocab.forEach(g => {
+      html += '<h4>'+esc(g.name)+'</h4><div class="tablewrap"><table><thead><tr><th>Word</th><th>IPA</th><th>Type</th><th>Vietnamese</th></tr></thead><tbody>';
+      g.rows.forEach(r => {
+        html += '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+
+    rd.exercises.forEach((ex, ei) => {
+      html += '<h3>'+esc(ex.title)+'</h3>';
+      html += '<div class="instruction"><strong>Instruction:</strong> '+esc(ex.instruction)+'</div>';
+      if(ex.bank) html += '<div class="bank">'+esc(ex.bank)+'</div>';
+      if(ex.list){
+        html += '<h4>'+esc(ex.listTitle)+'</h4><div class="tablewrap"><table><tbody>';
+        ex.list.forEach(o => { html += '<tr><td style="width:60px"><strong>'+esc(o[0])+'</strong></td><td>'+esc(o[1])+'</td></tr>'; });
+        html += '</tbody></table></div>';
+      }
+
+      // Chuẩn bị id cho từng câu
+      const startIndex = ALL.length;
+      ex.items.forEach(item => {
+        n += 1;
+        item.no = n;
+        item.gid = "q" + n;
+        item.input = (ex.type === "text") ? "text" : (ex.type === "select" ? "select" : "radio");
+        item.ex = ex;
+        ALL.push(item);
+      });
+
+      if(ex.summary){
+        // Dạng tóm tắt có chỗ trống ngay trong đoạn văn
+        html += '<div class="summary">';
+        ex.summary.forEach(par => {
+          const filled = par.replace(/\{\{(\d+)\}\}/g, function(_, k){
+            const item = ex.items[parseInt(k,10)-1];
+            return '<input type="text" class="inline" id="'+item.gid+'" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Câu '+item.no+'">';
+          });
+          html += '<p>'+filled+'</p>';
+        });
+        html += '</div>';
+        html += '<ol class="qlist" id="fb-'+ri+'-'+ei+'">';
+        ex.items.forEach(item => {
+          html += '<li class="q" id="wrap-'+item.gid+'" style="display:none"><div class="qtext"><span class="qnum">'+item.no+'.</span>'+esc(item.q)+'</div><div class="fbslot"></div></li>';
+        });
+        html += '</ol>';
+      } else {
+        html += '<ol class="qlist">';
+        ex.items.forEach(item => {
+          html += '<li class="q" id="wrap-'+item.gid+'">';
+          if(item.input === "text"){
+            let q = esc(item.q);
+            const box = '<input type="text" class="inline" id="'+item.gid+'" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Câu '+item.no+'">';
+            if(q.indexOf("____") >= 0){
+              q = q.replace("____", box);
+              html += '<div class="qtext"><span class="qnum">'+item.no+'.</span>'+q+'</div>';
+            } else {
+              html += '<div class="qtext"><span class="qnum">'+item.no+'.</span>'+q+'</div>'+box;
+            }
+          } else if(item.input === "select"){
+            html += '<div class="qtext"><span class="qnum">'+item.no+'.</span>'+esc(item.q)+'</div>' + buildSelectHTML(ex, item.gid);
+          } else {
+            html += '<div class="qtext"><span class="qnum">'+item.no+'.</span>'+esc(item.q)+'</div>' + buildOptionsHTML(ex, item, item.gid);
+          }
+          html += '<div class="fbslot"></div></li>';
+        });
+        html += '</ol>';
+      }
+    });
+  });
+
+  root.innerHTML = html;
+  document.getElementById("progressText").textContent = "Đã làm 0/" + ALL.length + " câu";
+  document.querySelector(".subtitle").innerHTML = 'Bài tập tương tác gồm 3 bài đọc và 9 bài tập. Tổng cộng <strong>' + ALL.length + ' câu</strong>.';
+}
+
+function getRaw(item){
+  if(item.input === "radio"){
+    const el = document.querySelector('input[name="'+item.gid+'"]:checked');
+    return el ? el.value : "";
+  }
+  const el = document.getElementById(item.gid);
+  return el ? el.value.trim() : "";
+}
+
+function countAnswered(){
+  let c = 0;
+  ALL.forEach(it => { if(getRaw(it) !== "") c++; });
+  return c;
+}
+
+function updateProgress(){
+  if(submitted) return;
+  const done = countAnswered();
+  const total = ALL.length;
+  document.getElementById("progressText").textContent = "Đã làm " + done + "/" + total + " câu";
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = (done < total);
+  document.getElementById("actionNote").textContent =
+    (done < total) ? ("Còn " + (total - done) + " câu chưa làm.") : "Đã làm đủ tất cả các câu. Học sinh có thể nộp bài.";
+}
+
+function lockAll(){
+  document.querySelectorAll("#content input, #content select").forEach(el => { el.disabled = true; });
+  document.querySelectorAll("label.opt").forEach(el => el.classList.add("disabled"));
+}
+
+function unlockAll(){
+  document.querySelectorAll("#content input, #content select").forEach(el => {
+    el.disabled = false;
+    if(el.type === "radio") el.checked = false; else el.value = "";
+  });
+  document.querySelectorAll("label.opt").forEach(el => el.classList.remove("disabled"));
+}
+
+function feedbackHTML(item, raw, ok){
+  const shown = item.aLabel || item.a;
+  let h = '<div class="fb '+(ok?"ok":"no")+'">';
+  h += '<div><span class="verdict">'+(ok ? "Đúng" : "Sai")+'</span>';
+  if(!ok) h += ' <span class="lbl">— học sinh đã trả lời:</span> ' + (raw ? esc(raw) : "(bỏ trống)");
+  h += '</div>';
+  h += '<div class="row"><span class="lbl">Đáp án:</span> <strong>'+esc(shown)+'</strong></div>';
+  if(item.exp){
+    if(item.exp.p) h += '<div class="row"><span class="lbl">Vị trí:</span> '+esc(item.exp.p)+'</div>';
+    if(item.exp.quote) h += '<div class="row"><span class="lbl">Câu gốc:</span> '+esc(item.exp.quote)+'</div>';
+    if(item.exp.note) h += '<div class="row"><span class="lbl">Giải thích:</span> '+esc(item.exp.note)+'</div>';
+  }
+  return h + '</div>';
+}
+
+function submit(){
+  if(submitted) return;
+  if(countAnswered() < ALL.length) return;
+  submitted = true;
+
+  let correct = 0;
+  const perEx = [];
+
+  READINGS.forEach(rd => {
+    rd.exercises.forEach(ex => {
+      let c = 0;
+      ex.items.forEach(item => {
+        const raw = getRaw(item);
+        const ok = isCorrect(item, raw);
+        if(ok){ correct++; c++; }
+        const wrap = document.getElementById("wrap-" + item.gid);
+        wrap.style.display = "";
+        wrap.querySelector(".fbslot").innerHTML = feedbackHTML(item, raw, ok);
+      });
+      perEx.push({ name: rd.title.replace(/^READING (\d).*/, "Reading $1") + " · " + ex.title.replace(/^Exercise /,"Ex "), c: c, t: ex.items.length });
+    });
+  });
+
+  lockAll();
+
+  const total = ALL.length;
+  const score = Math.round((correct / total) * 10 * 10) / 10;
+  document.getElementById("score").textContent = score.toFixed(1) + " / 10";
+  document.getElementById("scoreDetail").textContent = "Đúng " + correct + "/" + total + " câu.";
+
+  let bd = '<div class="tablewrap"><table><thead><tr><th>Phần</th><th style="width:90px">Đúng</th></tr></thead><tbody>';
+  perEx.forEach(r => { bd += '<tr><td>'+esc(r.name)+'</td><td>'+r.c+'/'+r.t+'</td></tr>'; });
+  bd += '</tbody></table></div>';
+  document.getElementById("breakdown").innerHTML = bd;
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("submitBtn").disabled = true;
+  document.getElementById("progressText").textContent = "Đã nộp bài — đúng " + correct + "/" + total + " câu";
+  document.getElementById("actionNote").textContent = "Bài đã khoá. Bấm Làm lại để làm lại từ đầu.";
+  document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function reset(){
+  submitted = false;
+  unlockAll();
+  document.querySelectorAll(".fbslot").forEach(el => { el.innerHTML = ""; });
+  READINGS.forEach(rd => rd.exercises.forEach(ex => {
+    if(ex.summary) ex.items.forEach(item => { document.getElementById("wrap-"+item.gid).style.display = "none"; });
+  }));
+  document.getElementById("result").style.display = "none";
+  document.getElementById("breakdown").innerHTML = "";
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+render();
+document.getElementById("content").addEventListener("input", updateProgress);
+document.getElementById("content").addEventListener("change", updateProgress);
+document.getElementById("submitBtn").addEventListener("click", submit);
+document.getElementById("resetBtn").addEventListener("click", reset);
+updateProgress();
+
+// Tự kiểm tra số câu
+(function(){
+  const counts = [];
+  READINGS.forEach(rd => rd.exercises.forEach(ex => counts.push(ex.items.length)));
+  const sum = counts.reduce((a,b)=>a+b,0);
+  console.log("Số câu từng bài tập:", counts.join(" + "), "= tổng", sum);
+  if(sum !== ALL.length) console.error("LỖI: số câu không khớp!");
+})();
+</script>
+</body>
+</html>
