@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<title>Cam 10 Test 01 – Section 2</title>
+<style>
+  :root{
+    --text:#1f2328; --muted:#5b636d; --line:#d0d7de; --bg:#ffffff; --soft:#f6f8fa;
+    --accent:#1f4e8c; --ok:#1a7f37; --okbg:#e9f6ec; --bad:#c62828; --badbg:#fdecec;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:16px; line-height:1.65;
+    padding-bottom:96px;
+  }
+  main{max-width:780px;margin:0 auto;padding:16px}
+  h1{font-size:1.35rem;margin:8px 0 4px}
+  h2{font-size:1.15rem;margin:32px 0 8px;padding-top:8px;border-top:2px solid var(--text)}
+  h3{font-size:1rem;margin:20px 0 6px}
+  p{margin:0 0 12px}
+  .muted{color:var(--muted)}
+  .note{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin:12px 0}
+
+  /* bảng từ vựng */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;margin:8px 0 16px}
+  table{border-collapse:collapse;width:100%;font-size:.95rem}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:var(--soft);position:sticky;top:0}
+  tr:last-child td{border-bottom:none}
+  td.ipa{white-space:nowrap;color:var(--muted)}
+
+  /* ô điền */
+  .gap{display:inline-block;white-space:nowrap;margin:2px 0}
+  .gap .n{font-size:.8rem;color:var(--muted);margin-right:2px}
+  input.blank{
+    font:inherit;font-size:16px;width:10.5em;max-width:62vw;
+    padding:4px 6px;border:1px solid #8c959f;border-radius:4px;background:#fff;color:var(--text);
+  }
+  input.blank:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  input.blank.ok{border-color:var(--ok);background:var(--okbg)}
+  input.blank.bad{border-color:var(--bad);background:var(--badbg)}
+  input.blank[readonly]{cursor:default}
+  .fix{color:var(--ok);font-weight:600;margin-left:4px;white-space:normal}
+  .mirror{color:var(--muted);font-style:italic;white-space:nowrap}
+  .line{margin:0 0 12px}
+  .sp{font-weight:700}
+
+  /* chọn 2 đáp án */
+  .opts{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+  .opt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:48px;cursor:pointer}
+  .opt input{width:20px;height:20px;margin:0;flex:none}
+  .opt.ok{border-color:var(--ok);background:var(--okbg)}
+  .opt.bad{border-color:var(--bad);background:var(--badbg)}
+  .opt.miss{border-color:var(--ok);border-style:dashed}
+  .warn{color:var(--bad);font-size:.9rem;min-height:1.2em}
+  ul.notes{padding-left:20px}
+  ul.notes li{margin-bottom:10px}
+
+  /* kết quả */
+  #result{display:none;border:2px solid var(--text);border-radius:8px;padding:12px 14px;margin:16px 0}
+  #result .score{font-size:1.5rem;font-weight:700}
+  .review{display:none;margin-top:16px}
+  .review h3{margin-top:8px}
+  .review ol{list-style:none;padding:0;margin:0}
+  .review li{border:1px solid var(--line);border-left-width:4px;border-radius:6px;padding:8px 12px;margin-bottom:8px}
+  .review li.ok{border-left-color:var(--ok)}
+  .review li.bad{border-left-color:var(--bad)}
+  .tag{font-weight:700}
+  li.ok .tag{color:var(--ok)} li.bad .tag{color:var(--bad)}
+  .ex{color:var(--muted)}
+  details{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin-top:12px}
+  summary{cursor:pointer;font-weight:600;min-height:32px}
+
+  /* thanh dưới */
+  #bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:10;background:#fff;border-top:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+  #bar .in{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  #bar.hide{display:none}
+  #progress{flex:1 1 auto;min-width:150px}
+  button{
+    font:inherit;font-size:1rem;min-height:48px;padding:0 20px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--accent);background:var(--accent);color:#fff;font-weight:600;
+  }
+  button.ghost{background:#fff;color:var(--accent)}
+  button:disabled{background:#c9ced4;border-color:#c9ced4;color:#fff;cursor:not-allowed}
+  .linkbtn{background:none;border:none;color:var(--accent);text-decoration:underline;font-weight:400;padding:0 4px;min-height:44px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Practice Cam 10 Listening Test 01 – Section 2</h1>
+  <p class="muted">Tổng số: <b>85 câu</b> (Vocabulary 42 · Dictation 33 · Listening 10). Học sinh phải làm hết tất cả các câu thì mới nộp bài được.</p>
+
+  <div id="result" role="status" aria-live="polite"></div>
+
+  <!-- ===================== VOCABULARY ===================== -->
+  <h2>SECTION 2 (Vocabulary) — 42 câu</h2>
+  <div class="tablewrap"><table id="vocabTable">
+    <thead><tr><th>English</th><th>IPA</th><th>Loại từ</th><th>Vietnamese</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <p><b>Instructions:</b> Read the conversation between Mai, a new customer, and Tom, a receptionist at a leisure club. Fill in each gap (1–42) with a word or phrase from the box above. Use each word or phrase <b>only once</b>. You may need to change the form of the word (e.g. plural nouns, verb tenses).</p>
+
+  <div id="vocabText"></div>
+  <div class="review" id="review-v"><h3>Đáp án &amp; giải thích – Vocabulary</h3><ol></ol></div>
+
+  <!-- ===================== DICTATION ===================== -->
+  <h2>SECTION 2 (Dictation) — 33 câu</h2>
+  <p class="muted">Ô có số đã xuất hiện trước đó (ví dụ (3) lần thứ hai) không cần điền lại – nội dung sẽ tự lặp lại theo ô đầu tiên.</p>
+  <div id="dictText"></div>
+  <div class="review" id="review-d"><h3>Đáp án &amp; giải thích – Dictation</h3><ol></ol></div>
+
+  <!-- ===================== LISTENING ===================== -->
+  <h2>SECTION 2 (Listening) — 10 câu</h2>
+  <h3>Questions 11 and 12</h3>
+  <p>Choose <b>TWO</b> letters <b>A-E</b>.</p>
+  <p>Which <b>TWO</b> facilities at the leisure club have recently been improved?</p>
+  <div class="opts" id="opts1112"></div>
+  <div class="warn" id="warn1112"></div>
+
+  <h3>Questions 13-20</h3>
+  <p>Complete the notes below.</p>
+  <p>Write <b>NO MORE THEN TWO WORDS</b> for each answer.</p>
+  <p><b>Joining the leisure club</b></p>
+  <p><i>Personal Assessment</i></p>
+  <ul class="notes">
+    <li>New members should describe any {L13}.</li>
+    <li>The {L14} will be explained to you before you use the equipment.</li>
+    <li>You will be given a six-week {L15}.</li>
+  </ul>
+  <p><i>Types of membership</i></p>
+  <ul class="notes">
+    <li>There is a compulsory £90 {L16} fee for members.</li>
+    <li>Gold members are given {L17} to all the LP clubs.</li>
+    <li>Premier members are given priority during {L18} hours.</li>
+    <li>Premier members can bring some {L19} every month.</li>
+    <li>Members should always take their {L20} with them.</li>
+  </ul>
+  <div class="review" id="review-l"><h3>Đáp án &amp; giải thích – Listening</h3><ol></ol>
+    <details><summary>Answer Key (Listening) – Transcript</summary><div id="transcript"></div></details>
+  </div>
+</main>
+
+<div id="bar"><div class="in">
+  <div id="progress">Đã làm 0/85 câu</div>
+  <button type="button" class="linkbtn" id="btnJump">Tới câu chưa làm</button>
+  <button type="button" id="btnSubmit" disabled>Nộp bài</button>
+  <button type="button" class="ghost" id="btnReset" hidden>Làm lại</button>
+</div></div>
+
+<script>
+/* =====================================================================
+   DỮ LIỆU — giáo viên có thể bổ sung biến thể vào mảng "accept"
+   (so khớp bỏ qua hoa/thường, dấu câu, gạch nối; "&" được hiểu là "and")
+   ===================================================================== */
+
+const VOCAB_TABLE = [
+  [`on behalf of`,`/ɒn bɪˈhɑːf əv/`,`phr.`,`thay mặt cho`],
+  [`leisure club`,`/ˈleʒə klʌb/`,`n.`,`câu lạc bộ giải trí`],
+  [`facility`,`/fəˈsɪləti/`,`n.`,`cơ sở vật chất, tiện ích`],
+  [`improvement`,`/ɪmˈpruːvmənt/`,`n.`,`sự cải thiện, nâng cấp`],
+  [`membership`,`/ˈmembəʃɪp/`,`n.`,`tư cách thành viên, thẻ hội viên`],
+  [`asset`,`/ˈæset/`,`n.`,`tài sản quý, điểm mạnh`],
+  [`expand`,`/ɪkˈspænd/`,`v.`,`mở rộng`],
+  [`retractable`,`/rɪˈtræktəbl/`,`adj.`,`có thể thu vào/kéo ra (mái che)`],
+  [`open-air`,`/ˌəʊpən ˈeə(r)/`,`adj.`,`ngoài trời`],
+  [`refurbish`,`/ˌriːˈfɜːbɪʃ/`,`v.`,`tân trang, sửa sang lại`],
+  [`weight training`,`/ˈweɪt treɪnɪŋ/`,`n.`,`tập tạ, tập sức mạnh`],
+  [`operate`,`/ˈɒpəreɪt/`,`v.`,`vận hành, sử dụng (máy móc)`],
+  [`on duty`,`/ɒn ˈdjuːti/`,`phr.`,`đang trực, trong ca làm việc`],
+  [`cater for`,`/ˈkeɪtə fɔː(r)/`,`phr. v.`,`đáp ứng nhu cầu, phục vụ`],
+  [`benefit from`,`/ˈbenɪfɪt frəm/`,`phr. v.`,`được hưởng lợi từ`],
+  [`tuition`,`/tjuˈɪʃn/`,`n.`,`sự hướng dẫn, giảng dạy`],
+  [`appreciate`,`/əˈpriːʃieɪt/`,`v.`,`đánh giá cao, trân trọng`],
+  [`assessment`,`/əˈsesmənt/`,`n.`,`sự đánh giá`],
+  [`questionnaire`,`/ˌkwestʃəˈneə(r)/`,`n.`,`bảng câu hỏi khảo sát`],
+  [`personal trainer`,`/ˌpɜːsənl ˈtreɪnə(r)/`,`n.`,`huấn luyện viên cá nhân`],
+  [`injury`,`/ˈɪndʒəri/`,`n.`,`chấn thương`],
+  [`draw up`,`/drɔː ˈʌp/`,`phr. v.`,`soạn thảo, lập (kế hoạch)`],
+  [`outline`,`/ˈaʊtlaɪn/`,`v.`,`phác thảo, nêu khái quát`],
+  [`achieve`,`/əˈtʃiːv/`,`v.`,`đạt được`],
+  [`review`,`/rɪˈvjuː/`,`v.`,`xem xét lại, đánh giá lại`],
+  [`compulsory`,`/kəmˈpʌlsəri/`,`adj.`,`bắt buộc`],
+  [`joining fee`,`/ˈdʒɔɪnɪŋ fiː/`,`n.`,`phí gia nhập`],
+  [`in addition to`,`/ɪn əˈdɪʃn tə/`,`prep. phr.`,`ngoài ra, thêm vào`],
+  [`entitle (sb to sth)`,`/ɪnˈtaɪtl/`,`v.`,`cho ai quyền được hưởng gì`],
+  [`free entry`,`/ˌfriː ˈentri/`,`n.`,`vào cửa miễn phí`],
+  [`advantage`,`/ədˈvɑːntɪdʒ/`,`n.`,`lợi thế`],
+  [`joint membership`,`/ˌdʒɔɪnt ˈmembəʃɪp/`,`n.`,`thẻ thành viên chung (2 người)`],
+  [`commitment`,`/kəˈmɪtmənt/`,`n.`,`sự cam kết, nghĩa vụ công việc`],
+  [`priority`,`/praɪˈɒrəti/`,`n.`,`sự ưu tiên`],
+  [`preference`,`/ˈprefrəns/`,`n.`,`sự ưu tiên, ưu đãi`],
+  [`peak times`,`/ˈpiːk taɪmz/`,`n.`,`giờ cao điểm`],
+  [`reciprocal`,`/rɪˈsɪprəkl/`,`adj.`,`qua lại, có đi có lại`],
+  [`arrangement`,`/əˈreɪndʒmənt/`,`n.`,`sự sắp xếp, thỏa thuận`],
+  [`individual`,`/ˌɪndɪˈvɪdʒuəl/`,`n.`,`cá nhân`],
+  [`pass`,`/pɑːs/`,`n.`,`thẻ/vé ra vào`],
+  [`robe`,`/rəʊb/`,`n.`,`áo choàng (tắm)`],
+  [`changing room`,`/ˈtʃeɪndʒɪŋ ruːm/`,`n.`,`phòng thay đồ`]
+];
+
+/* Vocabulary: [đáp án hiển thị, [các cách viết được chấp nhận], giải thích] */
+const VOCAB = [
+  [`commitments`,[`commitments`,`commitment`],`/kəˈmɪtmənts/ – nghĩa vụ, cam kết (công việc)`],
+  [`leisure club`,[`leisure club`],`/ˈleʒə klʌb/ – câu lạc bộ giải trí`],
+  [`peak times`,[`peak times`],`/ˈpiːk taɪmz/ – giờ cao điểm`],
+  [`improvements`,[`improvements`,`improvement`],`/ɪmˈpruːvmənts/ – sự cải thiện, nâng cấp`],
+  [`refurbished`,[`refurbished`],`/ˌriːˈfɜːbɪʃt/ – đã tân trang, sửa sang lại`],
+  [`expanded`,[`expanded`],`/ɪkˈspændɪd/ – đã mở rộng`],
+  [`facilities`,[`facilities`],`/fəˈsɪlətiz/ – cơ sở vật chất, tiện ích`],
+  [`asset`,[`asset`],`/ˈæset/ – tài sản quý, điểm mạnh`],
+  [`retractable`,[`retractable`],`/rɪˈtræktəbl/ – có thể thu vào/kéo ra`],
+  [`open-air`,[`open-air`,`open air`],`/ˌəʊpən ˈeə(r)/ – ngoài trời`],
+  [`weight training`,[`weight training`,`weight-training`],`/ˈweɪt treɪnɪŋ/ – tập tạ, tập sức mạnh`],
+  [`personal trainer`,[`personal trainer`],`/ˌpɜːsənl ˈtreɪnə(r)/ – huấn luyện viên cá nhân`],
+  [`on duty`,[`on duty`],`/ɒn ˈdjuːti/ – đang trực, trong ca làm việc`],
+  [`operate`,[`operate`],`/ˈɒpəreɪt/ – vận hành, sử dụng (máy móc)`],
+  [`injury`,[`injury`],`/ˈɪndʒəri/ – chấn thương`],
+  [`assessment`,[`assessment`],`/əˈsesmənt/ – sự đánh giá`],
+  [`questionnaire`,[`questionnaire`],`/ˌkwestʃəˈneə(r)/ – bảng câu hỏi khảo sát`],
+  [`draw up`,[`draw up`],`/drɔː ˈʌp/ – soạn thảo, lập (kế hoạch)`],
+  [`outlines`,[`outlines`],`/ˈaʊtlaɪnz/ – phác thảo, nêu khái quát`],
+  [`achieve`,[`achieve`],`/əˈtʃiːv/ – đạt được`],
+  [`review`,[`review`],`/rɪˈvjuː/ – xem xét lại, đánh giá lại`],
+  [`appreciate`,[`appreciate`],`/əˈpriːʃieɪt/ – đánh giá cao, trân trọng`],
+  [`joining fee`,[`joining fee`],`/ˈdʒɔɪnɪŋ fiː/ – phí gia nhập`],
+  [`compulsory`,[`compulsory`],`/kəmˈpʌlsəri/ – bắt buộc`],
+  [`in addition to`,[`in addition to`],`/ɪn əˈdɪʃn tə/ – ngoài ra, thêm vào`],
+  [`membership`,[`membership`,`memberships`],`/ˈmembəʃɪp/ – tư cách thành viên, thẻ hội viên`],
+  [`entitled`,[`entitled`],`/ɪnˈtaɪtld/ – được quyền hưởng`],
+  [`free entry`,[`free entry`],`/ˌfriː ˈentri/ – vào cửa miễn phí`],
+  [`priority`,[`priority`],`/praɪˈɒrəti/ – sự ưu tiên`],
+  [`advantage`,[`advantage`],`/ədˈvɑːntɪdʒ/ – lợi thế`],
+  [`individuals`,[`individuals`],`/ˌɪndɪˈvɪdʒuəlz/ – cá nhân`],
+  [`joint membership`,[`joint membership`],`/ˌdʒɔɪnt ˈmembəʃɪp/ – thẻ thành viên chung (2 người)`],
+  [`reciprocal`,[`reciprocal`],`/rɪˈsɪprəkl/ – qua lại, có đi có lại`],
+  [`arrangement`,[`arrangement`],`/əˈreɪndʒmənt/ – sự sắp xếp, thỏa thuận`],
+  [`cater for`,[`cater for`],`/ˈkeɪtə fɔː(r)/ – đáp ứng nhu cầu, phục vụ`],
+  [`benefit from`,[`benefit from`],`/ˈbenɪfɪt frəm/ – được hưởng lợi từ`],
+  [`tuition`,[`tuition`],`/tjuˈɪʃn/ – sự hướng dẫn, giảng dạy`],
+  [`robes`,[`robes`],`/rəʊbz/ – áo choàng (tắm)`],
+  [`changing rooms`,[`changing rooms`,`changing room`],`/ˈtʃeɪndʒɪŋ ruːmz/ – phòng thay đồ`],
+  [`pass`,[`pass`],`/pɑːs/ – thẻ/vé ra vào`],
+  [`preference`,[`preference`],`/ˈprefrəns/ – sự ưa thích, lựa chọn ưu tiên`],
+  [`on behalf of`,[`on behalf of`],`/ɒn bɪˈhɑːf əv/ – thay mặt cho`]
+];
+
+const VOCAB_TEXT = [
+  [`Tom`,`Good morning! How can I help you?`],
+  [`Mai`,`Hi. I've just moved to this area, and because of my work {1}, I can only exercise in the evenings. A colleague told me this {2} stays open late.`],
+  [`Tom`,`That's right, we're open until 11 p.m. Just so you know, evenings are our {3}, so it can get quite busy.`],
+  [`Mai`,`I see. Before I decide, could you tell me about any recent {4}?`],
+  [`Tom`,`Of course. We've just {5} the gym with brand-new equipment, and last spring we {6} the yoga studio so it can hold forty people. To be honest, all our {7} are in great condition.`],
+  [`Mai`,`Great. Is there a swimming pool?`],
+  [`Tom`,`Yes, the indoor pool is our greatest {8}. It has a {9} glass roof, so on sunny days it feels almost like an {10} pool.`],
+  [`Mai`,`That sounds lovely. I'm a bit nervous about the gym, though. I've never done any {11} before.`],
+  [`Tom`,`Don't worry. A {12} is always {13} to help, and they'll show you how to {14} every machine safely.`],
+  [`Mai`,`Good, because I hurt my back last year and I really want to avoid another {15}.`],
+  [`Tom`,`That's exactly why every new member has a personal {16} first. You fill in a short {17} about your health, and then the trainer will {18} an exercise programme for you.`],
+  [`Mai`,`What does the programme include?`],
+  [`Tom`,`It {19} the goals you should try to {20} in six weeks. After that, the trainer will {21} your progress with you and make changes if needed.`],
+  [`Mai`,`That's very professional. I really {22} that kind of support. What about the prices?`],
+  [`Tom`,`Well, first there's a {23} of £80. It's {24} for all new members, and you pay it {25} the monthly fee.`],
+  [`Mai`,`OK. And what types of {26} do you offer?`],
+  [`Tom`,`There are two. Standard members can only use this club. Gold members are {27} to {28} at all our clubs across the country, and they also get {29} when booking classes.`],
+  [`Mai`,`That would be a real {30} for me, since I travel a lot for work. Is Gold membership only for {31}?`],
+  [`Tom`,`No, you can also choose a {32} for you and your partner. We also have a {33} {34} with several clubs abroad, so you can use their gyms for free when you're on holiday.`],
+  [`Mai`,`Brilliant, my husband would love that. Oh, and our daughter is eight. Do you {35} children as well?`],
+  [`Tom`,`Absolutely. Kids can {36} swimming {37} every Saturday morning with our qualified coaches.`],
+  [`Mai`,`Perfect. Do I need to bring my own towel?`],
+  [`Tom`,`Not at all. Towels and {38} are provided in the {39}. Just don't forget your membership {40} — you can't get in without it.`],
+  [`Tom`,`One more thing — do you have a {41} for paying monthly or yearly?`],
+  [`Mai`,`Monthly, please. And can I sign up for the joint plan {42} my husband today? He's at work right now.`],
+  [`Tom`,`Yes, that's fine. Just ask him to bring his ID on his first visit.`]
+];
+
+/* Dictation */
+const DICT = [
+  [`recent improvements`,[`recent improvements`],`Signposting Word – (báo hiệu sắp nói về các cơ sở vật chất được cải thiện, liên quan câu 11-12)`],
+  [`types of membership`,[`types of membership`],`Signposting Word – (báo hiệu chuyển sang phần các loại thẻ thành viên, câu 16-20)`],
+  [`swimming pool`,[`swimming pool`],`Answer Keyword – (đáp án C cho câu 11-12, tương ứng "the indoor pool")`],
+  [`expanded`,[`expanded`],`Paraphrased Keyword – (tương đương "improved" ở câu 11-12)`],
+  [`Unfortunately`,[`unfortunately`],`Signposting Word – (báo hiệu thông tin phủ định, loại trừ hồ bơi ngoài trời)`],
+  [`outdoor pool`,[`outdoor pool`],`Distractor – (bẫy cho đáp án D, câu lạc bộ không có chỗ cho hồ bơi ngoài trời)`],
+  [`open-air experience`,[`open-air experience`,`open air experience`],`Distractor – (gợi cảm giác ngoài trời nhưng thực chất chỉ là mái kính của hồ bơi trong nhà, không phải D)`],
+  [`recently refurbished`,[`recently refurbished`],`Paraphrased Keyword – (tương đương "have recently been improved" ở câu 11-12)`],
+  [`fitness suite`,[`fitness suite`],`Answer Keyword – (đáp án A cho câu 11-12, tương ứng "the gym")`],
+  [`running machines`,[`running machines`],`Distractor – (dễ nhầm với B "the tracks", nhưng đây là thiết bị trong phòng gym chứ không phải đường chạy)`],
+  [`well catered for`,[`well catered for`,`well-catered for`],`Distractor – (trẻ em được phục vụ tốt nhưng không hề nói là mới cải thiện, loại E)`],
+  [`continue`,[`continue`],`Signposting Word – (báo hiệu dịch vụ cho trẻ em vẫn duy trì như cũ, không có cải thiện → loại E)`],
+  [`personal assessment`,[`personal assessment`],`Signposting Word – (báo hiệu bắt đầu phần "Personal Assessment", câu 13-15)`],
+  [`giving details of`,[`giving details of`],`Paraphrased Keyword – (tương đương "describe" ở câu 13)`],
+  [`health problems`,[`health problems`],`Answer Keyword – (đáp án câu 13)`],
+  [`take you through`,[`take you through`],`Paraphrased Keyword – (tương đương "will be explained to you" ở câu 14)`],
+  [`safety rules`,[`safety rules`],`Answer Keyword – (đáp án câu 14)`],
+  [`draw up`,[`draw up`],`Paraphrased Keyword – (tương đương "You will be given" ở câu 15)`],
+  [`plan`,[`plan`],`Answer Keyword – (đáp án câu 15)`],
+  [`Now`,[`now`],`Signposting Word – (báo hiệu chuyển sang nội dung mới về các loại thẻ thành viên)`],
+  [`must pay`,[`must pay`],`Paraphrased Keyword – (tương đương "compulsory" ở câu 16)`],
+  [`joining`,[`joining`],`Answer Keyword – (đáp án câu 16)`],
+  [`monthly membership fees`,[`monthly membership fees`],`Distractor – (phí hàng tháng là khoản tính thêm, không phải khoản phí £90 bắt buộc ở câu 16)`],
+  [`entitles you to`,[`entitles you to`],`Paraphrased Keyword – (tương đương "are given" ở câu 17)`],
+  [`free entry`,[`free entry`],`Answer Keyword – (đáp án câu 17)`],
+  [`during the day`,[`during the day`],`Distractor – (dễ nhầm điền "day" ở câu 18, nhưng đây là lúc thành viên Premier khó đến câu lạc bộ, không phải giờ được ưu tiên)`],
+  [`booking preferences`,[`booking preferences`],`Paraphrased Keyword – (tương đương "priority" ở câu 18)`],
+  [`peak`,[`peak`],`Answer Keyword – (đáp án câu 18)`],
+  [`passes for`,[`passes for`],`Paraphrased Keyword – (cụm "be sent passes for" tương đương "can bring" ở câu 19)`],
+  [`guests`,[`guests`],`Answer Keyword – (đáp án câu 19)`],
+  [`robes and hairdryers`,[`robes and hairdryers`,`robes and hair dryers`,`robes and hair-dryers`],`Distractor – (do câu lạc bộ cung cấp nên thành viên không cần mang theo, loại khỏi câu 20)`],
+  [`remember`,[`remember`],`Paraphrased Keyword – (tương đương "always take … with them" ở câu 20)`],
+  [`photo card`,[`photo card`,`photo cards`],`Answer Keyword – (đáp án câu 20, chấp nhận cả "photo cards")`]
+];
+
+/* {n} = ô cần điền; {rn} = nhắc lại ô (n) đã điền trước đó */
+const DICT_TEXT = [
+  `On behalf of LP Clubs, I'd like to welcome you all here today. My name's Sandy Fisher and I'm one of the fitness managers here. Before we start our tour of the club I'll just run through some basic information about the facilities we have here, including {1}, and explain the {2} available.`,
+  `Our greatest asset is probably our {3} which at 25 metres isn't Olympic-sized, but now we've {4} it to eight lanes, it's much wider. This means there are rarely more than a couple of people at a time in each lane. {5}, there isn't space for an {6} here but the glass roof on the {r3} is partly retractable, which means you can enjoy something of the {7} on warmer days.`,
+  `Our {8} {9} has all the latest exercise equipment including ten new {10}, and a wide range of weight-training machines. Each member is given full training in how to operate the equipment and there is always a trainer on duty to offer help and advice. Although we do have adult-only times after 6 and at certain times at weekends, children are {11}. Older children {12} to benefit from a wide range of tuition; anything from trampolining to yoga.`,
+  `One thing all our members appreciate about us is that we take very good care of them. This starts on day one with your {13}. You are asked to fill in a questionnaire {14} any {15}. One of our personal trainers will then go through this with you.`,
+  `The trainer will then {16} the {17} for using the equipment in the {r9}. During your next exercise session a personal trainer will work with you to make sure you understand these. It's very important to do this because we really do want to avoid having any sports injuries. There's a lot more to looking after yourself than simply lifting weights!`,
+  `At the end of the {r13}, the trainer will {18} a {19}, outlining what you should try to achieve within a six-week period. This will then be reviewed at the end of the six weeks.`,
+  `{20}, I'll just quickly run through the {r2} we have available. All members {21} a {22} fee of £90 in addition to the rates for the {23}. Gold membership {24} {25} at all LP Clubs. There are now LP clubs in all major cities and towns so if you travel a lot will be a great advantage. Individual gold membership costs £50 a month and joint membership for you and your partner will cost £75.`,
+  `Premier membership is for professional people whose work commitments make it difficult for them to use the club {26} and so LP gives {27} to Premier members at {28} times. This means you will find it easier to book the sessions at times that suit you. Reciprocal arrangements with other LP Clubs are available to Premier members. Premier membership is for individuals only, but you will be sent {29} {30} every month. The monthly fee is £65.`,
+  `You don't have to have any special clothes or equipment when you visit the club. We provide {31} in the changing rooms, but it's very important to {32} your {33} because you won't be able to get in without it.`,
+  `For people who aren't working {r26} then …`
+];
+
+/* Listening 11-12 */
+const OPTS = [[`A`,`the gym`],[`B`,`the tracks`],[`C`,`the indoor pool`],[`D`,`the outdoor pool`],[`E`,`the sports training for children`]];
+const KEY1112 = [`A`,`C`];
+const EXPL1112 = [
+  `Our greatest asset is probably our swimming pool which at 25 metres isn’t Olympic-sized, but now we’ve expanded it to eight lanes, it’s much wider. (11/12 - C)`,
+  `Our recently refurbished fitness suite has all the latest exercise equipment including ten new running machines, and a wide range of weight-training machines. (11/12 - A)`
+];
+/* Listening 13-20 */
+const LIST = {
+  13:[`health problems`,[`health problems`],`You are asked to fill in a questionnaire giving details of any health problems. (13 - health problems)`],
+  14:[`safety rules`,[`safety rules`],`The trainer will then take you through the safety rules for using the equipment in the fitness suite. (14 - safety rules)`],
+  15:[`plan`,[`plan`],`At the end of the personal assessment, the trainer will draw up a plan, outlining what you should try to achieve within a six-week period. (15 - plan)`],
+  16:[`joining`,[`joining`],`All members must pay a joining fee of £90 in addition to the rates for the monthly membership fees. (16 - joining)`],
+  17:[`free entry`,[`free entry`],`Gold membership entitles you to free entry at all LP Clubs. (17 - free entry)`],
+  18:[`peak`,[`peak`],`Premier membership is for professional people whose work commitments make it difficult for them to use the club during the day and so LP gives booking preferences to Premier members at peak times. (18 - peak)`],
+  19:[`guests`,[`guests`],`Premier membership is for individuals only, but you will be sent passes for guests every month. (19 - guests)`],
+  20:[`photo card / photo cards`,[`photo card`,`photo cards`],`We provide robes and hairdryers in the changing rooms, but it’s very important to remember your photo card because you won’t be able to get in without it. (20 - photo card / photo cards)`]
+};
+
+const TRANSCRIPT = [
+  `On behalf of LP Clubs, I’d like to welcome you all here today. My name’s Sandy Fisher and I’m one of the fitness managers here. Before we start our tour of the club I’ll just run through some basic information about the facilities we have here, including recent improvements, and explain the types of membership available.`,
+  `<b>Our greatest asset is probably our swimming pool which at 25 metres isn’t Olympic-sized, but now we’ve expanded it to eight lanes, it’s much wider. (11/12 - C)</b> This means there are rarely more than a couple of people at a time in each lane. Unfortunately, there isn’t space for an outdoor pool here but the glass roof on the swimming pool is partly retractable, which means you can enjoy something of the open-air experience on warmer days.`,
+  `<b>Our recently refurbished fitness suite has all the latest exercise equipment including ten new running machines, and a wide range of weight-training machines. (11/12 - A)</b> Each member is given full training in how to operate the equipment and there is always a trainer on duty to offer help and advice. Although we do have adult-only times after 6 and at certain times at weekends, children are well catered for. Older children continue to benefit from a wide range of tuition; anything from trampolining to yoga.`,
+  `One thing all our members appreciate about us is that we take very good care of them. This starts on day one with your personal assessment. <b>You are asked to fill in a questionnaire giving details of any health problems. (13 - health problems)</b> One of our personal trainers will then go through this with you.`,
+  `<b>The trainer will then take you through the safety rules for using the equipment in the fitness suite. (14 - safety rules)</b> During your next exercise session a personal trainer will work with you to make sure you understand these. It’s very important to do this because we really do want to avoid having any sports injuries. There’s a lot more to looking after yourself than simply lifting weights!`,
+  `<b>At the end of the personal assessment, the trainer will draw up a plan, outlining what you should try to achieve within a six-week period. (15 - plan)</b> This will then be reviewed at the end of the six weeks.`,
+  `Now, I’ll just quickly run through the types of membership we have available. <b>All members must pay a joining fee of £90 in addition to the rates for the monthly membership fees. (16 - joining) Gold membership entitles you to free entry at all LP Clubs. (17 - free entry)</b> There are now LP clubs in all major cities and towns so if you travel a lot will be a great advantage. Individual gold membership costs £50 a month and joint membership for you and your partner will cost £75.`,
+  `<b>Premier membership is for professional people whose work commitments make it difficult for them to use the club during the day and so LP gives booking preferences to Premier members at peak times. (18 - peak)</b> This means you will find it easier to book the sessions at times that suit you. Reciprocal arrangements with other LP Clubs are available to Premier members. <b>Premier membership is for individuals only, but you will be sent passes for guests every month. (19 - guests)</b> The monthly fee is £65.`,
+  `You don’t have to have any special clothes or equipment when you visit the club. <b>We provide robes and hairdryers in the changing rooms, but it’s very important to remember your photo card because you won’t be able to get in without it. (20 - photo card / photo cards)</b>`,
+  `For people who aren’t working during the day then …`
+];
+
+/* =====================================================================
+   XỬ LÝ
+   ===================================================================== */
+const TOTAL = VOCAB.length + DICT.length + 2 + Object.keys(LIST).length; // 42 + 33 + 2 + 8 = 85
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function norm(s){
+  return String(s).toLowerCase()
+    .replace(/&/g,' and ')
+    .replace(/[^\p{L}\p{N}]+/gu,' ')
+    .trim().replace(/\s+/g,' ');
+}
+const textItems = []; // {id, part, num, input, key, accept, expl}
+function gapHTML(part, num){
+  const id = part + num;
+  return `<span class="gap"><span class="n">(${num})</span><input class="blank" type="text" id="${id}" data-part="${part}" data-num="${num}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Câu ${num}"></span>`;
+}
+
+// Bảng từ
+$('#vocabTable tbody').innerHTML = VOCAB_TABLE.map(r =>
+  `<tr><td>${esc(r[0])}</td><td class="ipa">${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+
+// Vocabulary
+$('#vocabText').innerHTML = VOCAB_TEXT.map(([sp, t]) =>
+  `<p class="line"><span class="sp">${sp}:</span> ${esc(t).replace(/\{(\d+)\}/g,(m,n)=>gapHTML('v',n))}</p>`).join('');
+VOCAB.forEach((d,i)=>textItems.push({part:'v',num:i+1,key:d[0],accept:d[1],expl:d[2]}));
+
+// Dictation
+$('#dictText').innerHTML = DICT_TEXT.map(t =>
+  `<p class="line">${esc(t)
+    .replace(/\{r(\d+)\}/g,(m,n)=>`<span class="mirror" data-of="d${n}">(${n}) …………</span>`)
+    .replace(/\{(\d+)\}/g,(m,n)=>gapHTML('d',n))}</p>`).join('');
+DICT.forEach((d,i)=>textItems.push({part:'d',num:i+1,key:d[0],accept:d[1],expl:d[2]}));
+
+// Listening 11-12
+$('#opts1112').innerHTML = OPTS.map(([l,t]) =>
+  `<label class="opt" data-letter="${l}"><input type="checkbox" value="${l}"><span><b>${l}</b>&nbsp; ${t}</span></label>`).join('');
+// Listening 13-20
+document.querySelectorAll('ul.notes li').forEach(li=>{
+  li.innerHTML = li.innerHTML.replace(/\{L(\d+)\}/g,(m,n)=>gapHTML('l',n));
+});
+Object.keys(LIST).forEach(n=>textItems.push({part:'l',num:+n,key:LIST[n][0],accept:LIST[n][1],expl:LIST[n][2]}));
+document.getElementById('transcript').innerHTML = TRANSCRIPT.map(p=>`<p>${p}</p>`).join('');
+
+textItems.forEach(it => it.input = document.getElementById(it.part + it.num));
+const checks = [...document.querySelectorAll('#opts1112 input')];
+
+// Kiểm tra số câu
+(function selfCheck(){
+  const nInputs = document.querySelectorAll('input.blank').length;
+  const ok = VOCAB.length===42 && DICT.length===33 && Object.keys(LIST).length===8 && nInputs===83 && TOTAL===85
+             && textItems.every(it=>it.input);
+  if(!ok) console.error('Sai số câu!', {vocab:VOCAB.length, dict:DICT.length, list:Object.keys(LIST).length, nInputs, TOTAL});
+})();
+
+let submitted = false;
+function countDone(){
+  let n = textItems.filter(it => it.input.value.trim() !== '').length;
+  n += Math.min(2, checks.filter(c=>c.checked).length);
+  return n;
+}
+function firstEmpty(){
+  // theo thứ tự trên trang
+  const all = [...document.querySelectorAll('input.blank, #opts1112')];
+  for(const el of all){
+    if(el.id === 'opts1112'){ if(checks.filter(c=>c.checked).length < 2) return checks.find(c=>!c.checked); }
+    else if(el.value.trim()==='') return el;
+  }
+  return null;
+}
+function update(){
+  if(submitted) return;
+  const done = countDone();
+  $('#progress').textContent = `Đã làm ${done}/${TOTAL} câu`;
+  $('#btnSubmit').disabled = done < TOTAL;
+  $('#btnJump').hidden = done >= TOTAL;
+}
+document.addEventListener('input', e=>{
+  if(e.target.matches('input.blank')){
+    const id = e.target.id;
+    document.querySelectorAll(`.mirror[data-of="${id}"]`).forEach(m=>{
+      const v = e.target.value.trim();
+      m.textContent = `(${e.target.dataset.num}) ` + (v || '…………');
+    });
+  }
+  update();
+});
+checks.forEach(c=>c.addEventListener('change', ()=>{
+  const n = checks.filter(x=>x.checked).length;
+  if(n > 2){ c.checked = false; $('#warn1112').textContent = 'Chỉ chọn HAI đáp án.'; }
+  else $('#warn1112').textContent = '';
+  update();
+}));
+$('#btnJump').addEventListener('click', ()=>{
+  const el = firstEmpty();
+  if(el){ el.scrollIntoView({block:'center', behavior:'smooth'}); setTimeout(()=>el.focus({preventScroll:true}), 300); }
+});
+
+// Ẩn thanh dưới khi gõ phím trên điện thoại (bàn phím ảo)
+const touch = window.matchMedia('(pointer: coarse)').matches;
+document.addEventListener('focusin', e=>{ if(touch && e.target.matches('input.blank')) $('#bar').classList.add('hide'); });
+document.addEventListener('focusout', ()=>{ setTimeout(()=>{
+  const a = document.activeElement;
+  if(!(a && a.matches && a.matches('input.blank'))) $('#bar').classList.remove('hide');
+}, 120); });
+
+function fmtScore(x){ return (Math.round(x*100)/100).toString().replace('.', ','); }
+
+function submit(){
+  if(countDone() < TOTAL) return;
+  submitted = true;
+  const per = {v:0,d:0,l:0};
+  const lists = {v:$('#review-v ol'), d:$('#review-d ol'), l:$('#review-l ol')};
+  Object.values(lists).forEach(o=>o.innerHTML='');
+
+  // Listening 11-12 trước để đúng thứ tự trong phần review
+  const picked = checks.filter(c=>c.checked).map(c=>c.value).sort();
+  const right = picked.filter(l=>KEY1112.includes(l)).length;
+  per.l += right;
+  checks.forEach(c=>{
+    c.disabled = true;
+    const lab = c.closest('.opt');
+    if(c.checked) lab.classList.add(KEY1112.includes(c.value)?'ok':'bad');
+    else if(KEY1112.includes(c.value)) lab.classList.add('miss');
+  });
+  lists.l.insertAdjacentHTML('beforeend',
+    `<li class="${right===2?'ok':'bad'}"><div><b>Câu 11–12</b> <span class="tag">${right===2?'✓ Đúng':'✗ Đúng '+right+'/2'}</span></div>
+     <div>Học sinh chọn: <i>${picked.join(', ')}</i></div>
+     <div>Đáp án: <b>A, C</b> (thứ tự nào cũng được)</div>
+     <div class="ex">Giải thích:<br>– ${EXPL1112[0]}<br>– ${EXPL1112[1]}</div></li>`);
+
+  textItems.forEach(it=>{
+    const val = it.input.value;
+    const ok = it.accept.some(a => norm(a) === norm(val));
+    if(ok) per[it.part]++;
+    it.input.readOnly = true;
+    it.input.classList.add(ok?'ok':'bad');
+    if(!ok){
+      const s = document.createElement('span');
+      s.className = 'fix'; s.textContent = '→ ' + it.key;
+      it.input.after(s);
+    }
+    lists[it.part].insertAdjacentHTML('beforeend',
+      `<li class="${ok?'ok':'bad'}"><div><b>${it.part==='l'?'Câu '+it.num:'('+it.num+')'}</b> <span class="tag">${ok?'✓ Đúng':'✗ Sai'}</span></div>
+       <div>Học sinh viết: <i>${esc(val.trim())}</i></div>
+       <div>Đáp án: <b>${esc(it.key)}</b></div>
+       <div class="ex">Giải thích: ${esc(it.expl)}</div></li>`);
+  });
+
+  const correct = per.v + per.d + per.l;
+  const score = fmtScore(correct / TOTAL * 10);
+  const r = $('#result');
+  r.innerHTML = `<div class="score">Điểm: ${score}/10</div>
+    <div>Học sinh làm đúng <b>${correct}/${TOTAL}</b> câu.</div>
+    <div class="muted">Vocabulary: ${per.v}/42 · Dictation: ${per.d}/33 · Listening: ${per.l}/10</div>`;
+  r.style.display = 'block';
+  document.querySelectorAll('.review').forEach(x=>x.style.display='block');
+  $('#progress').textContent = `Điểm ${score}/10 · Đúng ${correct}/${TOTAL}`;
+  $('#btnSubmit').hidden = true; $('#btnJump').hidden = true; $('#btnReset').hidden = false;
+  if(document.activeElement) document.activeElement.blur();
+  r.scrollIntoView({block:'start', behavior:'smooth'});
+}
+
+function reset(){
+  submitted = false;
+  textItems.forEach(it=>{
+    it.input.value=''; it.input.readOnly=false; it.input.classList.remove('ok','bad');
+  });
+  document.querySelectorAll('.fix').forEach(s=>s.remove());
+  document.querySelectorAll('.mirror').forEach(m=>m.textContent = `(${m.dataset.of.slice(1)}) …………`);
+  checks.forEach(c=>{ c.checked=false; c.disabled=false; c.closest('.opt').classList.remove('ok','bad','miss'); });
+  $('#warn1112').textContent='';
+  document.querySelectorAll('.review').forEach(x=>{ x.style.display='none'; x.querySelector('ol').innerHTML=''; });
+  $('#result').style.display='none'; $('#result').innerHTML='';
+  $('#btnSubmit').hidden=false; $('#btnReset').hidden=true;
+  update();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+$('#btnSubmit').addEventListener('click', submit);
+$('#btnReset').addEventListener('click', reset);
+update();
+</script>
+</body>
+</html>
